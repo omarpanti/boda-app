@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Guest {
+  id           Int      @id @default(autoincrement())
+  name         String
+  phone        String?  // Agregado teléfono según requerimiento
+  gender       String   @default("M") // M = Hombre, F = Mujer
+  uniqueLink   String   @unique // Link único generado para la invitación digital
+  rsvpStatus   String   @default("PENDING") // PENDING, CONFIRMED, DECLINED
+  tableId      Int?     
+  table        Table?   @relation(fields: [tableId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Table {
+  id           Int      @id @default(autoincrement())
+  number       Int?     // Número de la mesa (Ej: 1, 2, 3)
+  name         String   // Ej: "Familia Novia"
+  capacity     Int
+  shape        String   @default("ROUND") // ROUND, SQUARE, RECTANGULAR
+  x_position   Float    // Para el mapa interactivo (Drag & Drop)
+  y_position   Float    // Para el mapa interactivo
+  rotation     Int      @default(0) // Grados de rotación
+  guests       Guest[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Expense {
+  id              Int      @id @default(autoincrement())
+  title           String   // Ej: Arreglos florales
+  vendor          String?  // Ej: Flores Doña Rosa
+  category        String   // Catering, Decoración, Música, etc.
+  estimatedAmount Float    @default(0) // Presupuesto original
+  actualAmount    Float    @default(0) // Costo real final
+  paidAmount      Float    @default(0) // Lo que ya se ha dado de anticipo/pagado
+  dueDate         DateTime? // Fecha límite de liquidación
+  isPaid          Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model LayoutElement {
+  id           Int      @id @default(autoincrement())
+  type         String   // DANCE_FLOOR, STAGE
+  name         String
+  width        Float    @default(250)
+  height       Float    @default(250)
+  x_position   Float    @default(300)
+  y_position   Float    @default(300)
+  rotation     Int      @default(0) // Grados de rotación
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
