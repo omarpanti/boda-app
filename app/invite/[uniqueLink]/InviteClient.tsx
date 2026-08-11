@@ -100,13 +100,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }, [])
 
   const triggerConfetti = () => {
-    // @ts-ignore
-    if (typeof confetti !== 'undefined') {
+    const win = window as any
+    if (typeof win.confetti !== 'undefined') {
+      const confetti = win.confetti
       const count = 200
       const defaults = { origin: { y: 0.7 }, zIndex: 100 }
 
       function fire(particleRatio: number, opts: any) {
-        // @ts-ignore
         confetti(Object.assign({}, defaults, opts, {
           particleCount: Math.floor(count * particleRatio)
         }))
@@ -243,6 +243,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               
               <div className="bg-white p-3 rounded-2xl shadow-sm mb-4">
                 {/* Generación de código QR dinámico usando api.qrserver.com */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={qrUrl} alt="Código QR del Invitado" className="w-28 h-28 opacity-90 mx-auto mix-blend-multiply" />
               </div>
 
