@@ -60,92 +60,92 @@ export default function ExpensesClient({ initialExpenses }: { initialExpenses: E
   return (
     <div className="flex flex-col gap-8">
       {/* 1. Kpis Visuales (Tarjetas de Resumen) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 text-4xl">💭</div>
-          <h3 className="text-gray-500 font-medium text-sm mb-1">Presupuesto Estimado</h3>
-          <p className="text-2xl font-bold text-gray-800">{formatMoney(totalEstimated)}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-white/5 p-6 rounded-3xl border border-white/10 relative overflow-hidden backdrop-blur-xl shadow-lg hover:-translate-y-1 transition-transform">
+          <div className="absolute top-0 right-0 p-4 opacity-20 text-4xl grayscale">💭</div>
+          <h3 className="text-slate-400 font-medium text-sm mb-2 uppercase tracking-wider">Presupuesto Estimado</h3>
+          <p className="text-3xl font-bold text-white">{formatMoney(totalEstimated)}</p>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-blue-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500 rounded-full blur-3xl opacity-10 -mr-10 -mt-10"></div>
-          <h3 className="text-blue-600 font-medium text-sm mb-1">Costo Real Acumulado</h3>
-          <p className="text-2xl font-bold text-gray-900">{formatMoney(totalActual)}</p>
+        <div className="bg-white/5 p-6 rounded-3xl border border-blue-500/20 relative overflow-hidden backdrop-blur-xl shadow-lg hover:-translate-y-1 transition-transform">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+          <h3 className="text-blue-400 font-medium text-sm mb-2 uppercase tracking-wider">Costo Real Acumulado</h3>
+          <p className="text-3xl font-bold text-white">{formatMoney(totalActual)}</p>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-green-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-green-500 rounded-full blur-3xl opacity-10 -mr-10 -mt-10"></div>
-          <h3 className="text-green-600 font-medium text-sm mb-1">Total Pagado</h3>
-          <p className="text-2xl font-bold text-gray-900">{formatMoney(totalPaid)}</p>
-          <div className="mt-2 w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-green-500 h-full" style={{ width: `${totalActual > 0 ? (totalPaid / totalActual) * 100 : 0}%` }}></div>
+        <div className="bg-white/5 p-6 rounded-3xl border border-emerald-500/20 relative overflow-hidden backdrop-blur-xl shadow-lg hover:-translate-y-1 transition-transform">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+          <h3 className="text-emerald-400 font-medium text-sm mb-2 uppercase tracking-wider">Total Pagado</h3>
+          <p className="text-3xl font-bold text-white">{formatMoney(totalPaid)}</p>
+          <div className="mt-4 w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/5">
+            <div className="bg-gradient-to-r from-emerald-600 to-green-400 h-full shadow-[0_0_10px_rgba(52,211,153,0.5)]" style={{ width: `${totalActual > 0 ? (totalPaid / totalActual) * 100 : 0}%` }}></div>
           </div>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-red-500 rounded-full blur-3xl opacity-10 -mr-10 -mt-10"></div>
-          <h3 className="text-red-600 font-medium text-sm mb-1">Deuda Restante</h3>
-          <p className="text-2xl font-bold text-gray-900">{formatMoney(totalDebt > 0 ? totalDebt : 0)}</p>
+        <div className="bg-white/5 p-6 rounded-3xl border border-rose-500/20 relative overflow-hidden backdrop-blur-xl shadow-lg hover:-translate-y-1 transition-transform">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+          <h3 className="text-rose-400 font-medium text-sm mb-2 uppercase tracking-wider">Deuda Restante</h3>
+          <p className="text-3xl font-bold text-white">{formatMoney(totalDebt > 0 ? totalDebt : 0)}</p>
         </div>
       </div>
 
       {/* 2. Tabla Interactiva y Controles */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <h2 className="text-xl font-bold text-gray-800">Desglose de Proveedores</h2>
+      <div className="bg-white/5 rounded-3xl border border-white/10 overflow-hidden backdrop-blur-xl shadow-2xl">
+        <div className="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center bg-transparent">
+          <h2 className="text-2xl font-bold text-white tracking-tight">Desglose de Proveedores</h2>
           <button 
             onClick={() => setShowModal(true)}
-            className="bg-gray-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm flex items-center gap-2"
+            className="bg-white text-black px-6 py-3 rounded-xl text-sm font-semibold hover:bg-slate-200 transition-all shadow-lg flex items-center gap-2"
           >
-            <span>+</span> Añadir Gasto
+            <span className="text-lg leading-none">+</span> Añadir Gasto
           </button>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-white border-b border-gray-100">
+            <thead className="bg-black/40 text-slate-300 text-sm border-b border-white/10 uppercase tracking-wider">
               <tr>
-                <th className="p-4 font-semibold text-gray-500 text-sm">Gasto / Proveedor</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm">Categoría</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm text-right">Costo Real</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm text-right">Pagado</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm text-right">Por Pagar</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm text-center">Estado</th>
-                <th className="p-4 font-semibold text-gray-500 text-sm text-right">Acciones</th>
+                <th className="p-4 font-semibold w-1/4">Gasto / Proveedor</th>
+                <th className="p-4 font-semibold">Categoría</th>
+                <th className="p-4 font-semibold text-right">Costo Real</th>
+                <th className="p-4 font-semibold text-right">Pagado</th>
+                <th className="p-4 font-semibold text-right">Por Pagar</th>
+                <th className="p-4 font-semibold text-center">Estado</th>
+                <th className="p-4 font-semibold text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-white/5">
               {initialExpenses.map(exp => {
                 const remaining = exp.actualAmount - exp.paidAmount
                 return (
-                  <tr key={exp.id} className="border-b border-gray-50 hover:bg-gray-50/80 transition-colors">
+                  <tr key={exp.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="p-4">
-                      <div className="font-semibold text-gray-900">{exp.title}</div>
-                      <div className="text-xs text-gray-500 mt-1">{exp.vendor || 'Proveedor no especificado'}</div>
+                      <div className="font-semibold text-white">{exp.title}</div>
+                      <div className="text-xs text-slate-400 mt-1">{exp.vendor || 'Proveedor no especificado'}</div>
                     </td>
                     <td className="p-4">
-                      <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md text-xs font-medium">
+                      <span className="bg-white/5 border border-white/10 text-slate-300 px-3 py-1 rounded-full text-xs font-medium">
                         {exp.category}
                       </span>
                     </td>
-                    <td className="p-4 text-right font-medium text-gray-900">{formatMoney(exp.actualAmount)}</td>
-                    <td className="p-4 text-right font-medium text-green-700">{formatMoney(exp.paidAmount)}</td>
-                    <td className="p-4 text-right font-bold text-red-600">{remaining > 0 ? formatMoney(remaining) : '—'}</td>
+                    <td className="p-4 text-right font-medium text-white">{formatMoney(exp.actualAmount)}</td>
+                    <td className="p-4 text-right font-medium text-emerald-400">{formatMoney(exp.paidAmount)}</td>
+                    <td className="p-4 text-right font-bold text-rose-400">{remaining > 0 ? formatMoney(remaining) : '—'}</td>
                     <td className="p-4 text-center">
                       {exp.isPaid || remaining <= 0 ? (
-                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Pagado</span>
+                        <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">Pagado</span>
                       ) : (
-                        <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">Pendiente</span>
+                        <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">Pendiente</span>
                       )}
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-3 items-center">
                         {remaining > 0 && (
-                          <button onClick={() => handleQuickPayment(exp.id, remaining)} className="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                          <button onClick={() => handleQuickPayment(exp.id, remaining)} className="text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors">
                             Abonar
                           </button>
                         )}
-                        <button onClick={async () => { if(confirm('¿Borrar registro?')) await deleteExpense(exp.id) }} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <button onClick={async () => { if(confirm('¿Borrar registro?')) await deleteExpense(exp.id) }} className="text-slate-500 hover:text-rose-400 transition-colors p-2 hover:bg-rose-400/10 rounded-lg">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                       </div>
@@ -155,9 +155,9 @@ export default function ExpensesClient({ initialExpenses }: { initialExpenses: E
               })}
               {initialExpenses.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-12 text-center text-gray-400">
-                    <p className="mb-2">Aún no has registrado ningún gasto.</p>
-                    <button onClick={() => setShowModal(true)} className="text-blue-600 font-medium hover:underline">Registrar el primero</button>
+                  <td colSpan={7} className="p-12 text-center text-slate-500">
+                    <p className="mb-3 text-lg">Aún no has registrado ningún gasto.</p>
+                    <button onClick={() => setShowModal(true)} className="text-blue-400 font-medium hover:underline">Registrar el primer gasto</button>
                   </td>
                 </tr>
               )}

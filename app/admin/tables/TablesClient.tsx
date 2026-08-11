@@ -361,37 +361,39 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-200px)] min-h-[500px]">
       
       {/* Panel Izquierdo */}
-      <div className="w-full lg:w-[400px] flex-shrink-0 flex flex-col gap-3 overflow-y-auto pb-4 pr-1">
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 shrink-0">
-          <h2 className="font-semibold mb-4 text-black">Añadir Mesa</h2>
+      <div className="w-full lg:w-[400px] flex-shrink-0 flex flex-col gap-4 overflow-y-auto pb-4 pr-1">
+        <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
+          <h2 className="font-semibold mb-4 text-white flex items-center gap-2">
+            Añadir Mesa
+          </h2>
           <form onSubmit={handleAddTable} className="flex flex-col gap-3">
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <input 
                 type="number" placeholder="N°" 
                 value={newTableNumber} onChange={e => setNewTableNumber(e.target.value === '' ? '' : parseInt(e.target.value))}
-                className="border p-2 rounded text-black outline-none focus:border-blue-500 w-16" 
+                className="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 w-20 transition-all placeholder-slate-500" 
                 title="Número de Mesa (Opcional)"
               />
               <input 
                 type="text" placeholder="Nombre (Ej: Familia Novia)" 
                 value={newTableName} onChange={e => setNewTableName(e.target.value)}
-                className="border p-2 rounded text-black outline-none focus:border-blue-500 flex-1" required
+                className="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 flex-1 transition-all placeholder-slate-500" required
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-xs text-gray-600 block mb-1">Sillas</label>
+                <label className="text-xs text-slate-400 block mb-1 font-medium">Sillas</label>
                 <input 
                   type="number" value={newTableCapacity}
                   onChange={e => setNewTableCapacity(parseInt(e.target.value))}
-                  min="1" max="20" className="border p-2 rounded w-full text-black outline-none" 
+                  min="1" max="20" className="bg-black/30 border border-white/10 p-3 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all" 
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-gray-600 block mb-1">Forma</label>
+                <label className="text-xs text-slate-400 block mb-1 font-medium">Forma</label>
                 <select 
                   value={newTableShape} onChange={e => setNewTableShape(e.target.value)}
-                  className="border p-2 rounded w-full text-black outline-none bg-white"
+                  className="bg-black/30 border border-white/10 p-3 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all [&>option]:bg-slate-900"
                 >
                   <option value="ROUND">Redonda</option>
                   <option value="SQUARE">Cuadrada</option>
@@ -399,44 +401,44 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
                 </select>
               </div>
             </div>
-            <button type="submit" className="bg-gray-800 text-white p-2 rounded hover:bg-gray-900 mt-2">Crear Mesa</button>
+            <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-xl font-medium hover:from-purple-500 hover:to-indigo-500 mt-2 transition-all shadow-lg hover:shadow-purple-500/25">Crear Mesa</button>
           </form>
         </div>
 
         {/* Añadir Elementos del Salón */}
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 shrink-0">
-          <h2 className="font-semibold mb-3 text-black">Elementos del Salón</h2>
+        <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
+          <h2 className="font-semibold mb-3 text-white">Elementos del Salón</h2>
           <div className="flex flex-col gap-2">
-            <button onClick={() => handleAddLayout('ROOM_AREA', 'Límites del Salón')} className="bg-emerald-50 text-emerald-700 p-2 rounded hover:bg-emerald-100 transition-colors text-sm font-medium border border-emerald-200">+ Añadir Límites (Paredes)</button>
-            <button onClick={() => handleAddLayout('DANCE_FLOOR', 'Pista de Baile')} className="bg-indigo-100 text-indigo-700 p-2 rounded hover:bg-indigo-200 transition-colors text-sm font-medium border border-indigo-200">+ Añadir Pista de Baile</button>
-            <button onClick={() => handleAddLayout('STAGE', 'Escenario (Grupo)')} className="bg-purple-100 text-purple-700 p-2 rounded hover:bg-purple-200 transition-colors text-sm font-medium border border-purple-200">+ Añadir Escenario</button>
+            <button onClick={() => handleAddLayout('ROOM_AREA', 'Límites del Salón')} className="bg-emerald-500/10 text-emerald-400 p-3 rounded-xl hover:bg-emerald-500/20 transition-all text-sm font-medium border border-emerald-500/20 shadow-sm">+ Añadir Límites (Paredes)</button>
+            <button onClick={() => handleAddLayout('DANCE_FLOOR', 'Pista de Baile')} className="bg-blue-500/10 text-blue-400 p-3 rounded-xl hover:bg-blue-500/20 transition-all text-sm font-medium border border-blue-500/20 shadow-sm">+ Añadir Pista de Baile</button>
+            <button onClick={() => handleAddLayout('STAGE', 'Escenario (Grupo)')} className="bg-purple-500/10 text-purple-400 p-3 rounded-xl hover:bg-purple-500/20 transition-all text-sm font-medium border border-purple-500/20 shadow-sm">+ Añadir Escenario</button>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex-1 flex flex-col min-h-[350px]" onDragOver={onDragOver} onDrop={unassignGuest}>
-          <h2 className="font-semibold mb-1 text-black">Invitados Sin Asignar ({initialGuests.filter(g => g.tableId === null).length})</h2>
-          <p className="text-xs text-gray-500 mb-3">Arrastra a las sillas. Suéltalos aquí para desasignar.</p>
+        <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 flex-1 flex flex-col min-h-[350px] backdrop-blur-xl" onDragOver={onDragOver} onDrop={unassignGuest}>
+          <h2 className="font-semibold mb-1 text-white">Invitados Sin Asignar ({initialGuests.filter(g => g.tableId === null).length})</h2>
+          <p className="text-xs text-slate-400 mb-4">Arrastra a las mesas. Suéltalos aquí para desasignar.</p>
           
           <input 
             type="text" 
             placeholder="🔍 Buscar invitado..." 
             value={guestSearch}
             onChange={(e) => setGuestSearch(e.target.value)}
-            className="border p-2 rounded text-black outline-none focus:border-blue-500 w-full mb-4 text-sm"
+            className="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 w-full mb-4 text-sm placeholder-slate-500 transition-all"
           />
 
           <div className="flex flex-col gap-2 overflow-y-auto pr-1">
             {unassignedGuests.map(guest => (
               <div 
                 key={guest.id} draggable onDragStart={(e) => onDragStart(e, 'GUEST', guest.id)}
-                className={`border p-2 rounded cursor-grab flex items-center gap-2 font-medium shadow-sm transition-all text-sm
-                  ${guest.gender === 'M' ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-pink-50 border-pink-200 text-pink-900'}`}
+                className={`border p-3 rounded-xl cursor-grab flex items-center gap-3 font-medium shadow-sm transition-all text-sm hover:-translate-y-0.5
+                  ${guest.gender === 'M' ? 'bg-blue-500/10 border-blue-500/20 text-blue-300 hover:bg-blue-500/20' : 'bg-pink-500/10 border-pink-500/20 text-pink-300 hover:bg-pink-500/20'}`}
               >
-                <span>{guest.gender === 'M' ? '👨' : '👩'}</span> {guest.name}
+                <span className="text-xl">{guest.gender === 'M' ? '👨' : '👩'}</span> {guest.name}
               </div>
             ))}
             {unassignedGuests.length === 0 && (
-              <p className="text-xs text-gray-400 text-center py-4">No se encontraron invitados.</p>
+              <p className="text-sm text-slate-500 text-center py-8 italic">No se encontraron invitados libres.</p>
             )}
           </div>
         </div>
@@ -444,15 +446,15 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
 
       <div 
         ref={containerRef}
-        className="flex-1 w-full bg-white rounded-xl shadow-sm border-2 border-dashed border-gray-300 overflow-auto relative bg-slate-50"
+        className="flex-1 w-full bg-slate-900/50 rounded-3xl shadow-inner border border-white/10 overflow-auto relative backdrop-blur-sm cursor-grab active:cursor-grabbing"
       >
-        <div className="absolute top-4 right-4 z-50 flex gap-2 bg-white/90 p-2 rounded-lg shadow border border-gray-200">
-          <button onClick={handleFullscreenAndCenter} className="px-3 h-8 flex items-center justify-center bg-blue-50 text-blue-700 hover:bg-blue-100 rounded font-bold text-sm border border-blue-200 transition-colors mr-2" title="Pantalla Completa y Centrar">
+        <div className="absolute top-4 right-4 z-50 flex gap-2 bg-black/50 backdrop-blur-md p-2 rounded-xl shadow-lg border border-white/10">
+          <button onClick={handleFullscreenAndCenter} className="px-4 h-10 flex items-center justify-center bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded-lg font-bold text-sm border border-indigo-500/30 transition-all mr-2" title="Pantalla Completa y Centrar">
             ⛶ Centrar
           </button>
-          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded font-bold text-gray-700" title="Alejar">-</button>
-          <span className="w-12 text-center text-sm font-semibold flex items-center justify-center text-gray-700">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => setZoom(z => Math.min(2.0, z + 0.1))} className="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded font-bold text-gray-700" title="Acercar">+</button>
+          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg font-bold text-white transition-colors" title="Alejar">-</button>
+          <span className="w-16 flex items-center justify-center text-sm font-medium text-white bg-black/30 rounded-lg border border-white/5">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg font-bold text-white transition-colors" title="Acercar">+</button>
         </div>
         
         <div 
