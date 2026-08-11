@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import { deleteGuest, deleteMultipleGuests } from './actions'
+import * as XLSX from 'xlsx'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 
 type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string }
 
@@ -36,6 +39,42 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     }
   }
 
+  const handleExportExcel = () => {
+    const data = filteredGuests.map(g => ({
+      Nombre: g.name,
+      Teléfono: g.phone || 'N/A',
+      Estatus: g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+      Género: g.gender === 'M' ? 'Hombre' : 'Mujer'
+    }))
+    const ws = XLSX.utils.json_to_sheet(data)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Invitados")
+    XLSX.writeFile(wb, "Reporte_Invitados.xlsx")
+  }
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF()
+    doc.text("Reporte de Invitados", 14, 15)
+    
+    const tableColumn = ["Nombre", "Teléfono", "Estatus", "Género"]
+    const tableRows = filteredGuests.map(g => [
+      g.name,
+      g.phone || 'N/A',
+      g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+      g.gender === 'M' ? 'Hombre' : 'Mujer'
+    ])
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 20,
+    })
+
+    const pdfBlob = doc.output('blob')
+    const pdfUrl = URL.createObjectURL(pdfBlob)
+    window.open(pdfUrl, '_blank')
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       {/* Buscador y Barra de acciones masivas */}
@@ -47,6 +86,14 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border border-gray-200 text-black p-2 rounded-lg w-full sm:w-72 outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button onClick={handleExportPDF} className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors flex-1 sm:flex-none text-center">
+            📄 Reporte PDF
+          </button>
+          <button onClick={handleExportExcel} className="bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors flex-1 sm:flex-none text-center">
+            📊 Descargar Excel
+          </button>
+        </div>
         {selectedIds.length > 0 && (
           <div className="flex items-center gap-4">
             <span className="text-red-600 font-medium">{selectedIds.length} seleccionados</span>

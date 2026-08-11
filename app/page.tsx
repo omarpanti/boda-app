@@ -1,7 +1,19 @@
+import { logoutAction } from '@/app/login/actions'
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 relative">
+      
+      {/* Botón de Cerrar Sesión (Esquina superior derecha) */}
+      <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
+        <form action={logoutAction}>
+          <button type="submit" className="text-red-500 hover:text-red-700 font-medium text-sm border border-red-200 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-lg transition-colors">
+            Cerrar Sesión
+          </button>
+        </form>
+      </div>
+
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex mt-12 sm:mt-0">
         <h1 className="text-4xl font-bold mb-8">
           Wedding Planner Premium
         </h1>
