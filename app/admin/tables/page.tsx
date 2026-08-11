@@ -35,8 +35,7 @@ export default async function TablesPage() {
             Arrastra las mesas para diseñar el salón, y arrastra a los invitados desde la lista hacia las mesas para asignarles un lugar exacto.
           </p>
         </div>
-        
-        <TablesClient initialTables={tables} allGuests={guests} initialLayoutElements={layoutElements} />
+        <TablesClient initialTables={tables} initialGuests={guests} initialLayout={layoutElements} />
       </div>
     </main>
   )
