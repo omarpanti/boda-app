@@ -135,7 +135,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   // URL para el código QR a través de una API pública
-  const qrUrl = \`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=\${encodeURIComponent(\`BODA2026-GUEST-\${guest.uniqueLink}\`)}&color=A5A05A&bgcolor=FAFAFA\`
+  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=A5A05A&bgcolor=FAFAFA&data=" + encodeURIComponent("BODA2026-GUEST-" + guest.uniqueLink)
 
   return (
     <>
