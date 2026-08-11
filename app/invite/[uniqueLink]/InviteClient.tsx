@@ -106,7 +106,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       const count = 200
       const defaults = { origin: { y: 0.7 }, zIndex: 100 }
 
-      function fire(particleRatio: number, opts: any) {
+      const fire = (particleRatio: number, opts: any) => {
         confetti(Object.assign({}, defaults, opts, {
           particleCount: Math.floor(count * particleRatio)
         }))
