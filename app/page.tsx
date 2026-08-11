@@ -20,7 +20,7 @@ export default function Home() {
 
       <div className="z-10 w-full max-w-5xl flex flex-col items-center text-center mt-12 sm:mt-0">
         <h1 className="text-5xl sm:text-6xl font-extrabold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 tracking-tight">
-          Wedding Planner Premium
+          Sistema de Planeación de boda de O&M
         </h1>
         <p className="text-xl text-slate-400 font-light max-w-2xl">
           El panel de control exclusivo para organizar tu boda de ensueño con elegancia y precisión.
