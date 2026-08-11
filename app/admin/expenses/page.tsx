@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import ExpensesClient from './ExpensesClient'
+export const dynamic = 'force-dynamic'
 
 export default async function ExpensesPage() {
   const expenses = await prisma.expense.findMany({

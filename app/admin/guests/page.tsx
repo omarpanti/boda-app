@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { addGuest } from './actions'
 import ImportExcelButton from './ImportExcelButton'
 import GuestsTableClient from './GuestsTableClient'
+export const dynamic = 'force-dynamic'
 
 export default async function GuestsPage() {
   const guests = await prisma.guest.findMany({
