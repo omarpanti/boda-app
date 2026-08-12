@@ -197,24 +197,41 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
 
         {/* ================= 3. CEREMONIA ================= */}
-        <section className="relative w-full fade-in-section overflow-hidden">
-          {/* Fondo Cielo Claro para la Iglesia */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#e6f1f5] to-[#fdfbf7] -z-10"></div>
+        <section 
+          className="relative w-full min-h-[90vh] md:min-h-screen flex flex-col items-center justify-start pt-20 px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom"
+          style={{ backgroundImage: 'url("/fotos/Iglesia.png")' }}
+        >
+          {/* Capa sutil por si el texto necesita más legibilidad, aunque el cielo suele ser claro */}
+          <div className="absolute inset-0 bg-white/20 -z-10"></div>
           
-          <div className="max-w-4xl mx-auto pt-20 px-6 text-center">
-            <h2 className="font-cursive text-6xl md:text-7xl mb-4">Ceremonia</h2>
-            <div className="w-48 h-[1px] bg-black/30 mx-auto mb-8 relative">
-              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-black/10 rounded-full rotate-45"></div>
+          <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
+            <h2 className="font-cursive text-7xl md:text-8xl mb-4 text-[#2C2C2C]">Ceremonia</h2>
+            
+            {/* Adorno Divisor estilo Vintage */}
+            <div className="flex items-center justify-center gap-2 mb-8 opacity-70">
+              <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
+              <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#2c2c2c]">
+                <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
             </div>
             
-            <p className="font-cursive text-4xl md:text-5xl mb-4">Parroquia, San Francisco de Asís</p>
-            <p className="font-cursive text-3xl md:text-4xl mb-6">Conkal, Yucatán.</p>
-            <p className="font-cursive text-4xl md:text-5xl text-[#A5A05A] mb-12">8:00 pm.</p>
+            <p className="font-cursive text-4xl md:text-5xl mb-2 text-[#2C2C2C]">Parroquia, San Francisco de Asís</p>
+            <p className="font-cursive text-3xl md:text-4xl mb-6 text-[#2C2C2C]">Conkal, Yucatán.</p>
             
-            {/* Imagen de la Iglesia */}
-            <div className="relative w-full max-w-2xl mx-auto -mb-10">
-              <img src="/fotos/Iglesia.png" alt="Parroquia San Francisco de Asís" className="w-full h-auto drop-shadow-xl" />
-            </div>
+            <p className="font-cursive text-4xl md:text-5xl text-[#2C2C2C] mb-2">8:00 pm.</p>
+            <div className="w-24 h-[1px] bg-[#2c2c2c]/50 mb-10"></div>
+            
+            {/* Botón Cómo Llegar */}
+            <a 
+              href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-3 rounded-full transition-all duration-300 shadow-sm"
+            >
+              <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar</span>
+            </a>
           </div>
         </section>
 
