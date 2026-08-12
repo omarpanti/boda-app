@@ -107,18 +107,20 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <div className="min-h-screen bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden">
+      {/* Contenedor principal centrado simulando una tarjeta o pantalla de celular */}
+      <div className="min-h-screen bg-[#2c2c2c] flex justify-center items-start overflow-hidden">
         
-        {/* ================= 1. PORTADA ================= */}
-        <section className="relative w-full h-screen flex flex-col items-center justify-start pt-16 md:pt-24 px-6 text-center overflow-hidden">
-          {/* Imagen de fondo (Jardín) */}
-          <div 
-            className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
-            style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
-          >
-            {/* Gradiente sutil superior para leer el texto oscuro o claro */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#fdfbf7]/80 via-transparent to-transparent"></div>
-          </div>
+        <div className="w-full max-w-md bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-screen">
+          
+          {/* ================= 1. PORTADA ================= */}
+          <section className="relative w-full h-[90vh] md:h-[800px] flex flex-col items-center justify-start pt-16 px-6 text-center overflow-hidden">
+            {/* Imagen de fondo (Jardín) */}
+            <div 
+              className="absolute inset-0 z-0 bg-cover bg-bottom"
+              style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-[#fdfbf7]/80 via-transparent to-transparent"></div>
+            </div>
 
           <div className="relative z-10 fade-in-section is-visible max-w-2xl mx-auto flex flex-col items-center">
             {/* Logo Novios */}
@@ -237,18 +239,40 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
 
         {/* ================= 4. RECEPCIÓN ================= */}
-        <section className="relative w-full fade-in-section">
-          <div className="max-w-4xl mx-auto pt-32 px-6 text-center">
-            <h2 className="font-cursive text-6xl md:text-7xl mb-4">Recepción</h2>
-            <div className="w-48 h-[1px] bg-black/30 mx-auto mb-8"></div>
-            
-            <p className="font-cursive text-4xl md:text-5xl mb-4">Hacienda Chaká, Conkal Yucatán.</p>
-            <p className="font-cursive text-4xl md:text-5xl text-[#D9A1D4] mb-12">9:00 pm.</p>
-          </div>
+        <section 
+          className="relative w-full min-h-[90vh] md:min-h-screen flex flex-col items-center justify-start pt-20 px-6 text-center fade-in-section overflow-hidden bg-cover bg-center"
+          style={{ backgroundImage: 'url("/fotos/Hacienda.png")' }}
+        >
+          {/* Capa sutil para legibilidad */}
+          <div className="absolute inset-0 bg-white/20 -z-10"></div>
           
-          {/* Imagen de la Hacienda como bloque masivo */}
-          <div className="w-full relative">
-            <img src="/fotos/Hacienda.png" alt="Hacienda Chaká" className="w-full h-auto object-cover max-h-[80vh] shadow-2xl" />
+          <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
+            <h2 className="font-cursive text-7xl md:text-8xl mb-4 text-[#2C2C2C]">Recepción</h2>
+            
+            {/* Adorno Divisor estilo Vintage */}
+            <div className="flex items-center justify-center gap-2 mb-8 opacity-70">
+              <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
+              <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#2c2c2c]">
+                <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
+            </div>
+            
+            <p className="font-cursive text-4xl md:text-5xl mb-6 text-[#2C2C2C]">Hacienda Chaká, Conkal Yucatán.</p>
+            
+            <p className="font-cursive text-4xl md:text-5xl text-[#2C2C2C] mb-2">9:00 pm.</p>
+            <div className="w-24 h-[1px] bg-[#2c2c2c]/50 mb-10"></div>
+            
+            {/* Botón Cómo Llegar (Hacienda) */}
+            <a 
+              href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-3 rounded-full transition-all duration-300 shadow-sm"
+            >
+              <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar</span>
+            </a>
           </div>
         </section>
 
@@ -353,6 +377,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           Maritere & Omar • 2026
         </footer>
 
+        </div>
       </div>
     </>
   )
