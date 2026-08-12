@@ -210,23 +210,24 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-16 px-6 text-center overflow-hidden">
+            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-10 px-4 text-center overflow-hidden">
               <div 
                 className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
                 style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-[#fdfbf7]/80 via-transparent to-transparent"></div>
+                {/* Opcional: un ligero oscurecimiento en la parte superior si hace falta, pero el PDF original no lo tiene tan marcado */}
               </div>
 
-              <div className="relative z-10 fade-in-section is-visible w-full max-w-xl mx-auto flex flex-col items-center">
+              <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-12">
+                {/* Logo Novios sin drop-shadow para evitar que rompa el mix-blend-mode */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotos/Logo-novios.png" alt="M & O" className="w-32 md:w-40 mb-6 mix-blend-multiply opacity-90 drop-shadow-md" />
+                <img src="/fotos/Logo-novios.png" alt="M & O" className="w-24 md:w-32 mb-8 mix-blend-multiply opacity-90" />
                 
-                <p className="font-cursive text-3xl md:text-5xl leading-relaxed text-[#1a1a1a] drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] px-2">
+                <p className="font-cursive text-2xl md:text-3xl leading-relaxed text-[#1a1a1a] px-2 mb-2">
                   "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br/>
                   Tu pueblo será mi pueblo, y tu Dios mi Dios."
                 </p>
-                <p className="font-cursive text-2xl md:text-3xl mt-4 text-[#1a1a1a]">Rut 1,16</p>
+                <p className="font-cursive text-xl md:text-2xl text-[#1a1a1a]">Rut 1,16</p>
               </div>
               
               <div className="absolute bottom-10 animate-bounce text-white drop-shadow-md z-10">
