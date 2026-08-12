@@ -146,7 +146,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {!showInvitation && (
-            <div className={`absolute inset-0 z-50 flex items-center justify-center bg-[#eaeaea] envelope-wrapper overflow-hidden ${isEnvelopeOpen ? 'pointer-events-none' : ''}`}>
+            <div className={`absolute top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#eaeaea] envelope-wrapper overflow-hidden ${isEnvelopeOpen ? 'pointer-events-none' : ''}`}>
               
               <div className={`envelope-content w-full h-full flex flex-col items-center justify-center relative bg-paper shadow-inner ${isEnvelopeOpen ? 'open' : ''}`}>
                 
@@ -177,7 +177,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           )}
 
           {/* ================= CONTENIDO DE LA INVITACIÓN ================= */}
-          <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
             <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-16 px-6 text-center overflow-hidden">
