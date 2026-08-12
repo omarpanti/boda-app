@@ -65,6 +65,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false)
   const [showInvitation, setShowInvitation] = useState(false)
 
+  const [mountEnvelope, setMountEnvelope] = useState(true)
+
   // Inyectar librería de confetti
   useEffect(() => {
     const script = document.createElement('script')
@@ -125,11 +127,18 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const openEnvelope = () => {
+    if (isEnvelopeOpen) return
     setIsEnvelopeOpen(true)
-    // Esperar a que termine la animación del sobre para mostrar el contenido completo
+    
+    // 1.5s después de abrir el sobre, revelamos la invitación de atrás (fade in)
     setTimeout(() => {
       setShowInvitation(true)
-    }, 1200)
+    }, 1500)
+    
+    // 2.5s después, destruimos el sobre por completo del DOM
+    setTimeout(() => {
+      setMountEnvelope(false)
+    }, 2500)
   }
 
   const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=4A4A4A&bgcolor=FDFBF7&data=" + encodeURIComponent("BODA2026-GUEST-" + guest.uniqueLink)
@@ -145,31 +154,52 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         <div className="w-full w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
-          {!showInvitation && (
-            <div className={`absolute top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#eaeaea] envelope-wrapper overflow-hidden ${isEnvelopeOpen ? 'pointer-events-none' : ''}`}>
+          {mountEnvelope && (
+            <div className={`absolute top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#2c2c2c]/80 backdrop-blur-sm transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}>
               
-              <div className={`envelope-content w-full h-full flex flex-col items-center justify-center relative bg-paper shadow-inner ${isEnvelopeOpen ? 'open' : ''}`}>
+              <div className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-transform duration-300" onClick={openEnvelope}>
                 
-                {/* Solapa del sobre */}
-                <div className={`absolute top-0 w-full h-[50%] bg-[#f4f2ed] border-b border-black/5 shadow-md envelope-flap flex items-end justify-center pb-8 z-20 ${isEnvelopeOpen ? 'open' : ''}`}>
-                  <div className="w-16 h-16 bg-[#A5A05A] rounded-full shadow-md flex items-center justify-center transform translate-y-1/2">
-                    <span className="text-white font-cursive text-2xl">M&O</span>
-                  </div>
+                {/* Carta dentro del sobre */}
+                <div 
+                  className={`absolute inset-x-2 bottom-2 bg-white rounded-sm shadow-sm flex flex-col items-center justify-center text-center p-4 z-10 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]`}
+                  style={{
+                    transform: isEnvelopeOpen ? 'translateY(-140px)' : 'translateY(0)',
+                    height: '180px',
+                    opacity: isEnvelopeOpen ? '0' : '1',
+                    transitionDelay: isEnvelopeOpen ? '400ms' : '0ms'
+                  }}
+                >
+                  <p className="font-playfair italic text-[#A5A05A] text-xs mb-2">Entregado a:</p>
+                  <h1 className="font-cursive text-3xl text-[#2c2c2c]">{guest.name}</h1>
                 </div>
 
-                {/* Frente del sobre (Información del invitado) */}
-                <div className="relative z-10 flex flex-col items-center text-center mt-20 px-8">
-                  <p className="font-playfair italic text-[#A5A05A] text-lg mb-4">Entregado a:</p>
-                  <h1 className="font-cursive text-5xl md:text-6xl text-[#2c2c2c] mb-10">{guest.name}</h1>
-                  
-                  {!isEnvelopeOpen && (
-                    <button 
-                      onClick={openEnvelope}
-                      className="mt-8 animate-pulse bg-transparent border border-[#A5A05A] text-[#A5A05A] px-8 py-3 rounded-full font-inter tracking-widest text-xs uppercase hover:bg-[#A5A05A] hover:text-white transition-all duration-300"
-                    >
-                      Abrir Invitación
-                    </button>
-                  )}
+                {/* Solapas laterales e inferior (encima de la carta) */}
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[100px] border-b-[100px] border-l-[160px] border-transparent border-l-[#e8e5dc] z-30 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-0 h-0 border-t-[100px] border-b-[100px] border-r-[160px] border-transparent border-r-[#e8e5dc] z-30 pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-b-[120px] border-transparent border-b-[#f4f2ed] z-30 pointer-events-none"></div>
+
+                {/* Solapa superior (abre) */}
+                <div 
+                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-1000 drop-shadow-md pointer-events-none"
+                  style={{ transform: isEnvelopeOpen ? 'rotateX(180deg)' : 'rotateX(0deg)' }}
+                ></div>
+                
+                {/* Sello de cera / Botón */}
+                <div 
+                  className="absolute top-[110px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-opacity duration-300 pointer-events-none"
+                  style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
+                >
+                  <div className="w-12 h-12 bg-[#A5A05A] rounded-full shadow-lg flex items-center justify-center border-2 border-[#8f8a48] animate-pulse">
+                    <span className="text-white font-cursive text-xl">M&O</span>
+                  </div>
+                </div>
+                
+                {/* Indicador de tap */}
+                <div 
+                  className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-white/90 font-inter text-xs tracking-widest uppercase whitespace-nowrap transition-opacity duration-300"
+                  style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
+                >
+                  Toca el sobre para abrir
                 </div>
 
               </div>
