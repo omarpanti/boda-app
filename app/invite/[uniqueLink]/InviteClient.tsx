@@ -3,19 +3,20 @@
 import { useState, useEffect } from 'react'
 import { submitRsvp } from './actions'
 
-// Estilos inyectados para tipografía, animaciones suaves y confeti
+// Importando fuentes: Great Vibes servirá como reemplazo web-safe para Bemdayni, 
+// aunque si Bemdayni está instalada en el dispositivo se usará primero.
 const FONTS = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
   
+  .font-cursive { font-family: 'Bemdayni', 'Great Vibes', cursive; }
   .font-playfair { font-family: 'Playfair Display', serif; }
   .font-inter { font-family: 'Inter', sans-serif; }
   
-  /* Animación de entrada al hacer scroll */
   .fade-in-section {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
     visibility: hidden;
-    transition: opacity 1s ease-out, transform 1s ease-out;
+    transition: opacity 1.2s ease-out, transform 1.2s ease-out;
     will-change: opacity, visibility;
   }
   .fade-in-section.is-visible {
@@ -23,19 +24,11 @@ const FONTS = `
     transform: none;
     visibility: visible;
   }
-
-  /* Animación flotante para fondo (Hojas/Pétalos) */
-  @keyframes float {
-    0% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
-    50% { transform: translateY(-20px) rotate(10deg); opacity: 1; }
-    100% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
-  }
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  .animate-float-delayed {
-    animation: float 7s ease-in-out infinite;
-    animation-delay: 2s;
+  
+  /* Textura de papel para el fondo general */
+  .bg-paper {
+    background-color: #fdfbf7;
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
   }
 `
 
@@ -48,12 +41,8 @@ type GuestWithTable = {
 }
 
 export default function InviteClient({ guest }: { guest: GuestWithTable }) {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 })
   const [isResponded, setIsResponded] = useState(guest.rsvpStatus !== 'PENDING')
   const [loading, setLoading] = useState(false)
-
-  // Configuración de fecha (04 de Diciembre de 2026, 18:00 hrs)
-  const WEDDING_DATE = new Date('2026-12-04T18:00:00').getTime()
 
   // Inyectar librería de confetti
   useEffect(() => {
@@ -64,28 +53,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     return () => { document.body.removeChild(script) }
   }, [])
 
-  // Cuenta Regresiva
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime()
-      const distance = WEDDING_DATE - now
-
-      if (distance < 0) {
-        clearInterval(timer)
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      } else {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000)
-        })
-      }
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
-
-  // Animaciones de Scroll (Fade In)
+  // Observador para animaciones de scroll
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -93,7 +61,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           entry.target.classList.add('is-visible')
         }
       })
-    }, { threshold: 0.15 })
+    }, { threshold: 0.1 })
 
     document.querySelectorAll('.fade-in-section').forEach(el => observer.observe(el))
     return () => observer.disconnect()
@@ -134,170 +102,229 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     }
   }
 
-  // URL para el código QR a través de una API pública
-  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=A5A05A&bgcolor=FAFAFA&data=" + encodeURIComponent("BODA2026-GUEST-" + guest.uniqueLink)
+  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=4A4A4A&bgcolor=FDFBF7&data=" + encodeURIComponent("BODA2026-GUEST-" + guest.uniqueLink)
 
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <div className="min-h-screen bg-[#FAFAFA] text-[#4A4A4A] font-inter font-light selection:bg-[#D9A1D4]/30 relative overflow-hidden">
+      <div className="min-h-screen bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden">
         
-        {/* ================= ELEMENTOS DECORATIVOS (FLORALES / ABSTRACTOS) ================= */}
-        <div className="fixed top-[-5%] left-[-10%] w-[400px] h-[400px] bg-[#D9A1D4]/15 rounded-full blur-[100px] pointer-events-none z-0"></div>
-        <div className="fixed bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#A5A05A]/15 rounded-full blur-[120px] pointer-events-none z-0"></div>
-        
-        {/* ================= HERO SECTION ================= */}
-        <section className="relative min-h-screen flex flex-col items-center justify-center p-6 text-center z-10">
-          <div className="fade-in-section is-visible">
-            <p className="text-[#A5A05A] text-sm md:text-base font-medium tracking-[0.4em] uppercase mb-8">Nuestra Boda</p>
-            <h1 className="text-7xl md:text-9xl font-playfair text-[#4A4A4A] mb-8 leading-tight animate-float">
-              Omar <span className="text-[#D9A1D4] italic">&</span><br/>Maritere
-            </h1>
-            <p className="text-[#A5A05A] text-lg md:text-xl tracking-widest uppercase mb-16">04 • Diciembre • 2026</p>
+        {/* ================= 1. PORTADA ================= */}
+        <section className="relative w-full h-screen flex flex-col items-center justify-start pt-16 md:pt-24 px-6 text-center overflow-hidden">
+          {/* Imagen de fondo (Jardín) */}
+          <div 
+            className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
+            style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
+          >
+            {/* Gradiente sutil superior para leer el texto oscuro o claro */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#fdfbf7]/80 via-transparent to-transparent"></div>
+          </div>
+
+          <div className="relative z-10 fade-in-section is-visible max-w-2xl mx-auto flex flex-col items-center">
+            {/* Logo Novios */}
+            <img src="/fotos/Logo-novios.png" alt="M & O" className="w-24 md:w-32 mb-8 opacity-90 drop-shadow-md" />
             
-            <div className="bg-white/60 backdrop-blur-md px-10 py-6 rounded-3xl border border-white shadow-xl inline-block">
-              <p className="text-xl md:text-2xl text-[#757575] mb-2 font-playfair italic">Querido invitado,</p>
-              <p className="text-2xl md:text-3xl font-playfair font-semibold text-[#4A4A4A] tracking-wide">{guest.name}</p>
+            <p className="font-cursive text-2xl md:text-4xl leading-relaxed text-[#1a1a1a] drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] px-4">
+              "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br/>
+              Tu pueblo será mi pueblo, y tu Dios mi Dios."
+            </p>
+            <p className="font-cursive text-xl md:text-2xl mt-4 text-[#1a1a1a]">Rut 1,16</p>
+            
+            {/* Bienvenida personalizada (No está en el PDF pero es útil para lo digital) */}
+            <div className="mt-12 bg-white/40 backdrop-blur-sm border border-white/50 px-8 py-4 rounded-3xl shadow-sm">
+              <p className="text-sm uppercase tracking-widest text-[#4A4A4A] mb-1">Invitación Exclusiva para:</p>
+              <p className="font-playfair text-2xl text-[#1a1a1a] font-medium">{guest.name}</p>
             </div>
           </div>
           
-          {/* Scroll indicador */}
-          <div className="absolute bottom-10 animate-bounce text-[#A5A05A]">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+          <div className="absolute bottom-8 animate-bounce text-white drop-shadow-md z-10">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
           </div>
         </section>
 
-        {/* ================= CUENTA REGRESIVA ================= */}
-        <section className="py-24 px-6 text-center fade-in-section relative z-10">
-          <h2 className="text-3xl md:text-4xl font-playfair text-[#4A4A4A] mb-12 italic">Faltan</h2>
-          <div className="flex justify-center gap-3 md:gap-8 max-w-2xl mx-auto">
-            {[
-              { label: 'DÍAS', value: timeLeft.days },
-              { label: 'HRS', value: timeLeft.hours },
-              { label: 'MIN', value: timeLeft.minutes },
-              { label: 'SEG', value: timeLeft.seconds }
-            ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="w-20 h-24 md:w-28 md:h-32 bg-white/80 backdrop-blur-sm border border-[#A5A05A]/20 rounded-[2rem] flex items-center justify-center text-3xl md:text-5xl font-playfair text-[#A5A05A] shadow-lg mb-4 hover:-translate-y-2 transition-transform duration-500">
-                  {item.value.toString().padStart(2, '0')}
-                </div>
-                <span className="text-xs tracking-[0.3em] text-[#757575] font-medium">{item.label}</span>
-              </div>
-            ))}
+
+        {/* ================= 2. PADRES Y PADRINOS ================= */}
+        <section className="py-24 px-6 md:px-12 text-center fade-in-section max-w-4xl mx-auto">
+          <p className="font-cursive text-3xl md:text-5xl mb-8 leading-snug">
+            Un amor tan grande, merece celebración,<br/>
+            con la bendición de Dios y nuestros padres:
+          </p>
+
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-32 mb-12">
+            <div className="font-cursive text-2xl md:text-3xl space-y-2">
+              <p>Efraín Cauich Basto</p>
+              <p>Teresita Aguilar Ceballos</p>
+            </div>
+            <div className="font-cursive text-4xl text-[#A5A05A]">&</div>
+            <div className="font-cursive text-2xl md:text-3xl space-y-2">
+              <p>Jorge A. Pantí Catzin <span className="text-xl opacity-70">+</span></p>
+              <p>Guillermina Ix Pech</p>
+            </div>
+          </div>
+
+          <p className="font-cursive text-3xl md:text-4xl mb-8">
+            Y nuestros apreciados padrinos:
+          </p>
+
+          <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-32 mb-16">
+            <div className="font-cursive text-2xl md:text-3xl space-y-2">
+              <p>Luis Manuel Carrillo Pech</p>
+              <p>Luz María Aguilar Pech</p>
+            </div>
+            <div className="font-cursive text-4xl text-[#A5A05A]">&</div>
+            <div className="font-cursive text-2xl md:text-3xl space-y-2">
+              <p>Joel Ricardo Pantí Ix</p>
+              <p>Janet C. Puc Sánchez</p>
+            </div>
+          </div>
+
+          <div className="mb-12">
+            <p className="font-cursive text-2xl text-gray-500 mb-4">Nosotros :</p>
+            <p className="font-cursive text-5xl md:text-7xl">Maritere & Omar</p>
+          </div>
+
+          <p className="font-cursive text-3xl md:text-4xl mb-12 leading-relaxed">
+            Queremos invitarlos a celebrar un día muy especial<br/>
+            para nosotros, nuestra boda.
+          </p>
+
+          <div className="font-cursive text-3xl md:text-4xl space-y-4 text-[#A5A05A]">
+            <p>Viernes</p>
+            <p className="text-4xl md:text-5xl">04 / Diciembre / 2026</p>
+            <p>Conkal, Yucatán</p>
           </div>
         </section>
 
-        {/* ================= ITINERARIO ================= */}
-        <section className="py-24 px-6 fade-in-section relative z-10">
-          <div className="max-w-xl mx-auto text-center bg-white/60 backdrop-blur-md p-10 rounded-[3rem] border border-white shadow-xl">
-            <h2 className="text-4xl font-playfair text-[#4A4A4A] mb-16">Itinerario</h2>
+
+        {/* ================= 3. CEREMONIA ================= */}
+        <section className="relative w-full fade-in-section overflow-hidden">
+          {/* Fondo Cielo Claro para la Iglesia */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#e6f1f5] to-[#fdfbf7] -z-10"></div>
+          
+          <div className="max-w-4xl mx-auto pt-20 px-6 text-center">
+            <h2 className="font-cursive text-6xl md:text-7xl mb-4">Ceremonia</h2>
+            <div className="w-48 h-[1px] bg-black/30 mx-auto mb-8 relative">
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-black/10 rounded-full rotate-45"></div>
+            </div>
             
-            <div className="space-y-16">
-              <div className="relative group">
-                <div className="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-500">⛪</div>
-                <h3 className="text-2xl font-playfair text-[#4A4A4A] mb-2">Ceremonia Religiosa</h3>
-                <p className="text-[#D9A1D4] font-semibold tracking-widest text-sm mb-3">18:00 HRS</p>
-                <p className="text-[#757575] text-sm md:text-base leading-relaxed">Parroquia de San Miguel Arcángel<br/>Centro Histórico</p>
-              </div>
-              
-              <div className="w-px h-16 bg-gradient-to-b from-[#A5A05A]/0 via-[#A5A05A]/30 to-[#A5A05A]/0 mx-auto"></div>
-              
-              <div className="relative group">
-                <div className="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-500">🥂</div>
-                <h3 className="text-2xl font-playfair text-[#4A4A4A] mb-2">Recepción & Fiesta</h3>
-                <p className="text-[#D9A1D4] font-semibold tracking-widest text-sm mb-3">20:00 HRS</p>
-                <p className="text-[#757575] text-sm md:text-base leading-relaxed">Hacienda Los Arcángeles<br/>Jardín Principal</p>
-              </div>
+            <p className="font-cursive text-4xl md:text-5xl mb-4">Parroquia, San Francisco de Asís</p>
+            <p className="font-cursive text-3xl md:text-4xl mb-6">Conkal, Yucatán.</p>
+            <p className="font-cursive text-4xl md:text-5xl text-[#A5A05A] mb-12">8:00 pm.</p>
+            
+            {/* Imagen de la Iglesia */}
+            <div className="relative w-full max-w-2xl mx-auto -mb-10">
+              <img src="/fotos/Iglesia.png" alt="Parroquia San Francisco de Asís" className="w-full h-auto drop-shadow-xl" />
             </div>
           </div>
         </section>
 
-        {/* ================= INFORMACIÓN EXTRA (Dress Code / Regalos / Mesa Asignada) ================= */}
-        <section className="py-24 px-6 fade-in-section relative z-10">
-          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+
+        {/* ================= 4. RECEPCIÓN ================= */}
+        <section className="relative w-full fade-in-section">
+          <div className="max-w-4xl mx-auto pt-32 px-6 text-center">
+            <h2 className="font-cursive text-6xl md:text-7xl mb-4">Recepción</h2>
+            <div className="w-48 h-[1px] bg-black/30 mx-auto mb-8"></div>
             
-            {/* Código de Vestimenta */}
-            <div className="bg-white/80 border border-white p-10 rounded-[2.5rem] text-center shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-              <div className="text-4xl mb-6 text-[#A5A05A]">👔</div>
-              <h3 className="font-playfair text-2xl text-[#4A4A4A] mb-3">Dress Code</h3>
-              <p className="text-[#D9A1D4] font-semibold text-sm tracking-widest mb-4 uppercase">Formal Elegante</p>
-              <p className="text-[#757575] text-sm leading-relaxed">Mujeres: Vestido largo o midi<br/>Hombres: Traje oscuro formal</p>
+            <p className="font-cursive text-4xl md:text-5xl mb-4">Hacienda Chaká, Conkal Yucatán.</p>
+            <p className="font-cursive text-4xl md:text-5xl text-[#D9A1D4] mb-12">9:00 pm.</p>
+          </div>
+          
+          {/* Imagen de la Hacienda como bloque masivo */}
+          <div className="w-full relative">
+            <img src="/fotos/Hacienda.png" alt="Hacienda Chaká" className="w-full h-auto object-cover max-h-[80vh] shadow-2xl" />
+          </div>
+        </section>
+
+
+        {/* ================= 5. DRESS CODE & REGALOS ================= */}
+        <section className="py-24 px-6 max-w-5xl mx-auto fade-in-section">
+          
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12 mb-32">
+            <div className="text-center md:text-left flex-1 md:pr-12">
+              <h2 className="font-cursive text-6xl md:text-7xl mb-8">Código de vestimenta</h2>
+              <p className="font-cursive text-5xl text-[#A5A05A] mb-6">Formal</p>
+              <p className="font-cursive text-3xl md:text-4xl leading-relaxed">
+                Les pedimos a nuestros invitados,<br/>
+                evitar el uso del color blanco.
+              </p>
             </div>
-
-            {/* Mesa de Regalos */}
-            <div className="bg-white/80 border border-white p-10 rounded-[2.5rem] text-center shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-              <div className="text-4xl mb-6 text-[#A5A05A]">🎁</div>
-              <h3 className="font-playfair text-2xl text-[#4A4A4A] mb-3">Mesa de Regalos</h3>
-              <p className="text-[#757575] text-sm mb-6 leading-relaxed">Su presencia es nuestro mejor regalo, pero si desean hacernos un obsequio:</p>
-              <div className="space-y-3 text-sm">
-                <p className="text-[#4A4A4A] font-medium">Liverpool: <span className="text-[#D9A1D4] font-bold">#87654321</span></p>
-                <p className="text-[#A5A05A] italic text-xs">O una aportación en sobre el día de nuestra boda.</p>
-              </div>
+            <div className="flex-1 max-w-[300px]">
+              <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply drop-shadow-md" />
             </div>
+          </div>
 
-            {/* Asignación de Mesa / Pase QR */}
-            <div className="bg-[#A5A05A]/5 border border-[#A5A05A]/20 p-10 rounded-[2.5rem] text-center shadow-lg relative overflow-hidden flex flex-col items-center">
-              <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[#D9A1D4]/10 rounded-full blur-2xl"></div>
-              
-              <h3 className="font-playfair text-2xl text-[#4A4A4A] mb-3">Pase Virtual</h3>
-              
-              <div className="bg-white p-3 rounded-2xl shadow-sm mb-4">
-                {/* Generación de código QR dinámico usando api.qrserver.com */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={qrUrl} alt="Código QR del Invitado" className="w-28 h-28 opacity-90 mx-auto mix-blend-multiply" />
-              </div>
+          <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
+            <div className="flex-1 max-w-[350px]">
+              {/* Nota: Manejando caracteres especiales en el archivo de buzón si existe en Vercel */}
+              <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply drop-shadow-lg" />
+            </div>
+            <div className="text-center md:text-right flex-1 md:pl-12">
+              <h2 className="font-cursive text-6xl md:text-7xl mb-8">Mesa de regalos</h2>
+              <p className="font-cursive text-3xl md:text-4xl leading-relaxed">
+                Tu presencia en este día tan importante<br/>
+                es el mejor regalo,<br/>
+                si quieres tener un detalle con nosotros<br/>
+                lo puedes hacer,<br/>
+                el día de la celebración mediante un buzón de sobres.
+              </p>
+            </div>
+          </div>
 
+        </section>
+
+
+        {/* ================= 6. PASE VIRTUAL Y RSVP ================= */}
+        <section className="py-24 px-6 text-center fade-in-section bg-white/50 backdrop-blur-md border-t border-black/5">
+          <div className="max-w-2xl mx-auto">
+            <h2 className="font-cursive text-5xl md:text-6xl text-[#4A4A4A] mb-10">Tu Pase Especial</h2>
+            
+            <div className="bg-white p-8 rounded-3xl shadow-xl border border-black/5 mx-auto max-w-sm mb-12 transform hover:scale-105 transition-transform duration-300">
+              <img src={qrUrl} alt="Código QR del Invitado" className="w-48 h-48 mx-auto mb-6" />
+              
               {guest.table ? (
                 <>
-                  <p className="text-[#757575] text-xs mb-2 uppercase tracking-wider">Tu lugar reservado en</p>
-                  <p className="text-[#4A4A4A] font-playfair font-bold text-xl">
+                  <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">Lugar Reservado</p>
+                  <p className="font-playfair text-2xl font-semibold text-[#A5A05A]">
                     {guest.table.number ? `Mesa ${guest.table.number} - ` : ''}{guest.table.name}
                   </p>
                 </>
               ) : (
-                <p className="text-[#757575] text-xs italic px-2">Tu lugar será asignado próximamente.</p>
+                <p className="text-sm italic text-gray-500">Tu asiento será asignado próximamente.</p>
               )}
             </div>
 
-          </div>
-        </section>
-
-        {/* ================= RSVP ================= */}
-        <section className="py-32 px-6 text-center fade-in-section relative z-10">
-          <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-xl border border-white p-10 md:p-16 rounded-[3rem] shadow-2xl">
-            <h2 className="text-4xl md:text-5xl font-playfair text-[#4A4A4A] mb-6">Confirma tu Asistencia</h2>
-            
             {!isResponded ? (
-              <>
-                <p className="text-[#757575] mb-12 text-sm md:text-base leading-relaxed">Agradeceremos confirmar tu asistencia antes del <br/><strong className="text-[#A5A05A] font-semibold">01 de Noviembre de 2026</strong>.</p>
+              <div className="bg-white/80 p-8 md:p-12 rounded-[2rem] shadow-lg border border-black/5">
+                <h3 className="font-cursive text-4xl mb-6">¿Nos acompañas?</h3>
+                <p className="text-sm md:text-base text-gray-500 mb-10">Favor de confirmar tu asistencia antes del 1 de Noviembre.</p>
                 
                 <div className="flex flex-col md:flex-row gap-4 justify-center">
                   <button 
                     disabled={loading}
                     onClick={() => handleRSVP('CONFIRMED')}
-                    className="flex-1 bg-gradient-to-r from-[#A5A05A] to-[#928d49] hover:from-[#928d49] hover:to-[#A5A05A] text-white font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.03] shadow-lg shadow-[#A5A05A]/30 text-sm"
+                    className="flex-1 bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
                   >
                     {loading ? 'Confirmando...' : 'Sí, asistiré'}
                   </button>
                   <button 
                     disabled={loading}
                     onClick={() => handleRSVP('DECLINED')}
-                    className="flex-1 bg-white border-2 border-[#D9A1D4]/30 hover:border-[#D9A1D4] text-[#757575] hover:text-[#D9A1D4] font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.03] text-sm"
+                    className="flex-1 bg-transparent border-2 border-[#D9A1D4] hover:bg-[#D9A1D4]/10 text-[#D9A1D4] font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 text-sm"
                   >
                     {loading ? 'Enviando...' : 'No podré ir'}
                   </button>
                 </div>
-              </>
+              </div>
             ) : (
-              <div className="py-8 animate-float">
+              <div className="py-12 px-6">
                 <div className="text-5xl mb-6">{guest.rsvpStatus === 'CONFIRMED' ? '🥂' : '🕊️'}</div>
-                <h3 className="text-3xl font-playfair text-[#A5A05A] mb-4">
+                <h3 className="font-cursive text-5xl md:text-6xl text-[#A5A05A] mb-4">
                   {guest.rsvpStatus === 'CONFIRMED' ? '¡Qué Alegría!' : 'Te Echaremos de Menos'}
                 </h3>
-                <p className="text-[#757575] text-lg">
+                <p className="text-gray-500 font-inter text-lg">
                   {guest.rsvpStatus === 'CONFIRMED'
                     ? 'Hemos guardado tu confirmación. ¡Prepárate para celebrar juntos!'
-                    : 'Agradecemos que nos hayas avisado. Te tendremos presente en nuestros corazones.'}
+                    : 'Agradecemos que nos hayas avisado. Te tendremos presente.'}
                 </p>
               </div>
             )}
@@ -305,8 +332,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 text-center text-[#A5A05A]/60 text-xs font-playfair tracking-[0.3em] uppercase">
-          Omar & Maritere • 2026
+        <footer className="py-10 text-center text-gray-400 text-xs font-inter tracking-[0.3em] uppercase bg-white/50">
+          Maritere & Omar • 2026
         </footer>
 
       </div>
