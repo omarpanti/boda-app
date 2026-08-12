@@ -360,13 +360,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
             {/* 4. RECEPCIÓN */}
             <section 
-              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-10 md:pt-16 px-4 md:px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
+              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-4 md:pt-8 px-4 md:px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
               style={{ backgroundImage: 'url("/fotos/Hacienda.png")' }}
             >
               <div className="absolute inset-0 bg-white/20 -z-10"></div>
               
-              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center mt-2 md:mt-4">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-1 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center mt-0">
+                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-0 md:mb-1 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
                   Recepción
                 </h2>
                 
