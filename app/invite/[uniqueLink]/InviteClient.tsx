@@ -210,7 +210,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-10 px-4 text-center overflow-hidden">
+            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-4 px-4 text-center overflow-hidden">
               <div 
                 className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
                 style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
@@ -219,7 +219,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               </div>
 
               {/* Contenedor limpio sin mix-blend-multiply porque ya usamos la imagen transparente nativa */}
-              <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-12">
+              <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-28 md:w-36 mb-6" />
                 
