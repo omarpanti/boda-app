@@ -321,21 +321,29 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               <div className="absolute inset-0 bg-white/20 -z-10"></div>
               
               <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
-                <h2 className="font-cursive text-7xl md:text-8xl mb-4 text-[#2C2C2C]">Ceremonia</h2>
+                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-2 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+                  Ceremonia
+                </h2>
                 
-                <div className="flex items-center justify-center gap-2 mb-8 opacity-70">
-                  <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
-                  <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#2c2c2c]">
+                <div className="flex items-center justify-center gap-2 mb-6 md:mb-8 opacity-80">
+                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
+                  <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#1a1a1a]">
                     <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  <div className="w-16 h-[1px] bg-[#2c2c2c]"></div>
+                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                 </div>
                 
-                <p className="font-cursive text-4xl md:text-6xl mb-2 text-[#2C2C2C]">Parroquia, San Francisco de Asís</p>
-                <p className="font-cursive text-3xl md:text-5xl mb-6 text-[#2C2C2C]">Conkal, Yucatán.</p>
+                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-1 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  Parroquia, San Francisco de Asís
+                </p>
+                <p className="font-cursive text-[1.2rem] sm:text-xl md:text-4xl mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  Conkal, Yucatán.
+                </p>
                 
-                <p className="font-cursive text-4xl md:text-6xl text-[#2C2C2C] mb-2">8:00 pm.</p>
-                <div className="w-24 h-[1px] bg-[#2c2c2c]/50 mb-10"></div>
+                <p className="font-cursive text-[1.3rem] sm:text-2xl md:text-5xl text-transparent mb-1" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  8:00 pm.
+                </p>
+                <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-8 md:mb-10"></div>
                 
                 <a 
                   href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
