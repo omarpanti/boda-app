@@ -247,12 +247,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </p>
                   
                   {/* Padres */}
-                  <div className="flex flex-row justify-center items-center gap-2 md:gap-12 font-cursive text-[1.1rem] sm:text-xl md:text-3xl text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.1rem] md:text-3xl text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                     <div className="flex-1 text-right space-y-1 md:space-y-2">
                       <p>Efraín Cauich Basto</p>
                       <p>Teresita Aguilar Ceballos</p>
                     </div>
-                    <div className="text-[#1a1a1a] text-2xl md:text-4xl px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="text-[#1a1a1a] text-xl md:text-4xl px-1 sm:px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
                     <div className="flex-1 text-left space-y-1 md:space-y-2">
                       <p>Jorge H. Panti Catzin <span className="text-[0.6rem] md:text-sm align-super">+</span></p>
                       <p>Guillermina Ix Pech</p>
@@ -266,12 +266,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     Y nuestros apreciados padrinos:
                   </p>
                   
-                  <div className="flex flex-row justify-center items-center gap-2 md:gap-12 font-cursive text-[1.1rem] sm:text-xl md:text-3xl text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.1rem] md:text-3xl text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                     <div className="flex-1 text-right space-y-1 md:space-y-2">
                       <p>Luis Manuel Carrillo Pech</p>
                       <p>Luz Maria Aguilar Pech</p>
                     </div>
-                    <div className="text-[#1a1a1a] text-2xl md:text-4xl px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="text-[#1a1a1a] text-xl md:text-4xl px-1 sm:px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
                     <div className="flex-1 text-left space-y-1 md:space-y-2">
                       <p>Joel Ricardo Panti Ix</p>
                       <p>Janet C. Puc Sánchez</p>
