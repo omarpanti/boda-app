@@ -146,12 +146,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {!showInvitation && (
-            <div className={\`absolute inset-0 z-50 flex items-center justify-center bg-[#eaeaea] envelope-wrapper overflow-hidden \${isEnvelopeOpen ? 'pointer-events-none' : ''}\`}>
+            <div className={`absolute inset-0 z-50 flex items-center justify-center bg-[#eaeaea] envelope-wrapper overflow-hidden ${isEnvelopeOpen ? 'pointer-events-none' : ''}`}>
               
-              <div className={\`envelope-content w-full h-full flex flex-col items-center justify-center relative bg-paper shadow-inner \${isEnvelopeOpen ? 'open' : ''}\`}>
+              <div className={`envelope-content w-full h-full flex flex-col items-center justify-center relative bg-paper shadow-inner ${isEnvelopeOpen ? 'open' : ''}`}>
                 
                 {/* Solapa del sobre */}
-                <div className={\`absolute top-0 w-full h-[50%] bg-[#f4f2ed] border-b border-black/5 shadow-md envelope-flap flex items-end justify-center pb-8 z-20 \${isEnvelopeOpen ? 'open' : ''}\`}>
+                <div className={`absolute top-0 w-full h-[50%] bg-[#f4f2ed] border-b border-black/5 shadow-md envelope-flap flex items-end justify-center pb-8 z-20 ${isEnvelopeOpen ? 'open' : ''}`}>
                   <div className="w-16 h-16 bg-[#A5A05A] rounded-full shadow-md flex items-center justify-center transform translate-y-1/2">
                     <span className="text-white font-cursive text-2xl">M&O</span>
                   </div>
@@ -177,7 +177,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           )}
 
           {/* ================= CONTENIDO DE LA INVITACIÓN ================= */}
-          <div className={\`transition-opacity duration-1000 \${showInvitation ? 'opacity-100' : 'opacity-0'}\`}>
+          <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'}`}>
             
             {/* 1. PORTADA */}
             <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-16 px-6 text-center overflow-hidden">
@@ -382,7 +382,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     <>
                       <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">Lugar Reservado</p>
                       <p className="font-playfair text-2xl font-semibold text-[#A5A05A]">
-                        {guest.table.number ? \`Mesa \${guest.table.number} - \` : ''}{guest.table.name}
+                        {guest.table.number ? `Mesa ${guest.table.number} - ` : ''}{guest.table.name}
                       </p>
                     </>
                   ) : (
