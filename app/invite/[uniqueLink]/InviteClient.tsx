@@ -151,7 +151,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       <div className="min-h-[100dvh] bg-[#2c2c2c] flex justify-center items-start overflow-hidden">
         
         {/* Contenedor central. En celulares es 100% ancho, en PC está limitado para no distorsionar fondos */}
-        <div className="w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-textured-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
+        <div className="w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
