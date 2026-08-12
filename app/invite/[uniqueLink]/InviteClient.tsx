@@ -23,10 +23,10 @@ const FONTS = `
     visibility: visible;
   }
   
-  /* Textura de papel */
+  /* Textura de papel grueso tipo acuarela/algodón */
   .bg-paper {
-    background-color: #fdfbf7;
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+    background-color: #fcf9f2;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.08 0' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)'/%3E%3C/svg%3E");
   }
 
   /* Animaciones del sobre */
@@ -151,7 +151,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       <div className="min-h-[100dvh] bg-[#2c2c2c] flex justify-center items-start overflow-hidden">
         
         {/* Contenedor central. En celulares es 100% ancho, en PC está limitado para no distorsionar fondos */}
-        <div className="w-full w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
+        <div className="w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-textured-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
@@ -235,59 +235,83 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               </div>
             </section>
 
-
             {/* 2. PADRES Y PADRINOS */}
-            <section className="py-24 px-6 md:px-12 text-center fade-in-section max-w-4xl mx-auto">
-              <p className="font-cursive text-4xl md:text-5xl mb-8 leading-snug">
-                Un amor tan grande, merece celebración,<br/>
-                con la bendición de Dios y nuestros padres:
-              </p>
-
-              <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-32 mb-12">
-                <div className="font-cursive text-3xl md:text-4xl space-y-2">
-                  <p>Efraín Cauich Basto</p>
-                  <p>Teresita Aguilar Ceballos</p>
+            <section className="w-full min-h-[100dvh] flex flex-col items-center justify-center py-16 px-4 text-center fade-in-section relative z-10">
+              <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
+                
+                {/* Texto Superior */}
+                <div>
+                  <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-6 md:mb-8 leading-snug" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.2)' }}>
+                    Un amor tan grande, merece celebración,<br/>
+                    con la bendición de Dios y nuestros padres:
+                  </p>
+                  
+                  {/* Padres */}
+                  <div className="flex flex-row justify-center items-center gap-2 md:gap-12 font-cursive text-[1.1rem] sm:text-xl md:text-3xl text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    <div className="flex-1 text-right space-y-1 md:space-y-2">
+                      <p>Efraín Cauich Basto</p>
+                      <p>Teresita Aguilar Ceballos</p>
+                    </div>
+                    <div className="text-[#1a1a1a] text-2xl md:text-4xl px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="flex-1 text-left space-y-1 md:space-y-2">
+                      <p>Jorge H. Panti Catzin <span className="text-[0.6rem] md:text-sm align-super">+</span></p>
+                      <p>Guillermina Ix Pech</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="font-cursive text-5xl text-[#A5A05A]">&</div>
-                <div className="font-cursive text-3xl md:text-4xl space-y-2">
-                  <p>Jorge A. Pantí Catzin <span className="text-xl opacity-70">+</span></p>
-                  <p>Guillermina Ix Pech</p>
+
+                {/* Padrinos */}
+                <div className="pt-4 md:pt-8">
+                  <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-6 md:mb-8" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.2)' }}>
+                    Y nuestros apreciados padrinos:
+                  </p>
+                  
+                  <div className="flex flex-row justify-center items-center gap-2 md:gap-12 font-cursive text-[1.1rem] sm:text-xl md:text-3xl text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    <div className="flex-1 text-right space-y-1 md:space-y-2">
+                      <p>Luis Manuel Carrillo Pech</p>
+                      <p>Luz Maria Aguilar Pech</p>
+                    </div>
+                    <div className="text-[#1a1a1a] text-2xl md:text-4xl px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="flex-1 text-left space-y-1 md:space-y-2">
+                      <p>Joel Ricardo Panti Ix</p>
+                      <p>Janet C. Puc Sánchez</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <p className="font-cursive text-4xl md:text-5xl mb-8">
-                Y nuestros apreciados padrinos:
-              </p>
-
-              <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-32 mb-16">
-                <div className="font-cursive text-3xl md:text-4xl space-y-2">
-                  <p>Luis Manuel Carrillo Pech</p>
-                  <p>Luz María Aguilar Pech</p>
+                {/* Nosotros */}
+                <div className="pt-6 md:pt-12 flex flex-col items-center">
+                  <p className="font-cursive text-sm md:text-xl text-transparent mb-1 md:mb-2" style={{ WebkitTextStroke: '0.5px #64748b' }}>
+                    Nosotros :
+                  </p>
+                  <h2 className="font-cursive text-[2.5rem] sm:text-5xl md:text-7xl text-[#1a1a1a] flex items-center justify-center gap-3 md:gap-4 w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.3)' }}>
+                    Maritere <span className="text-xl md:text-4xl text-transparent" style={{ WebkitTextStroke: '0.5px #64748b', textShadow: 'none' }}>&</span> Omar
+                  </h2>
                 </div>
-                <div className="font-cursive text-5xl text-[#A5A05A]">&</div>
-                <div className="font-cursive text-3xl md:text-4xl space-y-2">
-                  <p>Joel Ricardo Pantí Ix</p>
-                  <p>Janet C. Puc Sánchez</p>
+
+                {/* Invitación */}
+                <div className="pt-6 md:pt-10">
+                  <p className="font-cursive text-xl md:text-4xl text-transparent leading-snug" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    Queremos invitarlos a celebrar un dia muy especial<br/>
+                    para nosotros, nuestra boda.
+                  </p>
                 </div>
-              </div>
 
-              <div className="mb-12">
-                <p className="font-cursive text-3xl text-gray-500 mb-4">Nosotros :</p>
-                <p className="font-cursive text-6xl md:text-8xl">Maritere & Omar</p>
-              </div>
+                {/* Fecha */}
+                <div className="pt-6 md:pt-12 pb-6 md:pb-10">
+                  <p className="font-cursive text-xl md:text-4xl text-[#1a1a1a] font-bold" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                    Viernes
+                  </p>
+                  <p className="font-cursive text-[1.75rem] sm:text-3xl md:text-5xl text-[#1a1a1a] font-bold my-1 md:my-2" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                    04 / Diciembre / 2026
+                  </p>
+                  <p className="font-cursive text-xl md:text-4xl text-[#1a1a1a] font-bold" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                    Conkal, Yucatán
+                  </p>
+                </div>
 
-              <p className="font-cursive text-4xl md:text-5xl mb-12 leading-relaxed">
-                Queremos invitarlos a celebrar un día muy especial<br/>
-                para nosotros, nuestra boda.
-              </p>
-
-              <div className="font-cursive text-4xl md:text-5xl space-y-4 text-[#A5A05A]">
-                <p>Viernes</p>
-                <p className="text-5xl md:text-6xl">04 / Diciembre / 2026</p>
-                <p>Conkal, Yucatán</p>
               </div>
             </section>
-
 
             {/* 3. CEREMONIA */}
             <section 
