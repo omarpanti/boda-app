@@ -210,7 +210,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-2 md:pt-4 px-2 md:px-4 text-center overflow-hidden">
+            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-2 md:pt-4 px-1 md:px-4 text-center overflow-hidden">
               <div 
                 className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
                 style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
@@ -221,13 +221,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               {/* Contenedor limpio sin mix-blend-multiply porque ya usamos la imagen transparente nativa */}
               <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-2 md:mt-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-20 sm:w-24 md:w-36 mb-3 md:mb-6" />
+                <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-24 sm:w-28 md:w-36 mb-4 md:mb-6" />
                 
-                <p className="font-cursive text-[1.1rem] sm:text-xl md:text-3xl leading-snug md:leading-relaxed text-[#1a1a1a] px-1 md:px-2 mb-1 md:mb-2 w-full">
+                <p className="font-cursive text-[1.25rem] sm:text-[1.35rem] md:text-3xl leading-snug md:leading-relaxed text-[#1a1a1a] px-0 md:px-2 mb-2 md:mb-2 w-full">
                   "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br className="hidden sm:block" />
                   Tu pueblo será mi pueblo, y tu Dios mi Dios."
                 </p>
-                <p className="font-cursive text-base sm:text-lg md:text-2xl text-[#1a1a1a]">Rut 1,16</p>
+                <p className="font-cursive text-[1.1rem] sm:text-[1.15rem] md:text-2xl text-[#1a1a1a]">Rut 1,16</p>
               </div>
               
               <div className="absolute bottom-10 animate-bounce text-white drop-shadow-md z-10">
