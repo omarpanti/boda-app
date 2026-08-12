@@ -218,10 +218,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 {/* Opcional: un ligero oscurecimiento en la parte superior si hace falta, pero el PDF original no lo tiene tan marcado */}
               </div>
 
-              <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-12">
-                {/* Logo Novios sin drop-shadow para evitar que rompa el mix-blend-mode */}
+              {/* El mix-blend-multiply debe ir en el contenedor que tiene el z-index para que se fusione con el fondo que está detrás del z-index */}
+              <div className="relative z-10 mix-blend-multiply fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-12">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotos/Logo-novios.png" alt="M & O" className="w-24 md:w-32 mb-8 mix-blend-multiply opacity-90" />
+                <img src="/fotos/Logo-novios.png" alt="M & O" className="w-28 md:w-36 mb-6" />
                 
                 <p className="font-cursive text-2xl md:text-3xl leading-relaxed text-[#1a1a1a] px-2 mb-2">
                   "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br/>
@@ -376,14 +376,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 </div>
                 <div className="flex-1 max-w-[300px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply drop-shadow-md" />
+                  <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply" />
                 </div>
               </div>
 
               <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
                 <div className="flex-1 max-w-[350px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply drop-shadow-lg" />
+                  <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply" />
                 </div>
                 <div className="text-center md:text-right flex-1 md:pl-12">
                   <h2 className="font-cursive text-6xl md:text-8xl mb-8">Mesa de regalos</h2>
