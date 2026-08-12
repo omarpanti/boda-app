@@ -221,7 +221,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               {/* Contenedor limpio sin mix-blend-multiply porque ya usamos la imagen transparente nativa */}
               <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-12">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-28 md:w-36 mb-6 drop-shadow-sm" />
+                <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-28 md:w-36 mb-6" />
                 
                 <p className="font-cursive text-2xl md:text-3xl leading-relaxed text-[#1a1a1a] px-2 mb-2">
                   "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br/>
