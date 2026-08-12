@@ -315,17 +315,17 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
             {/* 3. CEREMONIA */}
             <section 
-              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-20 px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
+              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-10 md:pt-16 px-4 md:px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
               style={{ backgroundImage: 'url("/fotos/Iglesia.png")' }}
             >
               <div className="absolute inset-0 bg-white/20 -z-10"></div>
               
-              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-2 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center mt-2 md:mt-4">
+                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-1 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
                   Ceremonia
                 </h2>
                 
-                <div className="flex items-center justify-center gap-2 mb-6 md:mb-8 opacity-80">
+                <div className="flex items-center justify-center gap-2 mb-4 md:mb-6 opacity-80">
                   <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                   <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#1a1a1a]">
                     <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -333,23 +333,23 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                 </div>
                 
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-1 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-0 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                   Parroquia, San Francisco de Asís
                 </p>
-                <p className="font-cursive text-[1.2rem] sm:text-xl md:text-4xl mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                <p className="font-cursive text-[1.2rem] sm:text-xl md:text-4xl mb-3 md:mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                   Conkal, Yucatán.
                 </p>
                 
                 <p className="font-cursive text-[1.3rem] sm:text-2xl md:text-5xl text-transparent mb-1" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                   8:00 pm.
                 </p>
-                <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-8 md:mb-10"></div>
+                <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
                 
                 <a 
                   href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-3 rounded-full transition-all duration-300 shadow-sm"
+                  className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-2 md:py-3 rounded-full transition-all duration-300 shadow-sm"
                 >
                   <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                   <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar</span>
