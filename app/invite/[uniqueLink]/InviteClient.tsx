@@ -189,7 +189,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               </div>
 
               <div className="relative z-10 fade-in-section is-visible w-full max-w-xl mx-auto flex flex-col items-center">
-                {/* Logo Novios con mix-blend-multiply para quitar el fondo blanco */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/fotos/Logo-novios.png" alt="M & O" className="w-32 md:w-40 mb-6 mix-blend-multiply opacity-90 drop-shadow-md" />
                 
                 <p className="font-cursive text-3xl md:text-5xl leading-relaxed text-[#1a1a1a] drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] px-2">
@@ -344,12 +344,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </p>
                 </div>
                 <div className="flex-1 max-w-[300px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply drop-shadow-md" />
                 </div>
               </div>
 
               <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-12">
                 <div className="flex-1 max-w-[350px]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply drop-shadow-lg" />
                 </div>
                 <div className="text-center md:text-right flex-1 md:pl-12">
