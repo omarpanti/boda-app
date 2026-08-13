@@ -59,6 +59,51 @@ type GuestWithTable = {
   table?: { name: string, number: number | null } | null
 }
 
+const FloatingPetals = () => {
+  // Generar 20 pétalos con posiciones y retrasos aleatorios
+  const petals = Array.from({ length: 20 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    animationDuration: 10 + Math.random() * 10, // Entre 10s y 20s
+    animationDelay: Math.random() * 8,
+    opacity: 0.3 + Math.random() * 0.5,
+    scale: 0.4 + Math.random() * 0.6,
+    isWhite: Math.random() > 0.5
+  }))
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
+      {petals.map(petal => (
+        <div
+          key={petal.id}
+          className="absolute top-[-10%]"
+          style={{
+            left: `${petal.left}%`,
+            opacity: petal.opacity,
+            animation: `fallAndDrift ${petal.animationDuration}s linear ${petal.animationDelay}s infinite`
+          }}
+        >
+          <div style={{ transform: `scale(${petal.scale})` }}>
+            <svg width="14" height="20" viewBox="0 0 14 20" fill={petal.isWhite ? "#ffffff" : "#f1c3d3"} xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.15))' }}>
+              <path d="M7 0C7 0 0 4 0 10C0 16 7 20 7 20C7 20 14 16 14 10C14 4 7 0 7 0Z" />
+            </svg>
+          </div>
+        </div>
+      ))}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fallAndDrift {
+          0% {
+            transform: translate3d(0, -50px, 0) rotate(0deg);
+          }
+          100% {
+            transform: translate3d(-150px, 120vh, 0) rotate(360deg);
+          }
+        }
+      `}} />
+    </div>
+  )
+}
+
 export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [isResponded, setIsResponded] = useState(guest.rsvpStatus !== 'PENDING')
   const [loading, setLoading] = useState(false)
@@ -297,14 +342,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 1. PORTADA */}
             <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-2 md:pt-4 px-1 md:px-4 text-center overflow-hidden">
               <div 
-                className="absolute inset-[-5%] z-0 bg-cover bg-bottom md:bg-center transition-transform duration-200 ease-out"
-                style={{ 
-                  backgroundImage: 'url("/fotos/Jardin rosa.png")',
-                  transform: `translate3d(${tilt.y * 1.5}px, ${-tilt.x * 1.5}px, 0) scale(1.05)`
-                }}
+                className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center transition-opacity duration-1000"
+                style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
               >
-                {/* Opcional: un ligero oscurecimiento en la parte superior si hace falta, pero el PDF original no lo tiene tan marcado */}
               </div>
+              
+              {/* Efecto de pétalos flotando */}
+              <FloatingPetals />
 
               {/* Contenedor limpio sin mix-blend-multiply porque ya usamos la imagen transparente nativa */}
               <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-2 md:mt-4">
