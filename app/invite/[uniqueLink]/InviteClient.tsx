@@ -84,6 +84,29 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     setTilt({ x: 0, y: 0 })
   }
 
+  // Soporte para giroscopio (móviles)
+  useEffect(() => {
+    if (isEnvelopeOpen) return
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        // gamma: rotación izq/der (-90 a 90)
+        // beta: inclinación adelante/atrás (-180 a 180)
+        // Restringimos ángulos para que no se voltee exageradamente
+        const clampedGamma = Math.max(-45, Math.min(45, e.gamma))
+        const clampedBeta = Math.max(-45, Math.min(45, e.beta - 45)) // Offset de 45deg (ángulo normal al sostener el móvil)
+        
+        // Suavizamos el efecto dividiendo entre 2 o 3
+        setTilt({ x: -(clampedBeta / 2.5), y: clampedGamma / 2.5 })
+      }
+    }
+    
+    // Solo registrar en el cliente
+    if (typeof window !== 'undefined') {
+      window.addEventListener('deviceorientation', handleOrientation, true)
+      return () => window.removeEventListener('deviceorientation', handleOrientation, true)
+    }
+  }, [isEnvelopeOpen])
+
   // Inyectar librería de confetti
   useEffect(() => {
     const script = document.createElement('script')
