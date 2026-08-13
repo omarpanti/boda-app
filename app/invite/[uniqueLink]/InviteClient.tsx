@@ -401,41 +401,44 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
 
             {/* 5. DRESS CODE & REGALOS */}
-            <section className="py-16 md:py-24 px-4 md:px-6 max-w-5xl mx-auto fade-in-section flex flex-col gap-12 md:gap-24 relative z-10">
+            <section className="py-12 md:py-24 px-4 md:px-6 max-w-5xl mx-auto fade-in-section flex flex-col gap-16 md:gap-24 relative z-10">
               
               {/* Código de vestimenta */}
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
-                <div className="text-center md:text-left flex-1 md:pr-12">
-                  <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-4 md:mb-8 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
-                    Código de vestimenta
-                  </h2>
-                  <p className="font-cursive text-[2rem] md:text-6xl mb-2 md:mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
-                    Formal
-                  </p>
-                  <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl leading-snug md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
-                    Les pedimos a nuestros invitados,<br/>
-                    evitar el uso del color blanco.
-                  </p>
-                </div>
-                <div className="flex-1 max-w-[220px] md:max-w-[300px]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply" />
+              <div className="flex flex-col items-center">
+                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-6 md:mb-12 text-[#1a1a1a] text-center w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+                  Código de vestimenta
+                </h2>
+                
+                <div className="flex flex-row items-center justify-between gap-2 md:gap-12 w-full max-w-4xl">
+                  <div className="text-center flex-1">
+                    <p className="font-cursive text-[2rem] md:text-6xl mb-2 md:mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                      Formal
+                    </p>
+                    <p className="font-cursive text-[1.1rem] sm:text-2xl md:text-4xl leading-tight md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                      Les pedimos a nuestros invitados,<br/>
+                      evitar el uso del color blanco.
+                    </p>
+                  </div>
+                  <div className="w-[45%] md:flex-1 max-w-[160px] sm:max-w-[220px] md:max-w-[300px]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply" />
+                  </div>
                 </div>
               </div>
 
               {/* Mesa de regalos */}
               <div className="flex flex-col items-center">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-8 md:mb-12 text-[#1a1a1a] text-center w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
+                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-6 md:mb-12 text-[#1a1a1a] text-center w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
                   Mesa de regalos
                 </h2>
                 
-                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-12 w-full">
-                  <div className="flex-1 max-w-[250px] md:max-w-[350px]">
+                <div className="flex flex-row items-center justify-between gap-2 md:gap-12 w-full max-w-4xl">
+                  <div className="w-[45%] md:flex-1 max-w-[180px] sm:max-w-[250px] md:max-w-[350px]">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply" />
                   </div>
-                  <div className="text-center md:text-right flex-1 md:pl-12">
-                    <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl leading-snug md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  <div className="text-center flex-1">
+                    <p className="font-cursive text-[1rem] sm:text-2xl md:text-4xl leading-tight md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
                       Tu presencia en este dia tan importante<br/>
                       es el mejor regalo,<br/>
                       si quieres tener un detalle con nosotros<br/>
