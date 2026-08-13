@@ -610,25 +610,46 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="bg-white/80 p-6 md:p-12 rounded-[2rem] shadow-lg border border-black/5">
                     <h3 className="font-cursive text-5xl mb-4">¿Nos acompañan?</h3>
                     <p className="text-sm md:text-base text-gray-500 mb-8">
-                      Tienes <strong className="text-[#A5A05A]">{1 + (guest.companions?.length || 0)} pases</strong> asignados. Por favor selecciona quiénes asistirán:
+                      {(!guest.companions || guest.companions.length === 0) 
+                        ? 'Por favor confirma tu asistencia:' 
+                        : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
                     </p>
                     
                     <div className="flex flex-col gap-3 mb-10 text-left">
-                      {[guest, ...(guest.companions || [])].map((person) => {
-                        const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
-                        return (
+                      {(!guest.companions || guest.companions.length === 0) ? (
+                        <div className="grid grid-cols-2 gap-4">
                           <div 
-                            key={person.id} 
-                            onClick={() => toggleSelection(person.id)}
-                            className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer border transition-all duration-300 ${isAttending ? 'border-[#A5A05A] bg-[#A5A05A]/5 shadow-sm' : 'border-gray-200 bg-white/50 opacity-60'}`}
+                            onClick={() => setSelections([{ id: guest.id, status: 'CONFIRMED' }])}
+                            className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'CONFIRMED' ? 'border-[#A5A05A] bg-[#A5A05A]/10 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
                           >
-                            <span className="font-inter font-medium text-lg text-[#4A4A4A]">{person.name}</span>
-                            <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-colors ${isAttending ? 'bg-[#A5A05A] border-[#A5A05A]' : 'bg-white border-gray-300'}`}>
-                              {isAttending && <span className="text-white text-sm">✓</span>}
-                            </div>
+                            <span className="text-2xl block mb-2">🎉</span>
+                            <span className="font-inter font-medium text-[#4A4A4A]">Sí, asistiré</span>
                           </div>
-                        )
-                      })}
+                          <div 
+                            onClick={() => setSelections([{ id: guest.id, status: 'DECLINED' }])}
+                            className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'DECLINED' ? 'border-red-400 bg-red-50 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
+                          >
+                            <span className="text-2xl block mb-2">😔</span>
+                            <span className="font-inter font-medium text-[#4A4A4A]">No asistiré</span>
+                          </div>
+                        </div>
+                      ) : (
+                        {[guest, ...(guest.companions || [])].map((person) => {
+                          const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
+                          return (
+                            <div 
+                              key={person.id} 
+                              onClick={() => toggleSelection(person.id)}
+                              className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer border transition-all duration-300 ${isAttending ? 'border-[#A5A05A] bg-[#A5A05A]/5 shadow-sm' : 'border-gray-200 bg-white/50 opacity-60'}`}
+                            >
+                              <span className="font-inter font-medium text-lg text-[#4A4A4A]">{person.name}</span>
+                              <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-colors ${isAttending ? 'bg-[#A5A05A] border-[#A5A05A]' : 'bg-white border-gray-300'}`}>
+                                {isAttending && <span className="text-white text-sm">✓</span>}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      )}
                     </div>
                     
                     <button 
@@ -636,7 +657,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                       onClick={handleRSVP}
                       className="w-full bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
                     >
-                      {loading ? 'Enviando...' : 'Confirmar Asistencia'}
+                      {loading ? 'Enviando...' : 'Enviar Confirmación'}
                     </button>
                   </div>
                 ) : (
