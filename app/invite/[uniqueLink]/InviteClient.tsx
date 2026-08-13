@@ -330,12 +330,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </p>
                   
                   {/* Padres */}
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.1rem] md:text-3xl text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-4 md:gap-12 font-playfair text-[0.95rem] sm:text-[1.1rem] md:text-3xl text-[#2c3e50] font-medium whitespace-nowrap tracking-wide">
                     <div className="flex-1 text-right space-y-1 md:space-y-2">
                       <p>Efraín Cauich Basto</p>
                       <p>Teresita Aguilar Ceballos</p>
                     </div>
-                    <div className="text-[#1a1a1a] text-xl md:text-4xl px-1 sm:px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="text-[#1a1a1a] font-cursive text-3xl md:text-6xl px-1 sm:px-2">&</div>
                     <div className="flex-1 text-left space-y-1 md:space-y-2">
                       <p>Jorge H. Panti Catzin <span className="text-[0.6rem] md:text-sm align-super">+</span></p>
                       <p>Guillermina Ix Pech</p>
@@ -349,12 +349,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     Y nuestros apreciados padrinos:
                   </p>
                   
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.1rem] md:text-3xl text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-4 md:gap-12 font-playfair text-[0.95rem] sm:text-[1.1rem] md:text-3xl text-[#2c3e50] font-medium whitespace-nowrap tracking-wide">
                     <div className="flex-1 text-right space-y-1 md:space-y-2">
                       <p>Luis Manuel Carrillo Pech</p>
                       <p>Luz Maria Aguilar Pech</p>
                     </div>
-                    <div className="text-[#1a1a1a] text-xl md:text-4xl px-1 sm:px-2" style={{ WebkitTextStroke: '0px' }}>&</div>
+                    <div className="text-[#1a1a1a] font-cursive text-3xl md:text-6xl px-1 sm:px-2">&</div>
                     <div className="flex-1 text-left space-y-1 md:space-y-2">
                       <p>Joel Ricardo Panti Ix</p>
                       <p>Janet C. Puc Sánchez</p>
@@ -374,8 +374,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
                 {/* Invitación */}
                 <div className="pt-6 md:pt-10">
-                  <p className="font-cursive text-xl md:text-4xl text-transparent leading-snug" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
-                    Queremos invitarlos a celebrar un dia muy especial<br/>
+                  <p className="font-playfair italic text-lg sm:text-xl md:text-4xl text-[#3a4e5c] leading-relaxed">
+                    Queremos invitarlos a celebrar un día muy especial<br/>
                     para nosotros, nuestra boda.
                   </p>
                 </div>
@@ -416,15 +416,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                 </div>
                 
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-0 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
-                  Parroquia, San Francisco de Asís
+                <p className="font-playfair font-semibold text-[1.1rem] sm:text-2xl md:text-4xl mb-1 text-[#2c3e50] tracking-wide">
+                  Parroquia San Francisco de Asís
                 </p>
-                <p className="font-cursive text-[1.2rem] sm:text-xl md:text-4xl mb-3 md:mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                <p className="font-playfair italic text-[1rem] sm:text-xl md:text-3xl mb-3 md:mb-4 text-[#2c3e50]">
                   Conkal, Yucatán.
                 </p>
                 
-                <p className="font-cursive text-[1.3rem] sm:text-2xl md:text-5xl text-transparent mb-1" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
-                  8:00 pm.
+                <p className="font-playfair font-bold text-[1.1rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-2 tracking-widest">
+                  8:00 PM
                 </p>
                 <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
                 
