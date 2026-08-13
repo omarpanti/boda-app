@@ -96,7 +96,7 @@ const FloatingPetals = () => {
             transform: translate3d(0, -50px, 0) rotate(0deg);
           }
           100% {
-            transform: translate3d(-150px, 120vh, 0) rotate(360deg);
+            transform: translate3d(-150px, 120%, 0) rotate(360deg);
           }
         }
       `}} />
@@ -254,7 +254,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
       
       {/* Contenedor responsivo ajustado para iOS (100dvh) y cualquier pantalla */}
-      <div className="min-h-[100dvh] bg-[#2c2c2c] flex justify-center items-start overflow-hidden">
+      <div className="min-h-[100dvh] bg-[#2c2c2c] flex justify-center items-start">
         
         {/* Contenedor central. En celulares es 100% ancho, en PC está limitado para no distorsionar fondos */}
         <div className="w-full max-w-lg md:max-w-2xl lg:max-w-3xl bg-paper text-[#2C2C2C] font-inter font-light relative overflow-x-hidden shadow-2xl min-h-[100dvh]">
