@@ -330,7 +330,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </p>
                   
                   {/* Padres */}
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide">
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[0.95rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide whitespace-nowrap">
                     <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
                       <p>Efraín Cauich Basto</p>
                       <p>Teresita Aguilar Ceballos</p>
@@ -349,7 +349,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     Y nuestros apreciados padrinos:
                   </p>
                   
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide">
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[0.95rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide whitespace-nowrap">
                     <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
                       <p>Luis Manuel Carrillo Pech</p>
                       <p>Luz Maria Aguilar Pech</p>
