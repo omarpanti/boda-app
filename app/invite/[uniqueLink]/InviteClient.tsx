@@ -131,17 +131,21 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     setIsEnvelopeOpen(true)
     
     // Polvo de hadas / Partículas doradas al abrir
-    confetti({
-      particleCount: 80,
-      spread: 90,
-      origin: { y: 0.55 },
-      colors: ['#D9A1D4', '#A5A05A', '#FFD700', '#ffffff'],
-      ticks: 200,
-      gravity: 0.5,
-      scalar: 0.8,
-      shapes: ['circle'],
-      zIndex: 9999
-    });
+    const win = window as any
+    if (typeof win.confetti !== 'undefined') {
+      const confetti = win.confetti
+      confetti({
+        particleCount: 80,
+        spread: 90,
+        origin: { y: 0.55 },
+        colors: ['#D9A1D4', '#A5A05A', '#FFD700', '#ffffff'],
+        ticks: 200,
+        gravity: 0.5,
+        scalar: 0.8,
+        shapes: ['circle'],
+        zIndex: 9999
+      });
+    }
     
     // 1.2s después de abrir el sobre, revelamos la invitación de atrás (fade in)
     setTimeout(() => {
