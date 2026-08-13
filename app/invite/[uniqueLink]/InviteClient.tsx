@@ -173,12 +173,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
             <div 
-              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#2c2c2c]/80 backdrop-blur-sm transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/Iglesia.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
               style={{ perspective: '1000px' }}
             >
+              {/* Filtro oscuro y desenfoque para el fondo */}
+              <div className="absolute inset-0 bg-[#2c2c2c]/60 backdrop-blur-sm"></div>
               
               <div 
-                className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]" 
+                className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
                 style={{
                   transform: isEnvelopeOpen ? 'translateY(150px) scale(0.8) rotateX(15deg)' : 'translateY(0) scale(1) rotateX(0deg)',
@@ -219,10 +221,11 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
                   }}
                 >
-                  <div className="w-14 h-14 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative overflow-hidden">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative overflow-hidden">
                     {/* Brillo realista del lacre */}
                     <div className="absolute inset-0 bg-white/20 blur-[2px] rounded-full mix-blend-overlay"></div>
-                    <span className="text-[#4a3505] font-cursive text-2xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10">M&O</span>
+                    {/* Ajuste de posición (mt-2) y line-height para centrar fuentes cursivas altas */}
+                    <span className="text-[#4a3505] font-cursive text-2xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10 leading-none mt-2 ml-1">M&O</span>
                   </div>
                 </div>
                 
