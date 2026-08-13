@@ -264,8 +264,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     }, 2500)
   }
 
-  const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=4A4A4A&bgcolor=FDFBF7&data=" + encodeURIComponent("BODA2026-GUEST-" + guest.uniqueLink)
-
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
