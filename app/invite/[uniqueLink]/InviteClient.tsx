@@ -330,13 +330,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </p>
                   
                   {/* Padres */}
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-4 md:gap-12 font-playfair text-[0.95rem] sm:text-[1.1rem] md:text-3xl text-[#2c3e50] font-medium whitespace-nowrap tracking-wide">
-                    <div className="flex-1 text-right space-y-1 md:space-y-2">
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide">
+                    <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
                       <p>Efraín Cauich Basto</p>
                       <p>Teresita Aguilar Ceballos</p>
                     </div>
-                    <div className="text-[#1a1a1a] font-cursive text-3xl md:text-6xl px-1 sm:px-2">&</div>
-                    <div className="flex-1 text-left space-y-1 md:space-y-2">
+                    <div className="text-[#1a1a1a] font-cursive text-2xl md:text-5xl px-1 sm:px-2">&</div>
+                    <div className="flex-1 text-left space-y-1 md:space-y-2 py-2 pl-1">
                       <p>Jorge H. Panti Catzin <span className="text-[0.6rem] md:text-sm align-super">+</span></p>
                       <p>Guillermina Ix Pech</p>
                     </div>
@@ -349,13 +349,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     Y nuestros apreciados padrinos:
                   </p>
                   
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-4 md:gap-12 font-playfair text-[0.95rem] sm:text-[1.1rem] md:text-3xl text-[#2c3e50] font-medium whitespace-nowrap tracking-wide">
-                    <div className="flex-1 text-right space-y-1 md:space-y-2">
+                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[1rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide">
+                    <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
                       <p>Luis Manuel Carrillo Pech</p>
                       <p>Luz Maria Aguilar Pech</p>
                     </div>
-                    <div className="text-[#1a1a1a] font-cursive text-3xl md:text-6xl px-1 sm:px-2">&</div>
-                    <div className="flex-1 text-left space-y-1 md:space-y-2">
+                    <div className="text-[#1a1a1a] font-cursive text-2xl md:text-5xl px-1 sm:px-2">&</div>
+                    <div className="flex-1 text-left space-y-1 md:space-y-2 py-2 pl-1">
                       <p>Joel Ricardo Panti Ix</p>
                       <p>Janet C. Puc Sánchez</p>
                     </div>
@@ -364,17 +364,17 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
                 {/* Nosotros */}
                 <div className="pt-6 md:pt-12 flex flex-col items-center">
-                  <p className="font-cursive text-sm md:text-xl text-transparent mb-1 md:mb-2" style={{ WebkitTextStroke: '0.5px #64748b' }}>
+                  <p className="font-cursive text-sm md:text-xl text-[#3a4e5c] mb-1 md:mb-2">
                     Nosotros :
                   </p>
-                  <h2 className="font-cursive text-[2.5rem] sm:text-5xl md:text-7xl text-[#1a1a1a] flex items-center justify-center gap-3 md:gap-4 w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.3)' }}>
-                    Maritere <span className="text-xl md:text-4xl text-transparent" style={{ WebkitTextStroke: '0.5px #64748b', textShadow: 'none' }}>&</span> Omar
+                  <h2 className="font-cursive text-[2.5rem] sm:text-5xl md:text-7xl text-[#1a1a1a] flex items-center justify-center gap-2 md:gap-4 w-full py-2">
+                    <span className="pl-2">Maritere</span> <span className="text-xl md:text-4xl text-[#3a4e5c]">&</span> <span className="pr-2">Omar</span>
                   </h2>
                 </div>
 
                 {/* Invitación */}
-                <div className="pt-6 md:pt-10">
-                  <p className="font-playfair italic text-lg sm:text-xl md:text-4xl text-[#3a4e5c] leading-relaxed">
+                <div className="pt-6 md:pt-10 px-2">
+                  <p className="font-cursive text-xl md:text-4xl text-[#3a4e5c] leading-relaxed">
                     Queremos invitarlos a celebrar un día muy especial<br/>
                     para nosotros, nuestra boda.
                   </p>
@@ -382,13 +382,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
                 {/* Fecha */}
                 <div className="pt-6 md:pt-12 pb-6 md:pb-10">
-                  <p className="font-cursive text-xl md:text-4xl text-[#1a1a1a] font-bold" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                  <p className="font-cursive text-2xl md:text-4xl text-[#1a1a1a]">
                     Viernes
                   </p>
-                  <p className="font-cursive text-[1.75rem] sm:text-3xl md:text-5xl text-[#1a1a1a] font-bold my-1 md:my-2" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                  <p className="font-cursive text-[1.6rem] sm:text-3xl md:text-5xl text-[#1a1a1a] my-1 md:my-3">
                     04 / Diciembre / 2026
                   </p>
-                  <p className="font-cursive text-xl md:text-4xl text-[#1a1a1a] font-bold" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.3)' }}>
+                  <p className="font-cursive text-2xl md:text-4xl text-[#1a1a1a]">
                     Conkal, Yucatán
                   </p>
                 </div>
@@ -416,14 +416,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                 </div>
                 
-                <p className="font-playfair font-semibold text-[1.1rem] sm:text-2xl md:text-4xl mb-1 text-[#2c3e50] tracking-wide">
+                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-0 text-[#2c3e50]">
                   Parroquia San Francisco de Asís
                 </p>
-                <p className="font-playfair italic text-[1rem] sm:text-xl md:text-3xl mb-3 md:mb-4 text-[#2c3e50]">
+                <p className="font-cursive text-[1.3rem] sm:text-xl md:text-4xl mb-3 md:mb-4 text-[#2c3e50]">
                   Conkal, Yucatán.
                 </p>
                 
-                <p className="font-playfair font-bold text-[1.1rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-2 tracking-widest">
+                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl text-[#1a1a1a] mb-2">
                   8:00 PM
                 </p>
                 <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
@@ -461,12 +461,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
                 </div>
                 
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-1 md:mb-2 text-transparent whitespace-nowrap" style={{ WebkitTextStroke: '0.9px #1a1a1a' }}>
+                <p className="font-cursive text-[1.5rem] sm:text-2xl md:text-5xl mb-1 md:mb-2 text-[#1a1a1a] px-2">
                   Hacienda Chaká. Conkal Yucatán.
                 </p>
                 
-                <p className="font-cursive text-[1.3rem] sm:text-2xl md:text-5xl text-transparent mb-1" style={{ WebkitTextStroke: '0.9px #1a1a1a' }}>
-                  9:00 pm.
+                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl text-[#1a1a1a] mb-2">
+                  9:00 PM
                 </p>
                 <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
                 
@@ -494,10 +494,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 
                 <div className="flex flex-row items-center justify-between gap-2 md:gap-12 w-full max-w-4xl">
                   <div className="text-center flex-1">
-                    <p className="font-cursive text-[2rem] md:text-6xl mb-2 md:mb-4 text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    <p className="font-cursive text-[2rem] md:text-6xl mb-2 md:mb-4 text-[#2c3e50]">
                       Formal
                     </p>
-                    <p className="font-cursive text-[1.1rem] sm:text-2xl md:text-4xl leading-tight md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    <p className="font-cursive text-[1.25rem] sm:text-2xl md:text-4xl leading-relaxed md:leading-relaxed text-[#3a4e5c]">
                       Les pedimos a nuestros invitados,<br/>
                       evitar el uso del color blanco.
                     </p>
@@ -521,7 +521,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply" />
                   </div>
                   <div className="text-center flex-1">
-                    <p className="font-cursive text-[1rem] sm:text-2xl md:text-4xl leading-tight md:leading-relaxed text-transparent" style={{ WebkitTextStroke: '0.8px #3a4e5c' }}>
+                    <p className="font-cursive text-[1.15rem] sm:text-2xl md:text-4xl leading-relaxed md:leading-relaxed text-[#3a4e5c]">
                       Tu presencia en este dia tan importante<br/>
                       es el mejor regalo,<br/>
                       si quieres tener un detalle con nosotros<br/>
