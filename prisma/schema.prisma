@@ -16,6 +16,12 @@ model Guest {
   rsvpStatus   String   @default("PENDING") // PENDING, CONFIRMED, DECLINED
   tableId      Int?     
   table        Table?   @relation(fields: [tableId], references: [id])
+  
+  // Relación para agrupación de pases (Titular y acompañantes)
+  primaryGuestId Int?
+  primaryGuest   Guest?  @relation("Companions", fields: [primaryGuestId], references: [id])
+  companions     Guest[] @relation("Companions")
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

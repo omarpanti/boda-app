@@ -51,12 +51,14 @@ const FONTS = `
   }
 `
 
+type Companion = { id: number, name: string, gender: string, rsvpStatus: string }
 type GuestWithTable = {
   id: number
   name: string
   rsvpStatus: string
   uniqueLink: string
   table?: { name: string, number: number | null } | null
+  companions?: Companion[]
 }
 
 const FloatingPetals = () => {
@@ -107,6 +109,16 @@ const FloatingPetals = () => {
 export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [isResponded, setIsResponded] = useState(guest.rsvpStatus !== 'PENDING')
   const [loading, setLoading] = useState(false)
+  
+  // Estado para las selecciones del grupo (por defecto todos confirmados)
+  const [selections, setSelections] = useState<{id: number, status: 'CONFIRMED' | 'DECLINED'}[]>([
+    { id: guest.id, status: 'CONFIRMED' },
+    ...(guest.companions?.map(c => ({ id: c.id, status: 'CONFIRMED' as const })) || [])
+  ])
+
+  const toggleSelection = (id: number) => {
+    setSelections(prev => prev.map(sel => sel.id === id ? { ...sel, status: sel.status === 'CONFIRMED' ? 'DECLINED' : 'CONFIRMED' } : sel))
+  }
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false)
   const [showInvitation, setShowInvitation] = useState(false)
 
@@ -201,15 +213,21 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     }
   }
 
-  const handleRSVP = async (status: 'CONFIRMED' | 'DECLINED') => {
+  const handleRSVP = async () => {
     setLoading(true)
     try {
-      await submitRsvp(guest.uniqueLink, status)
+      const { submitGroupRsvp } = await import('./actions')
+      await submitGroupRsvp(guest.uniqueLink, selections)
       setIsResponded(true)
-      guest.rsvpStatus = status
-      if (status === 'CONFIRMED') {
+      
+      // Si el titular confirmó, disparamos confeti
+      const titularConfirmed = selections.find(s => s.id === guest.id)?.status === 'CONFIRMED'
+      if (titularConfirmed) {
         triggerConfetti()
       }
+    } catch (error) {
+      console.error(error)
+      alert("Hubo un error al confirmar. Por favor intenta de nuevo.")
     } finally {
       setLoading(false)
     }
@@ -587,56 +605,49 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 6. PASE VIRTUAL Y RSVP */}
             <section className="py-24 px-6 text-center fade-in-section bg-white/50 backdrop-blur-md border-t border-black/5">
               <div className="max-w-2xl mx-auto">
-                <h2 className="font-cursive text-6xl md:text-7xl text-[#4A4A4A] mb-10">Tu Pase Especial</h2>
-                
-                <div className="bg-white p-8 rounded-3xl shadow-xl border border-black/5 mx-auto max-w-sm mb-12 transform hover:scale-105 transition-transform duration-300">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={qrUrl} alt="Código QR del Invitado" className="w-48 h-48 mx-auto mb-6" />
-                  
-                  {guest.table ? (
-                    <>
-                      <p className="text-xs uppercase tracking-widest text-gray-400 mb-2">Lugar Reservado</p>
-                      <p className="font-playfair text-2xl font-semibold text-[#A5A05A]">
-                        {guest.table.number ? `Mesa ${guest.table.number} - ` : ''}{guest.table.name}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-sm italic text-gray-500">Tu asiento será asignado próximamente.</p>
-                  )}
-                </div>
+                {/* Se ha removido el bloque del QR y la Mesa por petición del usuario */}
 
                 {!isResponded ? (
-                  <div className="bg-white/80 p-8 md:p-12 rounded-[2rem] shadow-lg border border-black/5">
-                    <h3 className="font-cursive text-5xl mb-6">¿Nos acompañas?</h3>
-                    <p className="text-sm md:text-base text-gray-500 mb-10">Favor de confirmar tu asistencia antes del 1 de Noviembre.</p>
+                  <div className="bg-white/80 p-6 md:p-12 rounded-[2rem] shadow-lg border border-black/5">
+                    <h3 className="font-cursive text-5xl mb-4">¿Nos acompañan?</h3>
+                    <p className="text-sm md:text-base text-gray-500 mb-8">
+                      Tienes <strong className="text-[#A5A05A]">{1 + (guest.companions?.length || 0)} pases</strong> asignados. Por favor selecciona quiénes asistirán:
+                    </p>
                     
-                    <div className="flex flex-col md:flex-row gap-4 justify-center">
-                      <button 
-                        disabled={loading}
-                        onClick={() => handleRSVP('CONFIRMED')}
-                        className="flex-1 bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
-                      >
-                        {loading ? 'Confirmando...' : 'Sí, asistiré'}
-                      </button>
-                      <button 
-                        disabled={loading}
-                        onClick={() => handleRSVP('DECLINED')}
-                        className="flex-1 bg-transparent border-2 border-[#D9A1D4] hover:bg-[#D9A1D4]/10 text-[#D9A1D4] font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 text-sm"
-                      >
-                        {loading ? 'Enviando...' : 'No podré ir'}
-                      </button>
+                    <div className="flex flex-col gap-3 mb-10 text-left">
+                      {[guest, ...(guest.companions || [])].map((person) => {
+                        const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
+                        return (
+                          <div 
+                            key={person.id} 
+                            onClick={() => toggleSelection(person.id)}
+                            className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer border transition-all duration-300 ${isAttending ? 'border-[#A5A05A] bg-[#A5A05A]/5 shadow-sm' : 'border-gray-200 bg-white/50 opacity-60'}`}
+                          >
+                            <span className="font-inter font-medium text-lg text-[#4A4A4A]">{person.name}</span>
+                            <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-colors ${isAttending ? 'bg-[#A5A05A] border-[#A5A05A]' : 'bg-white border-gray-300'}`}>
+                              {isAttending && <span className="text-white text-sm">✓</span>}
+                            </div>
+                          </div>
+                        )
+                      })}
                     </div>
+                    
+                    <button 
+                      disabled={loading}
+                      onClick={handleRSVP}
+                      className="w-full bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
+                    >
+                      {loading ? 'Enviando...' : 'Confirmar Asistencia'}
+                    </button>
                   </div>
                 ) : (
                   <div className="py-12 px-6">
-                    <div className="text-6xl mb-6">{guest.rsvpStatus === 'CONFIRMED' ? '🥂' : '🕊️'}</div>
+                    <div className="text-6xl mb-6">✨</div>
                     <h3 className="font-cursive text-6xl md:text-7xl text-[#A5A05A] mb-4">
-                      {guest.rsvpStatus === 'CONFIRMED' ? '¡Qué Alegría!' : 'Te Echaremos de Menos'}
+                      ¡Gracias por confirmar!
                     </h3>
                     <p className="text-gray-500 font-inter text-xl">
-                      {guest.rsvpStatus === 'CONFIRMED'
-                        ? 'Hemos guardado tu confirmación. ¡Prepárate para celebrar juntos!'
-                        : 'Agradecemos que nos hayas avisado. Te tendremos presente.'}
+                      Hemos registrado las respuestas de tu grupo.
                     </p>
                   </div>
                 )}

@@ -47,7 +47,6 @@ export async function bulkAddGuests(guests: {name: string, gender: string, phone
     name: g.name,
     gender: g.gender,
     phone: g.phone || null,
-    // Generamos un link único para cada uno
     uniqueLink: Math.random().toString(36).substring(2, 10) + Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
     rsvpStatus: 'PENDING'
   }))
@@ -58,3 +57,24 @@ export async function bulkAddGuests(guests: {name: string, gender: string, phone
   
   revalidatePath('/admin/guests')
 }
+
+export async function addCompanions(primaryGuestId: number, companionIds: number[]) {
+  // En lugar de crear un invitado nuevo, vinculamos múltiples invitados existentes
+  await prisma.guest.updateMany({
+    where: { id: { in: companionIds } },
+    data: {
+      primaryGuestId
+    }
+  })
+  revalidatePath('/admin/guests')
+}
+
+export async function removeCompanion(id: number) {
+  // Desvinculamos al invitado para que vuelva a aparecer en la lista oficial
+  await prisma.guest.update({
+    where: { id },
+    data: { primaryGuestId: null }
+  })
+  revalidatePath('/admin/guests')
+}
+

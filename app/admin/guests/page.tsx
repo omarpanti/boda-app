@@ -5,7 +5,10 @@ import GuestsTableClient from './GuestsTableClient'
 export const dynamic = 'force-dynamic'
 
 export default async function GuestsPage() {
+  // Obtenemos solo los invitados titulares (que no tienen primaryGuestId) y sus acompañantes
   const guests = await prisma.guest.findMany({
+    where: { primaryGuestId: null },
+    include: { companions: true },
     orderBy: { createdAt: 'desc' }
   })
 

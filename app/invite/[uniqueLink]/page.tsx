@@ -8,7 +8,7 @@ export default async function InvitePage({ params }: { params: { uniqueLink: str
   // Buscar al invitado en la base de datos por su link único y traer su mesa si tiene
   const guest = await prisma.guest.findUnique({
     where: { uniqueLink: params.uniqueLink },
-    include: { table: true }
+    include: { table: true, companions: true }
   })
 
   // Si el link no existe o es inválido, mostramos un error 404

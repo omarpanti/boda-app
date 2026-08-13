@@ -6,11 +6,15 @@ import * as XLSX from 'xlsx'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string }
+type Companion = { id: number, name: string, gender: string, rsvpStatus: string }
+type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, companions?: Companion[] }
 
 export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [addingCompanionTo, setAddingCompanionTo] = useState<number | null>(null)
+  const [companionIds, setCompanionIds] = useState<number[]>([])
+  const [companionSearch, setCompanionSearch] = useState('')
 
   const filteredGuests = guests.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
@@ -40,29 +44,64 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
   }
 
   const handleExportExcel = () => {
-    const data = filteredGuests.map(g => ({
-      Nombre: g.name,
-      Teléfono: g.phone || 'N/A',
-      Estatus: g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
-      Género: g.gender === 'M' ? 'Hombre' : 'Mujer'
-    }))
+    const data: any[] = []
+    
+    // Ordenamos la lista filtrada de titulares alfabéticamente por nombre
+    const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
+
+    sortedGuests.forEach(g => {
+      data.push({
+        Nombre: g.name,
+        Tipo: 'Titular',
+        Teléfono: g.phone || 'N/A',
+        Estatus: g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+        Género: g.gender === 'M' ? 'Hombre' : 'Mujer'
+      })
+      g.companions?.forEach(c => {
+        data.push({
+          Nombre: c.name,
+          Tipo: `Acompañante de ${g.name}`,
+          Teléfono: 'N/A',
+          Estatus: c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+          Género: c.gender === 'M' ? 'Hombre' : 'Mujer'
+        })
+      })
+    })
+
     const ws = XLSX.utils.json_to_sheet(data)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Invitados")
-    XLSX.writeFile(wb, "Reporte_Invitados.xlsx")
+    XLSX.writeFile(wb, "Reporte_Invitados_Completo.xlsx")
   }
 
   const handleExportPDF = () => {
     const doc = new jsPDF()
     doc.text("Reporte de Invitados", 14, 15)
     
-    const tableColumn = ["Nombre", "Teléfono", "Estatus", "Género"]
-    const tableRows = filteredGuests.map(g => [
-      g.name,
-      g.phone || 'N/A',
-      g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
-      g.gender === 'M' ? 'Hombre' : 'Mujer'
-    ])
+    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Género"]
+    const tableRows: any[][] = []
+    
+    // Ordenamos la lista filtrada de titulares alfabéticamente por nombre
+    const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
+
+    sortedGuests.forEach(g => {
+      tableRows.push([
+        g.name,
+        'Titular',
+        g.phone || 'N/A',
+        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+        g.gender === 'M' ? 'Hombre' : 'Mujer'
+      ])
+      g.companions?.forEach(c => {
+        tableRows.push([
+          `  -> ${c.name}`,
+          `Acompañante de ${g.name}`,
+          'N/A',
+          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+          c.gender === 'M' ? 'Hombre' : 'Mujer'
+        ])
+      })
+    })
 
     autoTable(doc, {
       head: [tableColumn],
@@ -75,7 +114,24 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     window.open(pdfUrl, '_blank')
   }
 
+  const handleAddCompanion = async () => {
+    if (!addingCompanionTo || companionIds.length === 0) return
+    const { addCompanions } = await import('./actions')
+    await addCompanions(addingCompanionTo, companionIds)
+    setAddingCompanionTo(null)
+    setCompanionIds([])
+    setCompanionSearch('')
+  }
+
+  const handleRemoveCompanion = async (id: number) => {
+    if (confirm('¿Seguro que deseas eliminar a este acompañante?')) {
+      const { removeCompanion } = await import('./actions')
+      await removeCompanion(id)
+    }
+  }
+
   return (
+    <>
     <div className="bg-white/5 rounded-3xl shadow-2xl border border-white/10 overflow-hidden backdrop-blur-xl">
       {/* Buscador y Barra de acciones masivas */}
       <div className="p-4 sm:p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 bg-transparent">
@@ -108,22 +164,22 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-black/40 text-slate-300 text-sm border-b border-white/10 uppercase tracking-wider">
-              <th className="p-4 font-semibold w-12 text-center">
+        <table className="w-full text-left text-sm text-slate-300">
+          <thead className="text-xs uppercase bg-black/20 text-slate-400 border-b border-white/10">
+            <tr>
+              <th scope="col" className="p-4 w-12">
                 <input 
                   type="checkbox" 
+                  className="w-4 h-4 rounded bg-black/50 border-white/20 text-blue-600 focus:ring-blue-500/50" 
                   onChange={handleSelectAll}
                   checked={filteredGuests.length > 0 && selectedIds.length === filteredGuests.length}
-                  className="rounded border-white/20 bg-black/50 text-blue-500 focus:ring-blue-500/50 w-4 h-4 cursor-pointer accent-blue-500"
                 />
               </th>
-              <th className="p-4 font-semibold">Nombre</th>
-              <th className="p-4 font-semibold">Teléfono</th>
-              <th className="p-4 font-semibold">Link de Invitación</th>
-              <th className="p-4 font-semibold text-center">Estatus</th>
-              <th className="p-4 font-semibold text-center">Acciones</th>
+              <th scope="col" className="px-6 py-4 font-semibold tracking-wider">Titular</th>
+              <th scope="col" className="px-6 py-4 font-semibold tracking-wider text-center">Pases</th>
+              <th scope="col" className="px-6 py-4 font-semibold tracking-wider">Acompañantes</th>
+              <th scope="col" className="px-6 py-4 font-semibold tracking-wider">Enlace WhatsApp</th>
+              <th scope="col" className="px-6 py-4 font-semibold tracking-wider text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -144,51 +200,74 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                       className="rounded border-white/20 bg-black/50 text-blue-500 focus:ring-blue-500/50 w-4 h-4 cursor-pointer accent-blue-500"
                     />
                   </td>
-                  <td className="p-4">
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-lg shadow-inner border border-white/5">
-                        {guest.gender === 'M' ? '👨' : '👩'}
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10 shadow-inner">
+                        <span className="text-lg">{guest.gender === 'F' ? '👩' : '👨'}</span>
                       </div>
-                      <span className="font-medium text-white">{guest.name}</span>
+                      <div>
+                        <div className="font-semibold text-white text-base">{guest.name}</div>
+                        <div className="text-slate-400 text-xs mt-0.5">{guest.phone || 'Sin teléfono'}</div>
+                        <div className="mt-1">
+                          {guest.rsvpStatus === 'PENDING' ? (
+                            <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                              Pendiente
+                            </span>
+                          ) : guest.rsvpStatus === 'CONFIRMED' ? (
+                            <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              Confirmado
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 bg-rose-500/10 text-rose-400 text-xs px-2 py-0.5 rounded-full border border-rose-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                              Rechazado
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </td>
-                  <td className="p-4 text-slate-300 font-mono text-sm">{guest.phone || 'N/A'}</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <a 
-                        href={`/invite/${guest.uniqueLink}`} 
-                        target="_blank" 
-                        className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 font-medium transition-colors"
+                  <td className="px-6 py-4 text-center">
+                    <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">
+                      {1 + (guest.companions?.length || 0)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      {guest.companions?.map(comp => (
+                        <div key={comp.id} className="flex items-center justify-between bg-black/20 px-3 py-1.5 rounded-lg border border-white/5 text-sm">
+                          <span className="flex items-center gap-2">
+                            <span>{comp.gender === 'F' ? '👩' : '👨'}</span>
+                            <span className="text-slate-200">{comp.name}</span>
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={`w-2 h-2 rounded-full ${comp.rsvpStatus === 'PENDING' ? 'bg-amber-400' : comp.rsvpStatus === 'CONFIRMED' ? 'bg-emerald-400' : 'bg-rose-400'}`}></span>
+                            <button onClick={() => handleRemoveCompanion(comp.id)} className="text-slate-500 hover:text-rose-400 transition-colors" title="Quitar acompañante">
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                      <button 
+                        onClick={() => setAddingCompanionTo(guest.id)}
+                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1 border border-dashed border-blue-500/30 rounded-lg px-2 py-1.5 hover:bg-blue-500/10 transition-colors w-max"
                       >
-                        Ver Invitación <span className="text-xs">↗</span>
-                      </a>
-                      {guest.phone && (
-                        <a 
-                          href={`https://wa.me/${guest.phone}?text=${encodeURIComponent(`¡Hola ${guest.name}! Te comparto tu invitación para la boda: ${window.location.origin}/invite/${guest.uniqueLink}`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="ml-2 inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-500/20 transition-colors border border-green-500/20"
-                        >
-                          📱 Enviar WP
-                        </a>
-                      )}
+                        + Añadir acompañante
+                      </button>
                     </div>
                   </td>
-                  <td className="p-4 text-center">
-                    {guest.rsvpStatus === 'PENDING' && (
-                      <span className="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-                        Pendiente
-                      </span>
-                    )}
-                    {guest.rsvpStatus === 'CONFIRMED' && (
-                      <span className="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-                        Confirmado
-                      </span>
-                    )}
-                    {guest.rsvpStatus === 'DECLINED' && (
-                      <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-                        Rechazado
-                      </span>
+                  <td className="px-6 py-4">
+                    {guest.phone && (
+                      <a 
+                        href={`https://wa.me/${guest.phone}?text=${encodeURIComponent(`¡Hola ${guest.name}! Te comparto tu invitación para la boda: ${window.location.origin}/invite/${guest.uniqueLink}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-500/20 transition-colors border border-green-500/20"
+                      >
+                        📱 Enviar WP
+                      </a>
                     )}
                   </td>
                   <td className="p-4 text-center">
@@ -211,5 +290,82 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         </table>
       </div>
     </div>
+
+    {/* Modal para añadir acompañante (Movido fuera del contenedor con backdrop-blur) */}
+    {addingCompanionTo !== null && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div className="bg-slate-900 border border-white/10 p-6 rounded-2xl shadow-2xl max-w-lg w-full relative">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-white">Vincular Acompañantes</h3>
+            <span className={`text-sm px-2 py-1 rounded-md ${companionIds.length >= 15 ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'}`}>
+              {companionIds.length} / 15
+            </span>
+          </div>
+          
+          <label className="block text-sm text-slate-400 mb-2">Buscar invitado (lista oficial):</label>
+          <input 
+            type="text" 
+            placeholder="Escribe para buscar..." 
+            value={companionSearch}
+            onChange={e => setCompanionSearch(e.target.value)}
+            className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full mb-4 outline-none focus:ring-2 focus:ring-blue-500" 
+          />
+
+          <div className="max-h-96 overflow-y-auto mb-6 bg-black/20 rounded-xl border border-white/5 custom-scrollbar">
+            {guests
+              .filter(g => g.id !== addingCompanionTo && g.name.toLowerCase().includes(companionSearch.toLowerCase()))
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(g => {
+                const isSelected = companionIds.includes(g.id)
+                return (
+                  <div 
+                    key={g.id}
+                    onClick={() => {
+                      if (isSelected) {
+                        setCompanionIds(prev => prev.filter(id => id !== g.id))
+                      } else {
+                        if (companionIds.length < 15) {
+                          setCompanionIds(prev => [...prev, g.id])
+                        } else {
+                          alert('Has alcanzado el límite máximo de 15 acompañantes por titular.')
+                        }
+                      }
+                    }}
+                    className={`p-3 cursor-pointer border-b border-white/5 transition-colors flex items-center gap-3 ${isSelected ? 'bg-blue-600/20 border-blue-500/30' : 'hover:bg-white/5'}`}
+                  >
+                    <span className="text-lg">{g.gender === 'F' ? '👩' : '👨'}</span>
+                    <span className="text-sm text-slate-200">{g.name}</span>
+                    {isSelected && <span className="ml-auto text-blue-400">✓</span>}
+                  </div>
+                )
+              })}
+            {guests.filter(g => g.id !== addingCompanionTo && g.name.toLowerCase().includes(companionSearch.toLowerCase())).length === 0 && (
+              <div className="p-4 text-center text-slate-500 text-sm italic">No se encontraron invitados.</div>
+            )}
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <button 
+              onClick={() => {
+                setAddingCompanionTo(null)
+                setCompanionIds([])
+                setCompanionSearch('')
+              }}
+              className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleAddCompanion}
+              disabled={companionIds.length === 0}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Vincular ({companionIds.length})
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   )
 }
