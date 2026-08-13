@@ -68,25 +68,9 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [mountEnvelope, setMountEnvelope] = useState(true)
   
   // Estado para el efecto 3D dinámico
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isEnvelopeOpen) return
-    const { clientX, clientY, currentTarget } = e
-    const { left, top, width, height } = currentTarget.getBoundingClientRect()
-    // Rotación sutil basada en la posición del cursor (máximo ~15 grados)
-    const x = ((clientY - top - height / 2) / height) * -15
-    const y = ((clientX - left - width / 2) / width) * 15
-    setTilt({ x, y })
-  }
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
   
-  const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 })
-  }
-
-  // Soporte para giroscopio (móviles)
   useEffect(() => {
-    if (isEnvelopeOpen) return
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma !== null && e.beta !== null) {
         // gamma: rotación izq/der (-90 a 90)
@@ -95,17 +79,37 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         const clampedGamma = Math.max(-45, Math.min(45, e.gamma))
         const clampedBeta = Math.max(-45, Math.min(45, e.beta - 45)) // Offset de 45deg (ángulo normal al sostener el móvil)
         
-        // Suavizamos el efecto dividiendo entre 2 o 3
+        // Suavizamos el efecto dividiendo entre 2.5
         setTilt({ x: -(clampedBeta / 2.5), y: clampedGamma / 2.5 })
       }
     }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window
+      // Rotación y movimiento sutil basado en la posición del cursor (máximo ~15 grados)
+      const x = ((e.clientY - innerHeight / 2) / innerHeight) * -15
+      const y = ((e.clientX - innerWidth / 2) / innerWidth) * 15
+      setTilt({ x, y })
+    }
     
-    // Solo registrar en el cliente
+    const handleMouseLeave = () => {
+      setTilt({ x: 0, y: 0 })
+    }
+
     if (typeof window !== 'undefined') {
       window.addEventListener('deviceorientation', handleOrientation, true)
-      return () => window.removeEventListener('deviceorientation', handleOrientation, true)
+      window.addEventListener('mousemove', handleMouseMove, true)
+      window.addEventListener('mouseout', handleMouseLeave, true)
     }
-  }, [isEnvelopeOpen])
+    
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('deviceorientation', handleOrientation, true)
+        window.removeEventListener('mousemove', handleMouseMove, true)
+        window.removeEventListener('mouseout', handleMouseLeave, true)
+      }
+    }
+  }, [])
 
   // Inyectar librería de confetti
   useEffect(() => {
@@ -222,8 +226,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               <div 
                 className="relative w-[320px] h-[200px] bg-[#d5d1c8] rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={handleMouseLeave}
                 style={{
                   transform: isEnvelopeOpen 
                     ? 'translateY(150px) scale(0.8) rotateX(15deg) rotateY(0deg)' 
@@ -295,8 +297,11 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 1. PORTADA */}
             <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-2 md:pt-4 px-1 md:px-4 text-center overflow-hidden">
               <div 
-                className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center"
-                style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
+                className="absolute inset-[-5%] z-0 bg-cover bg-bottom md:bg-center transition-transform duration-200 ease-out"
+                style={{ 
+                  backgroundImage: 'url("/fotos/Jardin rosa.png")',
+                  transform: `translate3d(${tilt.y * 1.5}px, ${-tilt.x * 1.5}px, 0) scale(1.05)`
+                }}
               >
                 {/* Opcional: un ligero oscurecimiento en la parte superior si hace falta, pero el PDF original no lo tiene tan marcado */}
               </div>
