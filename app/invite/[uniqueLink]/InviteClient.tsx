@@ -632,7 +632,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           </div>
                         </div>
                       ) : (
-                        {[guest, ...(guest.companions || [])].map((person) => {
+                        [guest, ...(guest.companions || [])].map((person) => {
                           const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
                           return (
                             <div 
@@ -646,7 +646,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                               </div>
                             </div>
                           )
-                        })}
+                        })
                       )}
                     </div>
                     
