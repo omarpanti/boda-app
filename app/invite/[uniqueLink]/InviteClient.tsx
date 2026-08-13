@@ -66,6 +66,23 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [showInvitation, setShowInvitation] = useState(false)
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
+  
+  // Estado para el efecto 3D dinámico
+  const [tilt, setTilt] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isEnvelopeOpen) return
+    const { clientX, clientY, currentTarget } = e
+    const { left, top, width, height } = currentTarget.getBoundingClientRect()
+    // Rotación sutil basada en la posición del cursor (máximo ~15 grados)
+    const x = ((clientY - top - height / 2) / height) * -15
+    const y = ((clientX - left - width / 2) / width) * 15
+    setTilt({ x, y })
+  }
+  
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 })
+  }
 
   // Inyectar librería de confetti
   useEffect(() => {
@@ -180,11 +197,19 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               <div className="absolute inset-0 bg-[#2c2c2c]/60 backdrop-blur-sm"></div>
               
               <div 
-                className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
+                className="relative w-[320px] h-[200px] bg-[#d5d1c8] rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
                 style={{
-                  transform: isEnvelopeOpen ? 'translateY(150px) scale(0.8) rotateX(15deg)' : 'translateY(0) scale(1) rotateX(0deg)',
-                  transformStyle: 'preserve-3d'
+                  transform: isEnvelopeOpen 
+                    ? 'translateY(150px) scale(0.8) rotateX(15deg) rotateY(0deg)' 
+                    : `translateY(0) scale(1) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                  transformStyle: 'preserve-3d',
+                  boxShadow: isEnvelopeOpen 
+                    ? '0 10px 30px rgba(0,0,0,0.5)' 
+                    : `${-tilt.y * 2}px ${20 + tilt.x * 2}px 40px rgba(0,0,0,0.7)`, // Sombra dinámica profunda
+                  transition: tilt.x === 0 && tilt.y === 0 ? 'all 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out' // Suave al entrar/salir, rápido al mover
                 }}
               >
                 
@@ -202,14 +227,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <h1 className="font-cursive text-3xl text-[#2c2c2c]">{guest.name}</h1>
                 </div>
 
-                {/* Solapas laterales e inferior (encima de la carta) */}
-                <div className="absolute top-0 left-0 w-0 h-0 border-t-[100px] border-b-[100px] border-l-[160px] border-transparent border-l-[#e8e5dc] z-30 pointer-events-none"></div>
-                <div className="absolute top-0 right-0 w-0 h-0 border-t-[100px] border-b-[100px] border-r-[160px] border-transparent border-r-[#e8e5dc] z-30 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-b-[120px] border-transparent border-b-[#f4f2ed] z-30 pointer-events-none"></div>
+                {/* Solapas laterales e inferior (encima de la carta) con bordes gold foil (drop-shadow dorado) */}
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[100px] border-b-[100px] border-l-[160px] border-transparent border-l-[#e8e5dc] z-30 pointer-events-none drop-shadow-[1px_0_1px_rgba(212,175,55,0.6)]"></div>
+                <div className="absolute top-0 right-0 w-0 h-0 border-t-[100px] border-b-[100px] border-r-[160px] border-transparent border-r-[#e8e5dc] z-30 pointer-events-none drop-shadow-[-1px_0_1px_rgba(212,175,55,0.6)]"></div>
+                <div className="absolute bottom-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-b-[120px] border-transparent border-b-[#f4f2ed] z-30 pointer-events-none drop-shadow-[0_-1px_1px_rgba(212,175,55,0.6)]"></div>
 
-                {/* Solapa superior (abre) */}
+                {/* Solapa superior (abre) con borde gold foil */}
                 <div 
-                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] drop-shadow-md pointer-events-none"
+                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none drop-shadow-[0_2px_2px_rgba(212,175,55,0.8)]"
                   style={{ transform: isEnvelopeOpen ? 'rotateX(180deg)' : 'rotateX(0deg)' }}
                 ></div>
                 
