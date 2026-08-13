@@ -44,44 +44,84 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
   }
 
   const handleExportExcel = () => {
-    const data: any[] = []
-    
-    // Ordenamos la lista filtrada de titulares alfabéticamente por nombre
+    // Definimos el encabezado del reporte
+    const headerData = [
+      ["BODA MARITERE & OMAR"],
+      ["Reporte Oficial de Invitados"],
+      [`Fecha de generación: ${new Date().toLocaleDateString()}`],
+      [], // Fila en blanco
+      ["Nombre", "Tipo", "Teléfono", "Estatus", "Género"]
+    ]
+
+    const dataRows: any[][] = []
     const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
 
     sortedGuests.forEach(g => {
-      data.push({
-        Nombre: g.name,
-        Tipo: 'Titular',
-        Teléfono: g.phone || 'N/A',
-        Estatus: g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
-        Género: g.gender === 'M' ? 'Hombre' : 'Mujer'
-      })
+      dataRows.push([
+        g.name,
+        'Titular',
+        g.phone || 'N/A',
+        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+        g.gender === 'M' ? 'Hombre' : 'Mujer'
+      ])
       g.companions?.forEach(c => {
-        data.push({
-          Nombre: c.name,
-          Tipo: `Acompañante de ${g.name}`,
-          Teléfono: 'N/A',
-          Estatus: c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
-          Género: c.gender === 'M' ? 'Hombre' : 'Mujer'
-        })
+        dataRows.push([
+          c.name,
+          `Acompañante de ${g.name}`,
+          'N/A',
+          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+          c.gender === 'M' ? 'Hombre' : 'Mujer'
+        ])
       })
     })
 
-    const ws = XLSX.utils.json_to_sheet(data)
+    const finalData = [...headerData, ...dataRows]
+    const ws = XLSX.utils.aoa_to_sheet(finalData)
+
+    // Mergear celdas para el título y subtítulo
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }, // BODA MARITERE & OMAR
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }, // Reporte Oficial...
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }, // Fecha...
+    ]
+
+    // Definir anchos de columna
+    ws['!cols'] = [
+      { wch: 35 }, // Nombre
+      { wch: 35 }, // Tipo
+      { wch: 15 }, // Teléfono
+      { wch: 15 }, // Estatus
+      { wch: 12 }, // Género
+    ]
+
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "Invitados")
-    XLSX.writeFile(wb, "Reporte_Invitados_Completo.xlsx")
+    XLSX.utils.book_append_sheet(wb, ws, "Lista Oficial")
+    XLSX.writeFile(wb, "Reporte_Boda_M&O.xlsx")
   }
 
   const handleExportPDF = () => {
     const doc = new jsPDF()
-    doc.text("Reporte de Invitados", 14, 15)
+    
+    // Título Principal
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(22)
+    doc.setTextColor(165, 160, 90) // Dorado (#A5A05A)
+    doc.text("M & O", 105, 20, { align: "center" })
+    
+    // Subtítulo
+    doc.setFont("helvetica", "normal")
+    doc.setFontSize(14)
+    doc.setTextColor(44, 44, 44) // Gris oscuro
+    doc.text("Reporte Oficial de Invitados", 105, 30, { align: "center" })
+    
+    // Fecha
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, 36, { align: "center" })
     
     const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Género"]
     const tableRows: any[][] = []
     
-    // Ordenamos la lista filtrada de titulares alfabéticamente por nombre
     const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
 
     sortedGuests.forEach(g => {
@@ -89,7 +129,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         g.name,
         'Titular',
         g.phone || 'N/A',
-        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
         g.gender === 'M' ? 'Hombre' : 'Mujer'
       ])
       g.companions?.forEach(c => {
@@ -97,7 +137,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `  -> ${c.name}`,
           `Acompañante de ${g.name}`,
           'N/A',
-          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'Rechazado',
+          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
           c.gender === 'M' ? 'Hombre' : 'Mujer'
         ])
       })
@@ -106,7 +146,19 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 20,
+      startY: 45,
+      headStyles: {
+        fillColor: [165, 160, 90], // Dorado
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [250, 249, 242] // Fondo súper tenue dorado
+      },
+      styles: {
+        fontSize: 9,
+        cellPadding: 4
+      }
     })
 
     const pdfBlob = doc.output('blob')
