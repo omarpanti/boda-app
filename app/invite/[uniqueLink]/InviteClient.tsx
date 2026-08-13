@@ -221,11 +221,11 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
                   }}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative overflow-hidden">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative">
                     {/* Brillo realista del lacre */}
-                    <div className="absolute inset-0 bg-white/20 blur-[2px] rounded-full mix-blend-overlay"></div>
-                    {/* Ajuste de posición (mt-2) y line-height para centrar fuentes cursivas altas */}
-                    <span className="text-[#4a3505] font-cursive text-2xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10 leading-none mt-2 ml-1">M&O</span>
+                    <div className="absolute inset-0 bg-white/20 blur-[2px] rounded-full mix-blend-overlay pointer-events-none"></div>
+                    {/* Texto sin recortes y centrado */}
+                    <span className="text-[#4a3505] font-cursive text-[1.7rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10 leading-none mt-2 pr-1">M&O</span>
                   </div>
                 </div>
                 
