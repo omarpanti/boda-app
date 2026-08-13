@@ -130,10 +130,23 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     if (isEnvelopeOpen) return
     setIsEnvelopeOpen(true)
     
-    // 1.5s después de abrir el sobre, revelamos la invitación de atrás (fade in)
+    // Polvo de hadas / Partículas doradas al abrir
+    confetti({
+      particleCount: 80,
+      spread: 90,
+      origin: { y: 0.55 },
+      colors: ['#D9A1D4', '#A5A05A', '#FFD700', '#ffffff'],
+      ticks: 200,
+      gravity: 0.5,
+      scalar: 0.8,
+      shapes: ['circle'],
+      zIndex: 9999
+    });
+    
+    // 1.2s después de abrir el sobre, revelamos la invitación de atrás (fade in)
     setTimeout(() => {
       setShowInvitation(true)
-    }, 1500)
+    }, 1200)
     
     // 2.5s después, destruimos el sobre por completo del DOM
     setTimeout(() => {
@@ -155,18 +168,28 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
-            <div className={`absolute top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#2c2c2c]/80 backdrop-blur-sm transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}>
+            <div 
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[#2c2c2c]/80 backdrop-blur-sm transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              style={{ perspective: '1000px' }}
+            >
               
-              <div className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-transform duration-300" onClick={openEnvelope}>
+              <div 
+                className="relative w-[320px] h-[200px] bg-[#d5d1c8] shadow-2xl rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]" 
+                onClick={openEnvelope}
+                style={{
+                  transform: isEnvelopeOpen ? 'translateY(150px) scale(0.8) rotateX(15deg)' : 'translateY(0) scale(1) rotateX(0deg)',
+                  transformStyle: 'preserve-3d'
+                }}
+              >
                 
-                {/* Carta dentro del sobre */}
+                {/* Carta dentro del sobre (Se extrae hacia arriba) */}
                 <div 
-                  className={`absolute inset-x-2 bottom-2 bg-white rounded-sm shadow-sm flex flex-col items-center justify-center text-center p-4 z-10 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]`}
+                  className={`absolute inset-x-2 bottom-2 bg-white rounded-sm shadow-sm flex flex-col items-center justify-center text-center p-4 z-10 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]`}
                   style={{
-                    transform: isEnvelopeOpen ? 'translateY(-140px)' : 'translateY(0)',
+                    transform: isEnvelopeOpen ? 'translateY(-200px) scale(1.3)' : 'translateY(0) scale(1)',
                     height: '180px',
                     opacity: isEnvelopeOpen ? '0' : '1',
-                    transitionDelay: isEnvelopeOpen ? '400ms' : '0ms'
+                    transitionDelay: isEnvelopeOpen ? '200ms' : '0ms'
                   }}
                 >
                   <p className="font-playfair italic text-[#A5A05A] text-xs mb-2">Entregado a:</p>
@@ -180,23 +203,28 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
                 {/* Solapa superior (abre) */}
                 <div 
-                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-1000 drop-shadow-md pointer-events-none"
+                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] drop-shadow-md pointer-events-none"
                   style={{ transform: isEnvelopeOpen ? 'rotateX(180deg)' : 'rotateX(0deg)' }}
                 ></div>
                 
-                {/* Sello de cera / Botón */}
+                {/* Sello de cera realista / Botón */}
                 <div 
-                  className="absolute top-[110px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-opacity duration-300 pointer-events-none"
-                  style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
+                  className="absolute top-[110px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-all duration-300 pointer-events-none"
+                  style={{ 
+                    opacity: isEnvelopeOpen ? 0 : 1,
+                    transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
+                  }}
                 >
-                  <div className="w-12 h-12 bg-[#A5A05A] rounded-full shadow-lg flex items-center justify-center border-2 border-[#8f8a48] animate-pulse">
-                    <span className="text-white font-cursive text-xl">M&O</span>
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative overflow-hidden">
+                    {/* Brillo realista del lacre */}
+                    <div className="absolute inset-0 bg-white/20 blur-[2px] rounded-full mix-blend-overlay"></div>
+                    <span className="text-[#4a3505] font-cursive text-2xl drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10">M&O</span>
                   </div>
                 </div>
                 
                 {/* Indicador de tap */}
                 <div 
-                  className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-white/90 font-inter text-xs tracking-widest uppercase whitespace-nowrap transition-opacity duration-300"
+                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-white/90 font-inter text-xs tracking-widest uppercase whitespace-nowrap transition-opacity duration-300 drop-shadow-md"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
                   Toca el sobre para abrir
