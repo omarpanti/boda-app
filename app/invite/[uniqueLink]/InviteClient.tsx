@@ -355,27 +355,27 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <div className="w-full">
+            <div className="w-full h-[100dvh] relative overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/1.png?v=2" alt="Portada" className="w-full h-auto block" />
+              <img src="/fotos/1.png?v=2" alt="Portada" className="w-full h-full object-cover object-center block" />
             </div>
 
             {/* 2. PADRES Y PADRINOS */}
-            <div className="w-full">
+            <div className="w-full h-[100dvh] relative overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/2.png?v=2" alt="Padres y Padrinos" className="w-full h-auto block" />
+              <img src="/fotos/2.png?v=2" alt="Padres y Padrinos" className="w-full h-full object-cover object-center block" />
             </div>
 
             {/* 3. CEREMONIA */}
-            <div className="w-full relative flex flex-col items-center pb-8 bg-[#F4F4ED]">
+            <div className="w-full h-[100dvh] relative overflow-hidden flex flex-col items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/3.png?v=2" alt="Ceremonia" className="w-full h-auto block mb-4" />
+              <img src="/fotos/3.png?v=2" alt="Ceremonia" className="absolute inset-0 w-full h-full object-cover object-center block" />
               
               <a 
                 href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group flex items-center justify-center gap-2 bg-white/60 hover:bg-white backdrop-blur-sm border border-[#2c2c2c]/30 px-8 py-3 rounded-full transition-all duration-300 shadow-sm mx-4"
+                className="absolute bottom-12 group flex items-center justify-center gap-2 bg-white/70 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-8 py-3 rounded-full transition-all duration-300 shadow-xl mx-4 z-10"
               >
                 <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
@@ -383,15 +383,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             </div>
 
             {/* 4. RECEPCIÓN */}
-            <div className="w-full relative flex flex-col items-center pb-8 bg-[#F4F4ED]">
+            <div className="w-full h-[100dvh] relative overflow-hidden flex flex-col items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/4.png?v=2" alt="Recepción" className="w-full h-auto block mb-4" />
+              <img src="/fotos/4.png?v=2" alt="Recepción" className="absolute inset-0 w-full h-full object-cover object-center block" />
               
               <a 
                 href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="group flex items-center justify-center gap-2 bg-white/60 hover:bg-white backdrop-blur-sm border border-[#2c2c2c]/30 px-8 py-3 rounded-full transition-all duration-300 shadow-sm mx-4"
+                className="absolute bottom-12 group flex items-center justify-center gap-2 bg-white/70 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-8 py-3 rounded-full transition-all duration-300 shadow-xl mx-4 z-10"
               >
                 <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
@@ -399,15 +399,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             </div>
 
             {/* 5. CÓDIGO DE VESTIMENTA */}
-            <div className="w-full">
+            <div className="w-full h-[100dvh] relative overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/5.png?v=2" alt="Código de Vestimenta" className="w-full h-auto block" />
+              <img src="/fotos/5.png?v=2" alt="Código de Vestimenta" className="w-full h-full object-cover object-center block" />
             </div>
 
             {/* 6. MESA DE REGALOS */}
-            <div className="w-full">
+            <div className="w-full h-[100dvh] relative overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/6.png?v=2" alt="Mesa de Regalos" className="w-full h-auto block" />
+              <img src="/fotos/6.png?v=2" alt="Mesa de Regalos" className="w-full h-full object-cover object-center block" />
             </div>
 
 
