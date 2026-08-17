@@ -355,248 +355,60 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <section className="relative w-full h-[100dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-2 md:pt-4 px-1 md:px-4 text-center overflow-hidden">
-              <div 
-                className="absolute inset-0 z-0 bg-cover bg-bottom md:bg-center transition-opacity duration-1000"
-                style={{ backgroundImage: 'url("/fotos/Jardin rosa.png")' }}
-              >
-              </div>
-              
-              {/* Efecto de pétalos flotando */}
-              <FloatingPetals />
-
-              {/* Contenedor limpio sin mix-blend-multiply porque ya usamos la imagen transparente nativa */}
-              <div className="relative z-10 fade-in-section is-visible w-full max-w-2xl mx-auto flex flex-col items-center mt-2 md:mt-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/fotos/Logo-novios-transparente.png" alt="M & O" className="w-24 sm:w-28 md:w-36 mb-4 md:mb-6" />
-                
-                <p className="font-cursive text-[1.25rem] sm:text-[1.35rem] md:text-3xl leading-snug md:leading-relaxed text-[#1a1a1a] px-0 md:px-2 mb-2 md:mb-2 w-full">
-                  "Adondequiera que vayas, iré yo, donde quiera que vivas, viviré.<br className="hidden sm:block" />
-                  Tu pueblo será mi pueblo, y tu Dios mi Dios."
-                </p>
-                <p className="font-cursive text-[1.1rem] sm:text-[1.15rem] md:text-2xl text-[#1a1a1a]">Rut 1,16</p>
-              </div>
-              
-              <div className="absolute bottom-10 animate-bounce text-white drop-shadow-md z-10">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-              </div>
-            </section>
+            <div className="w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/1.png" alt="Portada" className="w-full h-auto block" />
+            </div>
 
             {/* 2. PADRES Y PADRINOS */}
-            <section className="w-full min-h-[100dvh] flex flex-col items-center justify-center py-16 px-4 text-center fade-in-section relative z-10">
-              <div className="max-w-4xl mx-auto space-y-8 md:space-y-12">
-                
-                {/* Texto Superior */}
-                <div>
-                  <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-6 md:mb-8 leading-snug" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.2)' }}>
-                    Un amor tan grande, merece celebración,<br/>
-                    con la bendición de Dios y nuestros padres:
-                  </p>
-                  
-                  {/* Padres */}
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[0.95rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide whitespace-nowrap">
-                    <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
-                      <p>Efraín Cauich Basto</p>
-                      <p>Teresita Aguilar Ceballos</p>
-                    </div>
-                    <div className="text-[#1a1a1a] font-cursive text-2xl md:text-5xl px-1 sm:px-2">&</div>
-                    <div className="flex-1 text-left space-y-1 md:space-y-2 py-2 pl-1">
-                      <p>Jorge H. Panti Catzin <span className="text-[0.6rem] md:text-sm align-super">+</span></p>
-                      <p>Guillermina Ix Pech</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Padrinos */}
-                <div className="pt-4 md:pt-8">
-                  <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-4xl text-[#1a1a1a] mb-6 md:mb-8" style={{ textShadow: '0.5px 0.5px 0px rgba(0,0,0,0.2)' }}>
-                    Y nuestros apreciados padrinos:
-                  </p>
-                  
-                  <div className="flex flex-row justify-center items-center gap-1 sm:gap-2 md:gap-12 font-cursive text-[0.95rem] sm:text-[1.2rem] md:text-3xl text-[#1a1a1a] tracking-wide whitespace-nowrap">
-                    <div className="flex-1 text-right space-y-1 md:space-y-2 py-2 pr-1">
-                      <p>Luis Manuel Carrillo Pech</p>
-                      <p>Luz Maria Aguilar Pech</p>
-                    </div>
-                    <div className="text-[#1a1a1a] font-cursive text-2xl md:text-5xl px-1 sm:px-2">&</div>
-                    <div className="flex-1 text-left space-y-1 md:space-y-2 py-2 pl-1">
-                      <p>Joel Ricardo Panti Ix</p>
-                      <p>Janet C. Puc Sánchez</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nosotros */}
-                <div className="pt-6 md:pt-12 flex flex-col items-center">
-                  <p className="font-cursive text-sm md:text-xl text-[#3a4e5c] mb-1 md:mb-2">
-                    Nosotros :
-                  </p>
-                  <h2 className="font-cursive text-[2.5rem] sm:text-5xl md:text-7xl text-[#1a1a1a] flex items-center justify-center gap-2 md:gap-4 w-full py-2">
-                    <span className="pl-2">Maritere</span> <span className="text-xl md:text-4xl text-[#3a4e5c]">&</span> <span className="pr-2">Omar</span>
-                  </h2>
-                </div>
-
-                {/* Invitación */}
-                <div className="pt-6 md:pt-10 px-2">
-                  <p className="font-cursive text-xl md:text-4xl text-[#3a4e5c] leading-relaxed">
-                    Queremos invitarlos a celebrar un día muy especial<br/>
-                    para nosotros, nuestra boda.
-                  </p>
-                </div>
-
-                {/* Fecha */}
-                <div className="pt-6 md:pt-12 pb-6 md:pb-10">
-                  <p className="font-cursive text-2xl md:text-4xl text-[#1a1a1a]">
-                    Viernes
-                  </p>
-                  <p className="font-cursive text-[1.6rem] sm:text-3xl md:text-5xl text-[#1a1a1a] my-1 md:my-3">
-                    04 / Diciembre / 2026
-                  </p>
-                  <p className="font-cursive text-2xl md:text-4xl text-[#1a1a1a]">
-                    Conkal, Yucatán
-                  </p>
-                </div>
-
-              </div>
-            </section>
+            <div className="w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/2.png" alt="Padres y Padrinos" className="w-full h-auto block" />
+            </div>
 
             {/* 3. CEREMONIA */}
-            <section 
-              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-10 md:pt-16 px-4 md:px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
-              style={{ backgroundImage: 'url("/fotos/Iglesia.png")' }}
-            >
-              <div className="absolute inset-0 bg-white/20 -z-10"></div>
+            <div className="w-full relative flex flex-col items-center pb-8 bg-[#F4F4ED]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/3.png" alt="Ceremonia" className="w-full h-auto block mb-4" />
               
-              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center mt-2 md:mt-4">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-1 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
-                  Ceremonia
-                </h2>
-                
-                <div className="flex items-center justify-center gap-2 mb-4 md:mb-6 opacity-80">
-                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
-                  <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#1a1a1a]">
-                    <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
-                </div>
-                
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl mb-0 text-[#2c3e50]">
-                  Parroquia San Francisco de Asís
-                </p>
-                <p className="font-cursive text-[1.3rem] sm:text-xl md:text-4xl mb-3 md:mb-4 text-[#2c3e50]">
-                  Conkal, Yucatán.
-                </p>
-                
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl text-[#1a1a1a] mb-2">
-                  8:00 PM
-                </p>
-                <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
-                
-                <a 
-                  href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-2 md:py-3 rounded-full transition-all duration-300 shadow-sm"
-                >
-                  <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                  <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar</span>
-                </a>
-              </div>
-            </section>
-
+              <a 
+                href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center gap-2 bg-white/60 hover:bg-white backdrop-blur-sm border border-[#2c2c2c]/30 px-8 py-3 rounded-full transition-all duration-300 shadow-sm mx-4"
+              >
+                <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
+              </a>
+            </div>
 
             {/* 4. RECEPCIÓN */}
-            <section 
-              className="relative w-full min-h-[90dvh] md:min-h-[850px] flex flex-col items-center justify-start pt-4 md:pt-8 px-4 md:px-6 text-center fade-in-section overflow-hidden bg-cover bg-bottom md:bg-center"
-              style={{ backgroundImage: 'url("/fotos/Hacienda.png")' }}
-            >
-              <div className="absolute inset-0 bg-white/20 -z-10"></div>
+            <div className="w-full relative flex flex-col items-center pb-8 bg-[#F4F4ED]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/4.png" alt="Recepción" className="w-full h-auto block mb-4" />
               
-              <div className="relative z-10 w-full max-w-xl mx-auto flex flex-col items-center mt-0">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-0 md:mb-1 text-[#1a1a1a]" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
-                  Recepción
-                </h2>
-                
-                <div className="flex items-center justify-center gap-2 mb-4 md:mb-6 opacity-80">
-                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
-                  <svg width="40" height="15" viewBox="0 0 40 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#1a1a1a]">
-                    <path d="M20 7.5C18 3 13 1 10 1C6 1 2 4 2 7.5C2 11 6 14 10 14C13 14 18 12 20 7.5ZM20 7.5C22 12 27 14 30 14C34 14 38 11 38 7.5C38 4 34 1 30 1C27 1 22 3 20 7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <div className="w-12 md:w-16 h-[1px] bg-[#1a1a1a]"></div>
-                </div>
-                
-                <p className="font-cursive text-[1.5rem] sm:text-2xl md:text-5xl mb-1 md:mb-2 text-[#1a1a1a] px-2">
-                  Hacienda Chaká. Conkal Yucatán.
-                </p>
-                
-                <p className="font-cursive text-[1.4rem] sm:text-2xl md:text-5xl text-[#1a1a1a] mb-2">
-                  9:00 PM
-                </p>
-                <div className="w-24 md:w-32 h-[1.5px] bg-[#1a1a1a] mb-5 md:mb-8"></div>
-                
-                <a 
-                  href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/70 backdrop-blur-sm border border-[#2c2c2c]/30 px-6 py-2 md:py-3 rounded-full transition-all duration-300 shadow-sm"
-                >
-                  <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                  <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar</span>
-                </a>
-              </div>
-            </section>
+              <a 
+                href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group flex items-center justify-center gap-2 bg-white/60 hover:bg-white backdrop-blur-sm border border-[#2c2c2c]/30 px-8 py-3 rounded-full transition-all duration-300 shadow-sm mx-4"
+              >
+                <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
+              </a>
+            </div>
 
+            {/* 5. CÓDIGO DE VESTIMENTA */}
+            <div className="w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/5.png" alt="Código de Vestimenta" className="w-full h-auto block" />
+            </div>
 
-            {/* 5. DRESS CODE & REGALOS */}
-            <section className="py-12 md:py-24 px-4 md:px-6 max-w-5xl mx-auto fade-in-section flex flex-col gap-16 md:gap-24 relative z-10">
-              
-              {/* Código de vestimenta */}
-              <div className="flex flex-col items-center">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-6 md:mb-12 text-[#1a1a1a] text-center w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
-                  Código de vestimenta
-                </h2>
-                
-                <div className="flex flex-row items-center justify-between gap-2 md:gap-12 w-full max-w-4xl">
-                  <div className="text-center flex-1">
-                    <p className="font-cursive text-[2rem] md:text-6xl mb-2 md:mb-4 text-[#2c3e50]">
-                      Formal
-                    </p>
-                    <p className="font-cursive text-[1.25rem] sm:text-2xl md:text-4xl leading-relaxed md:leading-relaxed text-[#3a4e5c]">
-                      Les pedimos a nuestros invitados,<br/>
-                      evitar el uso del color blanco.
-                    </p>
-                  </div>
-                  <div className="w-[45%] md:flex-1 max-w-[160px] sm:max-w-[220px] md:max-w-[300px]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/fotos/Novios.png" alt="Dress Code Novios" className="w-full h-auto mix-blend-multiply" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Mesa de regalos */}
-              <div className="flex flex-col items-center">
-                <h2 className="font-cursive text-[3.5rem] md:text-8xl mb-6 md:mb-12 text-[#1a1a1a] text-center w-full" style={{ textShadow: '1px 1px 0px rgba(0,0,0,0.2)' }}>
-                  Mesa de regalos
-                </h2>
-                
-                <div className="flex flex-row items-center justify-between gap-2 md:gap-12 w-full max-w-4xl">
-                  <div className="w-[45%] md:flex-1 max-w-[180px] sm:max-w-[250px] md:max-w-[350px]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={encodeURI('/fotos/Buzón.png')} alt="Buzón de sobres" className="w-full h-auto mix-blend-multiply" />
-                  </div>
-                  <div className="text-center flex-1">
-                    <p className="font-cursive text-[1.15rem] sm:text-2xl md:text-4xl leading-relaxed md:leading-relaxed text-[#3a4e5c]">
-                      Tu presencia en este dia tan importante<br/>
-                      es el mejor regalo,<br/>
-                      si quieres tener un detalle con nosotros<br/>
-                      lo puedes hacer,<br/>
-                      el dia de la celebración mediante un buzón de sobres.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </section>
+            {/* 6. MESA DE REGALOS */}
+            <div className="w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/fotos/6.png" alt="Mesa de Regalos" className="w-full h-auto block" />
+            </div>
 
 
             {/* 6. PASE VIRTUAL Y RSVP */}
