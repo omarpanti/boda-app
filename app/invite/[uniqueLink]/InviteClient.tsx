@@ -355,59 +355,59 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           <div className={`transition-opacity duration-1000 ${showInvitation ? 'opacity-100' : 'opacity-0'} ${!isEnvelopeOpen ? 'h-[100dvh] overflow-hidden' : ''}`}>
             
             {/* 1. PORTADA */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex items-center justify-center">
+            <div className="w-full relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/1.png?v=3" alt="Portada" className="w-full h-full object-contain object-center block" />
+              <img src="/fotos/1.png?v=4" alt="Portada" className="w-full h-auto block" />
             </div>
 
             {/* 2. PADRES Y PADRINOS */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex items-center justify-center">
+            <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/2.png?v=3" alt="Padres y Padrinos" className="w-full h-full object-contain object-center block" />
+              <img src="/fotos/2.png?v=4" alt="Padres y Padrinos" className="w-full h-auto block" />
             </div>
 
             {/* 3. CEREMONIA */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex flex-col items-center justify-center">
+            <div className="w-full relative flex flex-col items-center -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/3.png?v=3" alt="Ceremonia" className="absolute inset-0 w-full h-full object-contain object-center block" />
+              <img src="/fotos/3.png?v=4" alt="Ceremonia" className="w-full h-auto block" />
               
               <a 
                 href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="absolute bottom-12 group flex items-center justify-center gap-2 bg-white/80 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-8 py-3 rounded-full transition-all duration-300 shadow-xl mx-4 z-10"
+                className="absolute bottom-6 group flex items-center justify-center gap-2 bg-white/80 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-6 md:px-8 py-2 md:py-3 rounded-full transition-all duration-300 shadow-lg mx-4 z-10"
               >
-                <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
+                <svg className="w-4 h-4 md:w-5 md:h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
               </a>
             </div>
 
             {/* 4. RECEPCIÓN */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex flex-col items-center justify-center">
+            <div className="w-full relative flex flex-col items-center -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/4.png?v=3" alt="Recepción" className="absolute inset-0 w-full h-full object-contain object-center block" />
+              <img src="/fotos/4.png?v=4" alt="Recepción" className="w-full h-auto block" />
               
               <a 
                 href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="absolute bottom-12 group flex items-center justify-center gap-2 bg-white/80 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-8 py-3 rounded-full transition-all duration-300 shadow-xl mx-4 z-10"
+                className="absolute bottom-6 group flex items-center justify-center gap-2 bg-white/80 hover:bg-white backdrop-blur-md border border-[#2c2c2c]/20 px-6 md:px-8 py-2 md:py-3 rounded-full transition-all duration-300 shadow-lg mx-4 z-10"
               >
-                <svg className="w-5 h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span className="font-inter tracking-widest uppercase text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
+                <svg className="w-4 h-4 md:w-5 md:h-5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
               </a>
             </div>
 
             {/* 5. CÓDIGO DE VESTIMENTA */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex items-center justify-center">
+            <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/5.png?v=3" alt="Código de Vestimenta" className="w-full h-full object-contain object-center block" />
+              <img src="/fotos/5.png?v=4" alt="Código de Vestimenta" className="w-full h-auto block" />
             </div>
 
             {/* 6. MESA DE REGALOS */}
-            <div className="w-full h-[100dvh] relative overflow-hidden bg-[#fbfbfb] flex items-center justify-center">
+            <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/6.png?v=3" alt="Mesa de Regalos" className="w-full h-full object-contain object-center block" />
+              <img src="/fotos/6.png?v=4" alt="Mesa de Regalos" className="w-full h-auto block" />
             </div>
 
 
