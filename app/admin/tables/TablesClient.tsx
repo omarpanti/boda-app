@@ -146,7 +146,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         0: { cellWidth: 20, halign: 'center' }
       },
       didDrawCell: function(data) {
-        if (data.section === 'body' && data.column.index === 0 && !data.cell.raw?.colSpan) {
+        if (data.section === 'body' && data.column.index === 0 && !(data.cell.raw as any)?.colSpan) {
           doc.setDrawColor(200, 200, 200)
           doc.setLineWidth(0.5)
           doc.rect(data.cell.x + 6, data.cell.y + 2, 5, 5)
