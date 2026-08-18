@@ -16,7 +16,26 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
   const [companionIds, setCompanionIds] = useState<number[]>([])
   const [companionSearch, setCompanionSearch] = useState('')
 
+  const [editingGuest, setEditingGuest] = useState<Guest | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editPhone, setEditPhone] = useState('')
+  const [editGender, setEditGender] = useState('M')
+
   const filteredGuests = guests.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const openEditModal = (guest: Guest) => {
+    setEditingGuest(guest)
+    setEditName(guest.name)
+    setEditPhone(guest.phone || '')
+    setEditGender(guest.gender)
+  }
+
+  const handleUpdateGuest = async () => {
+    if (!editingGuest || !editName) return
+    const { updateGuest } = await import('./actions')
+    await updateGuest(editingGuest.id, { name: editName, phone: editPhone, gender: editGender })
+    setEditingGuest(null)
+  }
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -323,17 +342,26 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                     )}
                   </td>
                   <td className="p-4 text-center">
-                    <button 
-                      onClick={async () => {
-                        if(confirm(`¿Estás seguro de eliminar a ${guest.name}?`)) {
-                          await deleteGuest(guest.id)
-                        }
-                      }}
-                      className="text-slate-500 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-all"
-                      title="Eliminar invitado"
-                    >
-                      🗑️
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => openEditModal(guest)}
+                        className="text-slate-500 hover:text-blue-400 hover:bg-blue-400/10 p-2 rounded-lg transition-all"
+                        title="Editar invitado"
+                      >
+                        ✏️
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if(confirm(`¿Estás seguro de eliminar a ${guest.name}?`)) {
+                            await deleteGuest(guest.id)
+                          }
+                        }}
+                        className="text-slate-500 hover:text-red-400 hover:bg-red-400/10 p-2 rounded-lg transition-all"
+                        title="Eliminar invitado"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -413,6 +441,65 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
               className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Vincular ({companionIds.length})
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Modal para Editar Invitado Titular */}
+    {editingGuest !== null && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div className="bg-slate-900 border border-white/10 p-6 rounded-2xl shadow-2xl max-w-md w-full relative">
+          <h3 className="text-xl font-bold text-white mb-6">Editar Invitado Titular</h3>
+          
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm text-slate-400 mb-1">Nombre Completo</label>
+              <input 
+                type="text" 
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full outline-none focus:ring-2 focus:ring-blue-500" 
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm text-slate-400 mb-1">Teléfono WhatsApp</label>
+              <input 
+                type="text" 
+                value={editPhone}
+                onChange={e => setEditPhone(e.target.value)}
+                className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full outline-none focus:ring-2 focus:ring-blue-500" 
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-slate-400 mb-1">Género (Icono)</label>
+              <select 
+                value={editGender}
+                onChange={e => setEditGender(e.target.value)}
+                className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full outline-none focus:ring-2 focus:ring-blue-500 [&>option]:bg-slate-900"
+              >
+                <option value="M">Hombre 👨</option>
+                <option value="F">Mujer 👩</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end mt-8">
+            <button 
+              onClick={() => setEditingGuest(null)}
+              className="px-4 py-2 text-slate-300 hover:text-white transition-colors"
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={handleUpdateGuest}
+              disabled={!editName}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Guardar Cambios
             </button>
           </div>
         </div>

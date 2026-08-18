@@ -32,6 +32,18 @@ export async function deleteGuest(id: number) {
   revalidatePath('/admin/guests')
 }
 
+export async function updateGuest(id: number, data: { name: string, phone: string, gender: string }) {
+  await prisma.guest.update({
+    where: { id },
+    data: {
+      name: data.name,
+      phone: data.phone || null,
+      gender: data.gender
+    }
+  })
+  revalidatePath('/admin/guests')
+}
+
 export async function deleteMultipleGuests(ids: number[]) {
   await prisma.guest.deleteMany({
     where: { id: { in: ids } }
