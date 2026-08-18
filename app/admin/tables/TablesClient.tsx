@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createTable, updateTablePosition, updateTableRotation, assignGuestToTable, deleteTable, createLayoutElement, updateLayoutElementPosition, updateLayoutElementRotation, updateLayoutElementSize, deleteLayoutElement } from './actions'
 
-type Guest = { id: number, name: string, gender: string, tableId: number | null }
+type Guest = { id: number, name: string, gender: string, tableId: number | null, rsvpStatus: string }
 type Table = { id: number, number: number | null, name: string, capacity: number, shape: string, x_position: number, y_position: number, rotation: number, guests: Guest[] }
 type LayoutElement = { id: number, type: string, name: string, width: number, height: number, x_position: number, y_position: number, rotation: number }
 
@@ -27,6 +27,75 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [isSpaceDown, setIsSpaceDown] = useState(false)
+
+  const handleExportPDF = async () => {
+    const { jsPDF } = await import('jspdf')
+    const autoTable = (await import('jspdf-autotable')).default
+    
+    const doc = new jsPDF()
+
+    // Encabezado
+    doc.setFontSize(22)
+    doc.setTextColor(165, 160, 90) // Dorado M&O
+    doc.text('M & O', 105, 20, { align: 'center' })
+    
+    doc.setFontSize(14)
+    doc.setTextColor(60, 60, 60)
+    doc.text('Asignación de Mesas (Confirmados)', 105, 30, { align: 'center' })
+
+    const tableRows: any[] = []
+    
+    // Ordenar mesas por número, luego por nombre
+    const sortedTables = [...initialTables].sort((a, b) => {
+      if (a.number && b.number) return a.number - b.number;
+      if (a.number) return -1;
+      if (b.number) return 1;
+      return a.name.localeCompare(b.name);
+    })
+
+    let totalConfirmedInTables = 0;
+
+    sortedTables.forEach(table => {
+      const confirmedGuests = table.guests.filter(g => g.rsvpStatus === 'CONFIRMED')
+      if (confirmedGuests.length > 0) {
+        // Encabezado de mesa
+        tableRows.push([
+          { content: `Mesa ${table.number ? `#${table.number} - ` : ''}${table.name}`, colSpan: 2, styles: { fillColor: [240, 238, 228], textColor: [100, 95, 40], fontStyle: 'bold' } }
+        ])
+        
+        confirmedGuests.forEach(guest => {
+          tableRows.push(['', guest.name])
+          totalConfirmedInTables++;
+        })
+      }
+    })
+
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Total sentados: ${totalConfirmedInTables}`, 14, 40)
+
+    autoTable(doc, {
+      head: [['Mesa', 'Invitado']],
+      body: tableRows,
+      startY: 45,
+      headStyles: {
+        fillColor: [165, 160, 90], // Dorado
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      alternateRowStyles: {
+        fillColor: [250, 249, 242] // Fondo súper tenue dorado
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 4
+      }
+    })
+
+    const pdfBlob = doc.output('blob')
+    const pdfUrl = URL.createObjectURL(pdfBlob)
+    window.open(pdfUrl, '_blank')
+  }
 
   const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -416,8 +485,11 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         </div>
 
         <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 flex-1 flex flex-col min-h-[350px] backdrop-blur-xl" onDragOver={onDragOver} onDrop={unassignGuest}>
-          <h2 className="font-semibold mb-1 text-white">Invitados Sin Asignar ({initialGuests.filter(g => g.tableId === null).length})</h2>
-          <p className="text-xs text-slate-400 mb-4">Arrastra a las mesas. Suéltalos aquí para desasignar.</p>
+          <div className="flex justify-between items-start mb-1">
+            <h2 className="font-semibold text-white">Invitados Sin Asignar ({initialGuests.filter(g => g.tableId === null).length})</h2>
+            <button onClick={handleExportPDF} className="bg-gradient-to-r from-red-600/80 to-rose-600/80 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:from-red-500 hover:to-rose-500 shadow-md transition-all border border-red-500/30" title="Generar PDF de Confirmados">📄 PDF Mesas</button>
+          </div>
+          <p className="text-xs text-slate-400 mb-4 pr-16">Arrastra a las mesas. Suéltalos aquí para desasignar.</p>
           
           <input 
             type="text" 
