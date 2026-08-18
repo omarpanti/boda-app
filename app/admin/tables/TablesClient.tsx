@@ -34,18 +34,81 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     
     const doc = new jsPDF()
 
-    // Encabezado
-    doc.setFontSize(22)
-    doc.setTextColor(165, 160, 90) // Dorado M&O
-    doc.text('M & O', 105, 20, { align: 'center' })
+    // --- PORTADA Y CONFIGURACIÓN ---
+    const primaryColor: [number, number, number] = [165, 160, 90] // Dorado M&O
     
-    doc.setFontSize(14)
-    doc.setTextColor(60, 60, 60)
-    doc.text('Asignación de Mesas (Confirmados)', 105, 30, { align: 'center' })
+    // Todas las personas confirmadas (con o sin mesa)
+    let allConfirmedGuests: { name: string, tableName: string }[] = []
+    let totalConfirmedInTables = 0
 
-    const tableRows: any[] = []
+    // Extraer de las mesas
+    initialTables.forEach(table => {
+      const confirmed = table.guests.filter(g => g.rsvpStatus === 'CONFIRMED')
+      confirmed.forEach(g => {
+        allConfirmedGuests.push({ name: g.name, tableName: `Mesa ${table.number ? table.number : table.name}` })
+        totalConfirmedInTables++
+      })
+    })
+
+    // Extraer los que no tienen mesa
+    const unassignedConfirmed = initialGuests.filter(g => g.tableId === null && g.rsvpStatus === 'CONFIRMED')
+    unassignedConfirmed.forEach(g => {
+      allConfirmedGuests.push({ name: g.name, tableName: '⚠️ SIN MESA' })
+    })
+
+    // Ordenar alfabéticamente de A-Z
+    allConfirmedGuests.sort((a, b) => a.name.localeCompare(b.name))
+
+    // --- SECCIÓN 1: ORDEN ALFABÉTICO (Para Recepción/Hostess) ---
+    doc.setFontSize(22)
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text('M & O - Lista de Recepción (Hostess)', 105, 20, { align: 'center' })
     
-    // Ordenar mesas por número, luego por nombre
+    doc.setFontSize(11)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Total Confirmados: ${allConfirmedGuests.length} (${unassignedConfirmed.length} sin mesa)`, 105, 28, { align: 'center' })
+    doc.text('Esta lista está ordenada alfabéticamente para facilitar la búsqueda en la entrada.', 105, 34, { align: 'center' })
+
+    const alphaRows = allConfirmedGuests.map(g => [
+      '', // Para la casilla de check (vacío)
+      g.name,
+      g.tableName
+    ])
+
+    autoTable(doc, {
+      head: [['Check', 'Nombre del Invitado', 'Mesa Asignada']],
+      body: alphaRows,
+      startY: 40,
+      headStyles: { fillColor: primaryColor, textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 20, halign: 'center' }, // Columna del checkbox
+        1: { cellWidth: 'auto', fontStyle: 'bold' },
+        2: { cellWidth: 40, halign: 'center' }
+      },
+      didDrawCell: function(data) {
+        // Dibujar un cuadrito [ ] en la columna 0 para marcar con pluma
+        if (data.section === 'body' && data.column.index === 0) {
+          doc.setDrawColor(200, 200, 200)
+          doc.setLineWidth(0.5)
+          doc.rect(data.cell.x + 6, data.cell.y + 2, 5, 5) // Dibuja un cuadrado
+        }
+      },
+      alternateRowStyles: { fillColor: [252, 251, 246] },
+      styles: { fontSize: 10, cellPadding: 3, textColor: [60, 60, 60] }
+    })
+
+    // --- SECCIÓN 2: AGRUPADO POR MESAS (Para auditoría del salón) ---
+    doc.addPage()
+    
+    doc.setFontSize(18)
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+    doc.text('Acomodo por Mesas (Auditoría)', 105, 20, { align: 'center' })
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text('Para verificar quiénes deben estar sentados en cada mesa.', 105, 26, { align: 'center' })
+
+    const tableRowsGrouped: any[] = []
+
     const sortedTables = [...initialTables].sort((a, b) => {
       if (a.number && b.number) return a.number - b.number;
       if (a.number) return -1;
@@ -53,55 +116,43 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
       return a.name.localeCompare(b.name);
     })
 
-    let totalConfirmedInTables = 0;
-
     sortedTables.forEach(table => {
-      const confirmedGuests = table.guests.filter(g => g.rsvpStatus === 'CONFIRMED')
-      if (confirmedGuests.length > 0) {
-        // Encabezado de mesa
-        tableRows.push([
-          { content: `Mesa ${table.number ? `#${table.number} - ` : ''}${table.name}`, colSpan: 2, styles: { fillColor: [240, 238, 228], textColor: [100, 95, 40], fontStyle: 'bold' } }
+      const confirmed = table.guests.filter(g => g.rsvpStatus === 'CONFIRMED')
+      if (confirmed.length > 0) {
+        tableRowsGrouped.push([
+          { content: `Mesa ${table.number ? table.number : ''} - ${table.name} (${confirmed.length} personas)`, colSpan: 2, styles: { fillColor: [240, 238, 228], textColor: [100, 95, 40], fontStyle: 'bold' } }
         ])
-        
-        confirmedGuests.forEach(guest => {
-          tableRows.push(['', guest.name])
-          totalConfirmedInTables++;
+        confirmed.forEach(g => {
+          tableRowsGrouped.push(['', g.name])
         })
       }
     })
 
-    // Añadir invitados confirmados pero sin mesa
-    const unassignedConfirmed = initialGuests.filter(g => g.tableId === null && g.rsvpStatus === 'CONFIRMED')
     if (unassignedConfirmed.length > 0) {
-      tableRows.push([
-        { content: `⚠️ Sin Mesa Asignada`, colSpan: 2, styles: { fillColor: [255, 240, 240], textColor: [200, 50, 50], fontStyle: 'bold' } }
+      tableRowsGrouped.push([
+        { content: `⚠️ SIN MESA ASIGNADA (${unassignedConfirmed.length} personas)`, colSpan: 2, styles: { fillColor: [255, 240, 240], textColor: [200, 50, 50], fontStyle: 'bold' } }
       ])
-      unassignedConfirmed.forEach(guest => {
-        tableRows.push(['', guest.name])
-        totalConfirmedInTables++;
+      unassignedConfirmed.forEach(g => {
+        tableRowsGrouped.push(['', g.name])
       })
     }
 
-    doc.setFontSize(10)
-    doc.setTextColor(100, 100, 100)
-    doc.text(`Total confirmados: ${totalConfirmedInTables} (${unassignedConfirmed.length} sin mesa)`, 14, 40)
-
     autoTable(doc, {
-      head: [['Mesa', 'Invitado']],
-      body: tableRows,
-      startY: 45,
-      headStyles: {
-        fillColor: [165, 160, 90], // Dorado
-        textColor: [255, 255, 255],
-        fontStyle: 'bold'
+      head: [['Check', 'Invitado']],
+      body: tableRowsGrouped,
+      startY: 32,
+      headStyles: { fillColor: primaryColor, textColor: [255, 255, 255], fontStyle: 'bold' },
+      columnStyles: {
+        0: { cellWidth: 20, halign: 'center' }
       },
-      alternateRowStyles: {
-        fillColor: [250, 249, 242] // Fondo súper tenue dorado
+      didDrawCell: function(data) {
+        if (data.section === 'body' && data.column.index === 0 && !data.cell.raw?.colSpan) {
+          doc.setDrawColor(200, 200, 200)
+          doc.setLineWidth(0.5)
+          doc.rect(data.cell.x + 6, data.cell.y + 2, 5, 5)
+        }
       },
-      styles: {
-        fontSize: 10,
-        cellPadding: 4
-      }
+      styles: { fontSize: 10, cellPadding: 3, textColor: [60, 60, 60] }
     })
 
     const pdfBlob = doc.output('blob')
