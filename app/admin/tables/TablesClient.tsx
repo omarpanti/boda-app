@@ -70,9 +70,21 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
       }
     })
 
+    // Añadir invitados confirmados pero sin mesa
+    const unassignedConfirmed = initialGuests.filter(g => g.tableId === null && g.rsvpStatus === 'CONFIRMED')
+    if (unassignedConfirmed.length > 0) {
+      tableRows.push([
+        { content: `⚠️ Sin Mesa Asignada`, colSpan: 2, styles: { fillColor: [255, 240, 240], textColor: [200, 50, 50], fontStyle: 'bold' } }
+      ])
+      unassignedConfirmed.forEach(guest => {
+        tableRows.push(['', guest.name])
+        totalConfirmedInTables++;
+      })
+    }
+
     doc.setFontSize(10)
     doc.setTextColor(100, 100, 100)
-    doc.text(`Total sentados: ${totalConfirmedInTables}`, 14, 40)
+    doc.text(`Total confirmados: ${totalConfirmedInTables} (${unassignedConfirmed.length} sin mesa)`, 14, 40)
 
     autoTable(doc, {
       head: [['Mesa', 'Invitado']],
