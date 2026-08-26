@@ -31,6 +31,16 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   // Estado para la navegación móvil (Pestañas)
   const [activeTab, setActiveTab] = useState<'menu' | 'canvas'>('canvas')
 
+  // Estado para arrastrar con touch en móviles/iPad
+  const [touchDragItem, setTouchDragItem] = useState<{
+    type: 'TABLE' | 'LAYOUT'
+    id: number
+    startX: number
+    startY: number
+    startPosX: number
+    startPosY: number
+  } | null>(null)
+
   const handleExportPDF = async () => {
     const { jsPDF } = await import('jspdf')
     const autoTable = (await import('jspdf-autotable')).default
@@ -651,11 +661,45 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           return (
             <div 
               key={`table-${table.id}`}
+              onTouchStart={(e) => {
+                const touch = e.touches[0]
+                if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).tagName === 'SELECT') return;
+                setTouchDragItem({
+                  type: 'TABLE',
+                  id: table.id,
+                  startX: touch.clientX,
+                  startY: touch.clientY,
+                  startPosX: xPos,
+                  startPosY: yPos
+                })
+              }}
+              onTouchMove={(e) => {
+                if (!touchDragItem || touchDragItem.type !== 'TABLE' || touchDragItem.id !== table.id) return
+                if (e.cancelable) e.preventDefault()
+                const touch = e.touches[0]
+                const dx = (touch.clientX - touchDragItem.startX) / zoom
+                const dy = (touch.clientY - touchDragItem.startY) / zoom
+                let newX = Math.max(0, Math.min(touchDragItem.startPosX + dx, 2400))
+                let newY = Math.max(0, Math.min(touchDragItem.startPosY + dy, 1700))
+                
+                setPositionOverrides(prev => ({
+                  ...prev,
+                  [`TABLE_${table.id}`]: { x: newX, y: newY, r: rot }
+                }))
+              }}
+              onTouchEnd={async () => {
+                if (!touchDragItem || touchDragItem.type !== 'TABLE' || touchDragItem.id !== table.id) return
+                const override = positionOverrides[`TABLE_${table.id}`]
+                if (override) {
+                  await updateTablePosition(table.id, override.x, override.y)
+                }
+                setTouchDragItem(null)
+              }}
               style={{ 
                 position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
                 width: `${tableW}px`, height: `${tableH}px`, zIndex: 20,
                 transform: `rotate(${rot}deg)`,
-                transition: 'transform 0.2s ease-in-out'
+                transition: touchDragItem ? 'none' : 'transform 0.2s ease-in-out'
               }}
               onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'TABLE', id: table.id}) }}
             >
@@ -702,6 +746,58 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
                 )}
               </div>
               {renderSeats(table)}
+
+              {/* Controles de Selección de Mesa (Especial para iPad/Móviles) */}
+              {isSelected && (
+                <div 
+                  className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 bg-white shadow-xl rounded-xl border border-gray-200 p-1.5 flex items-center gap-1.5 z-50 whitespace-nowrap"
+                  onClick={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                >
+                  <div className="text-[9px] font-bold text-gray-400 uppercase ml-1">Mesa</div>
+                  <select
+                    onChange={async (e) => {
+                      const val = e.target.value
+                      if (val) {
+                        const guestId = parseInt(val)
+                        if (table.guests.length < table.capacity) {
+                          await assignGuestToTable(guestId, table.id)
+                        } else {
+                          alert('La mesa ya está llena')
+                        }
+                      }
+                      e.target.value = ""
+                    }}
+                    className="text-xs border border-gray-200 rounded px-1.5 py-1 text-gray-700 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[110px]"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>+ Sentar...</option>
+                    {unassignedGuests.map(g => (
+                      <option key={g.id} value={g.id}>{g.name}</option>
+                    ))}
+                  </select>
+                  {table.guests.length > 0 && (
+                    <select
+                      onChange={async (e) => {
+                        const val = e.target.value
+                        if (val) {
+                          const guestId = parseInt(val)
+                          await assignGuestToTable(guestId, null)
+                        }
+                        e.target.value = ""
+                      }}
+                      className="text-xs border border-gray-200 rounded px-1.5 py-1 text-gray-700 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[110px]"
+                      defaultValue=""
+                    >
+                      <option value="" disabled>- Quitar...</option>
+                      {table.guests.map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
+                  )}
+                  <button onClick={(e) => { e.stopPropagation(); setSelectedItem(null) }} className="px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-bold transition-colors">✓</button>
+                </div>
+              )}
             </div>
           )
         })}
@@ -717,18 +813,53 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           return (
             <div
               key={`layout-${layout.id}`}
-              draggable={!isSelected} // Desactiva drag de HTML5 mientras se escala
+              draggable={!isSelected}
               onDragStart={(e) => {
-                if(isSelected) return; // Si están escalando, no arrastrar
+                if(isSelected) return;
                 const rect = e.currentTarget.getBoundingClientRect()
                 onDragStart(e, 'LAYOUT', layout.id, e.clientX - rect.left, e.clientY - rect.top)
+              }}
+              onTouchStart={(e) => {
+                if (isSelected) return;
+                if ((e.target as HTMLElement).tagName === 'BUTTON') return;
+                const touch = e.touches[0]
+                setTouchDragItem({
+                  type: 'LAYOUT',
+                  id: layout.id,
+                  startX: touch.clientX,
+                  startY: touch.clientY,
+                  startPosX: xPos,
+                  startPosY: yPos
+                })
+              }}
+              onTouchMove={(e) => {
+                if (!touchDragItem || touchDragItem.type !== 'LAYOUT' || touchDragItem.id !== layout.id) return
+                if (e.cancelable) e.preventDefault()
+                const touch = e.touches[0]
+                const dx = (touch.clientX - touchDragItem.startX) / zoom
+                const dy = (touch.clientY - touchDragItem.startY) / zoom
+                let newX = Math.max(0, Math.min(touchDragItem.startPosX + dx, 2400))
+                let newY = Math.max(0, Math.min(touchDragItem.startPosY + dy, 1700))
+                
+                setPositionOverrides(prev => ({
+                  ...prev,
+                  [`LAYOUT_${layout.id}`]: { x: newX, y: newY, r: rot }
+                }))
+              }}
+              onTouchEnd={async () => {
+                if (!touchDragItem || touchDragItem.type !== 'LAYOUT' || touchDragItem.id !== layout.id) return
+                const override = positionOverrides[`LAYOUT_${layout.id}`]
+                if (override) {
+                  await updateLayoutElementPosition(layout.id, override.x, override.y)
+                }
+                setTouchDragItem(null)
               }}
               style={{ 
                 position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
                 width: `${layout.width}px`, height: `${layout.height}px`,
                 zIndex: layout.type === 'ROOM_AREA' ? 5 : 10,
                 transform: `rotate(${rot}deg)`,
-                transition: 'transform 0.2s ease-in-out'
+                transition: touchDragItem ? 'none' : 'transform 0.2s ease-in-out'
               }}
               className={`rounded-xl flex flex-col items-center justify-center cursor-move transition-shadow group
                 ${layout.type === 'DANCE_FLOOR' ? 'border-4 border-dashed border-indigo-300 bg-indigo-50/50' : ''}
