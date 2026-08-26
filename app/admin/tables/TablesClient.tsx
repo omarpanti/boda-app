@@ -16,21 +16,17 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   const [zoom, setZoom] = useState(1)
   const [guestSearch, setGuestSearch] = useState('')
   
-  // Estado de selección y coordenadas temporales
   const [selectedItem, setSelectedItem] = useState<{type: 'TABLE'|'LAYOUT', id: number} | null>(null)
   const [positionOverrides, setPositionOverrides] = useState<Record<string, {x: number, y: number, r?: number}>>({})
   
-  // Navegación móvil y colapso de menú en desktop
-  const [activeTab, setActiveTab] = useState<'menu' | 'canvas'>('canvas')
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  // UI State
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [showAddMenu, setShowAddMenu] = useState(false)
   
-  // Ref para paneo del lienzo
   const containerRef = useRef<HTMLDivElement>(null)
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
-  const [isSpaceDown, setIsSpaceDown] = useState(false)
 
-  // Ref para arrastrar elementos con Pointer Capture
   const dragRef = useRef<{
     id: number
     type: 'TABLE' | 'LAYOUT'
@@ -46,7 +42,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     const autoTable = (await import('jspdf-autotable')).default
     
     const doc = new jsPDF()
-    const primaryColor: [number, number, number] = [165, 160, 90] // Dorado M&O
+    const primaryColor: [number, number, number] = [165, 160, 90]
     
     let allConfirmedGuests: { name: string, tableName: string }[] = []
     let totalConfirmedInTables = 0
@@ -169,15 +165,15 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     await createTable(newTableName, newTableCapacity, newTableShape, num)
     setNewTableName('')
     if (typeof newTableNumber === 'number') setNewTableNumber(newTableNumber + 1)
+    setShowAddMenu(false)
   }
 
   const handleAddLayout = async (type: string, name: string) => {
     await createLayoutElement(type, name)
+    setShowAddMenu(false)
   }
 
-  // --- LOGICA DE ARRASTRE UNIFICADA POR POINTER EVENTS ---
   const handleItemPointerDown = (e: React.PointerEvent<HTMLDivElement>, type: 'TABLE' | 'LAYOUT', id: number, currentX: number, currentY: number) => {
-    // Ignorar si hace clic en controles (botones, selectores, etc.)
     if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).tagName === 'SELECT' || (e.target as HTMLElement).closest('.context-menu')) {
       return
     }
@@ -186,12 +182,9 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     e.currentTarget.setPointerCapture(e.pointerId)
     
     dragRef.current = {
-      id,
-      type,
-      startX: e.clientX,
-      startY: e.clientY,
-      startPosX: currentX,
-      startPosY: currentY,
+      id, type,
+      startX: e.clientX, startY: e.clientY,
+      startPosX: currentX, startPosY: currentY,
       pointerId: e.pointerId
     }
     
@@ -209,7 +202,6 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     let newX = drag.startPosX + dx
     let newY = drag.startPosY + dy
     
-    // Limitar al lienzo de 2500 x 1800
     newX = Math.max(0, Math.min(newX, 2400))
     newY = Math.max(0, Math.min(newY, 1700))
     
@@ -217,8 +209,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
       ...prev,
       [`${drag.type}_${drag.id}`]: {
         ...prev[`${drag.type}_${drag.id}`],
-        x: newX,
-        y: newY
+        x: newX, y: newY
       }
     }))
   }
@@ -241,7 +232,6 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     }
   }
 
-  // Drag-and-drop de escritorio para invitados de la barra lateral a las mesas
   const onDragStartGuest = (e: React.DragEvent, guestId: number) => {
     e.dataTransfer.setData('type', 'GUEST')
     e.dataTransfer.setData('id', guestId.toString())
@@ -266,7 +256,6 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     g.tableId === null && g.name.toLowerCase().includes(guestSearch.toLowerCase())
   )
 
-  // Auto-centrado al montar
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
@@ -283,12 +272,12 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         behavior: 'auto'
       });
     }, 50);
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) 
 
-  // Paneo del lienzo
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
     if (e.target !== e.currentTarget) return
-    setSelectedItem(null) // Deseleccionar al tocar fondo
+    setSelectedItem(null)
+    setShowAddMenu(false)
     setIsPanning(true)
     setPanStart({ x: e.clientX, y: e.clientY })
     if (containerRef.current) {
@@ -383,9 +372,9 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         <div 
           key={`seat-${table.id}-${i}`}
           style={{ position: 'absolute', left: `${x}px`, top: `${y}px`, transform: 'translate(-50%, -50%)' }}
-          className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shadow-md border-2 
-            ${guest ? (guest.gender === 'M' ? 'bg-blue-100 border-blue-400 text-blue-800' : 'bg-pink-100 border-pink-400 text-pink-800') 
-                    : 'bg-gray-100 border-dashed border-gray-300'}`}
+          className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] border-2 transition-colors
+            ${guest ? (guest.gender === 'M' ? 'bg-indigo-900 border-indigo-400 text-indigo-100' : 'bg-pink-900 border-pink-400 text-pink-100') 
+                    : 'bg-slate-800 border-dashed border-slate-600 text-transparent'}`}
           title={guest ? guest.name : 'Silla vacía'}
         >
           {guest ? (guest.gender === 'M' ? '👨' : '👩') : ''}
@@ -396,249 +385,267 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   }
 
   return (
-    <div className="flex flex-col gap-4 h-[calc(100vh-200px)] min-h-[500px]">
+    <div className="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-950 text-slate-200 font-sans relative">
       
-      {/* Selector de Pestañas para Móviles / iPad (Oculto en Desktop) */}
-      <div className="flex lg:hidden bg-slate-900/60 p-1.5 rounded-2xl border border-white/10 shrink-0 backdrop-blur-md">
-        <button
-          onClick={() => setActiveTab('canvas')}
-          className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'canvas'
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
+      {/* HEADER / TOP CONTROLS */}
+      <div className="absolute top-4 left-4 right-4 z-40 flex justify-between items-center pointer-events-none">
+        {/* Zoom Controls */}
+        <div className="flex gap-2 bg-slate-900/80 backdrop-blur-xl p-1.5 rounded-2xl shadow-2xl border border-white/10 pointer-events-auto">
+          <button onClick={handleFullscreenAndCenter} className="px-4 h-10 flex items-center justify-center bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 rounded-xl font-bold text-sm border border-indigo-500/20 transition-all">
+            ⛶ Centrar
+          </button>
+          <div className="w-px h-10 bg-white/10 mx-1"></div>
+          <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl font-bold text-xl transition-colors">-</button>
+          <span className="px-3 flex items-center justify-center text-sm font-semibold">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl font-bold text-xl transition-colors">+</button>
+        </div>
+
+        {/* Guest Drawer Toggle */}
+        <button 
+          onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+          className={`pointer-events-auto flex items-center gap-2 px-5 h-12 rounded-2xl shadow-2xl border border-white/10 backdrop-blur-xl transition-all font-semibold text-sm
+            ${isDrawerOpen ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-900/80 hover:bg-slate-800 text-slate-200'}`}
         >
-          🗺️ Plano del Salón
-        </button>
-        <button
-          onClick={() => setActiveTab('menu')}
-          className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-            activeTab === 'menu'
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          📋 Panel e Invitados
+          👥 Invitados {unassignedGuests.length > 0 && <span className="bg-rose-500 text-white px-2 py-0.5 rounded-full text-xs">{unassignedGuests.length}</span>}
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
-        
-        {/* PANEL IZQUIERDO DE CONFIGURACIONES */}
-        <div className={`w-full lg:w-[400px] flex-shrink-0 flex-col gap-4 overflow-y-auto pb-4 pr-1 transition-all duration-300 ${isSidebarCollapsed ? 'hidden' : (activeTab === 'menu' ? 'flex h-full' : 'hidden lg:flex')}`}>
-          
-          {/* Header del Panel en Desktop */}
-          <div className="hidden lg:flex items-center justify-between bg-white/5 px-5 py-3 rounded-2xl border border-white/10 shrink-0 backdrop-blur-xl">
-            <span className="text-xs font-semibold text-slate-400 tracking-wider uppercase">Herramientas</span>
-            <button 
-              onClick={() => setIsSidebarCollapsed(true)} 
-              className="text-slate-400 hover:text-white text-xs bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all flex items-center gap-1 font-medium"
-              title="Ocultar Panel"
-            >
-              ◀ Ocultar Panel
-            </button>
-          </div>
-
-          {/* Añadir Mesa */}
-          <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
-            <h2 className="font-semibold mb-4 text-white flex items-center gap-2">
-              Añadir Mesa
-            </h2>
-            <form onSubmit={handleAddTable} className="flex flex-col gap-3">
-              <div className="flex gap-3">
+      {/* FLOATING BOTTOM DOCK */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center">
+        {showAddMenu && (
+          <div className="mb-4 bg-slate-900/95 backdrop-blur-2xl p-6 rounded-3xl shadow-2xl border border-white/10 w-[340px] animate-in slide-in-from-bottom-4 fade-in duration-200">
+            <h3 className="font-semibold text-white mb-4 flex items-center gap-2 text-sm border-b border-white/10 pb-2">➕ Añadir Elemento</h3>
+            
+            <form onSubmit={handleAddTable} className="flex flex-col gap-4 mb-6">
+              <div className="flex gap-2">
                 <input 
                   type="number" placeholder="N°" 
                   value={newTableNumber} onChange={e => setNewTableNumber(e.target.value === '' ? '' : parseInt(e.target.value))}
-                  className="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 w-20 transition-all placeholder-slate-500 text-sm" 
-                  title="Número de Mesa (Opcional)"
+                  className="bg-black/50 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 w-20 transition-all placeholder-slate-500 text-sm" 
                 />
                 <input 
-                  type="text" placeholder="Nombre (Ej: Novios, Familia)" 
+                  type="text" placeholder="Nombre (Ej: Novios)" 
                   value={newTableName} onChange={e => setNewTableName(e.target.value)}
-                  className="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 flex-1 transition-all placeholder-slate-500 text-sm" required
+                  className="bg-black/50 border border-white/10 p-3 rounded-xl text-white outline-none focus:ring-2 focus:ring-indigo-500 flex-1 transition-all placeholder-slate-500 text-sm" required
                 />
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <div className="flex-1">
-                  <label className="text-xs text-slate-400 block mb-1 font-medium">Sillas</label>
+                  <label className="text-xs text-slate-400 mb-1.5 block ml-1">Sillas</label>
                   <input 
                     type="number" value={newTableCapacity}
                     onChange={e => setNewTableCapacity(parseInt(e.target.value))}
-                    min="1" max="20" className="bg-black/30 border border-white/10 p-2.5 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm" 
+                    min="1" max="20" className="bg-black/50 border border-white/10 p-2.5 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm" 
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="text-xs text-slate-400 block mb-1 font-medium">Forma</label>
+                  <label className="text-xs text-slate-400 mb-1.5 block ml-1">Forma</label>
                   <select 
                     value={newTableShape} onChange={e => setNewTableShape(e.target.value)}
-                    className="bg-black/30 border border-white/10 p-2.5 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-purple-500 transition-all text-sm [&>option]:bg-slate-900"
+                    className="bg-black/50 border border-white/10 p-2.5 rounded-xl w-full text-white outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm [&>option]:bg-slate-900"
                   >
                     <option value="ROUND">Redonda</option>
                     <option value="SQUARE">Cuadrada</option>
-                    <option value="RECTANGULAR">Rectangular</option>
+                    <option value="RECTANGULAR">Rectángular</option>
                   </select>
                 </div>
               </div>
-              <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3 rounded-xl font-medium hover:from-purple-500 hover:to-indigo-500 mt-1 transition-all shadow-lg text-sm">Crear Mesa</button>
+              <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl font-semibold transition-all shadow-lg text-sm w-full">Crear Mesa</button>
             </form>
-          </div>
 
-          {/* Elementos del Salón */}
-          <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
-            <h2 className="font-semibold mb-3 text-white">Elementos del Salón</h2>
-            <div className="grid grid-cols-1 gap-2">
-              <button onClick={() => handleAddLayout('ROOM_AREA', 'Límites del Salón')} className="bg-emerald-500/10 text-emerald-400 p-2.5 rounded-xl hover:bg-emerald-500/20 transition-all text-xs font-medium border border-emerald-500/20 shadow-sm">+ Añadir Paredes / Área</button>
-              <button onClick={() => handleAddLayout('DANCE_FLOOR', 'Pista de Baile')} className="bg-blue-500/10 text-blue-400 p-2.5 rounded-xl hover:bg-blue-500/20 transition-all text-xs font-medium border border-blue-500/20 shadow-sm">+ Añadir Pista de Baile</button>
-              <button onClick={() => handleAddLayout('STAGE', 'Escenario (Grupo)')} className="bg-purple-500/10 text-purple-400 p-2.5 rounded-xl hover:bg-purple-500/20 transition-all text-xs font-medium border border-purple-500/20 shadow-sm">+ Añadir Escenario</button>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => handleAddLayout('ROOM_AREA', 'Salón')} className="bg-white/5 hover:bg-white/10 text-emerald-400 p-3 rounded-xl transition-all text-xs font-medium border border-white/5">+ Paredes</button>
+              <button onClick={() => handleAddLayout('DANCE_FLOOR', 'Pista')} className="bg-white/5 hover:bg-white/10 text-blue-400 p-3 rounded-xl transition-all text-xs font-medium border border-white/5">+ Pista</button>
+              <button onClick={() => handleAddLayout('STAGE', 'Escenario')} className="col-span-2 bg-white/5 hover:bg-white/10 text-purple-400 p-3 rounded-xl transition-all text-xs font-medium border border-white/5">+ Escenario</button>
             </div>
           </div>
+        )}
 
-          {/* Invitados Sin Asignar */}
-          <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 flex-1 flex flex-col min-h-[300px] backdrop-blur-xl">
-            <div className="flex justify-between items-start mb-1">
-              <h2 className="font-semibold text-white">Invitados Libres ({initialGuests.filter(g => g.tableId === null).length})</h2>
-              <button onClick={handleExportPDF} className="bg-gradient-to-r from-rose-600 to-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 shadow-md transition-all" title="Generar PDF de Recepción">📄 PDF Mesas</button>
-            </div>
-            <p className="text-[10px] text-slate-400 mb-3">En computadoras puedes arrastrarlos a las mesas.</p>
-            
-            <input 
-              type="text" 
-              placeholder="🔍 Buscar invitado..." 
-              value={guestSearch}
-              onChange={(e) => setGuestSearch(e.target.value)}
-              className="bg-black/30 border border-white/10 p-2.5 rounded-xl text-white outline-none focus:ring-2 focus:ring-purple-500 w-full mb-3 text-xs placeholder-slate-500 transition-all"
-            />
+        <button 
+          onClick={() => setShowAddMenu(!showAddMenu)}
+          className={`flex items-center justify-center w-14 h-14 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.5)] border border-white/20 backdrop-blur-xl transition-all hover:scale-110 active:scale-95
+            ${showAddMenu ? 'bg-rose-600 text-white rotate-45' : 'bg-indigo-600 text-white'}`}
+        >
+          <span className="text-3xl font-light mb-1">+</span>
+        </button>
+      </div>
 
-            <div className="flex flex-col gap-2 overflow-y-auto pr-1 flex-1">
-              {unassignedGuests.map(guest => (
-                <div 
-                  key={guest.id} 
-                  draggable 
-                  onDragStart={(e) => onDragStartGuest(e, guest.id)}
-                  className={`border p-2.5 rounded-xl cursor-grab flex items-center gap-3 font-medium shadow-sm transition-all text-xs hover:-translate-y-0.5
-                    ${guest.gender === 'M' ? 'bg-blue-500/10 border-blue-500/20 text-blue-300' : 'bg-pink-500/10 border-pink-500/20 text-pink-300'}`}
-                >
-                  <span className="text-lg">{guest.gender === 'M' ? '👨' : '👩'}</span> {guest.name}
-                </div>
-              ))}
-              {unassignedGuests.length === 0 && (
-                <p className="text-xs text-slate-500 text-center py-6 italic">No hay invitados libres.</p>
-              )}
-            </div>
-          </div>
+      {/* GUEST DRAWER (RIGHT PANEL) */}
+      <div 
+        className={`fixed top-16 right-0 bottom-0 w-80 bg-slate-900/95 backdrop-blur-2xl border-l border-white/10 shadow-2xl z-50 transform transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col
+          ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/5">
+          <h2 className="font-bold text-lg text-white">Invitados</h2>
+          <button onClick={() => setIsDrawerOpen(false)} className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors">×</button>
+        </div>
+        
+        <div className="p-4 border-b border-white/5">
+          <button onClick={handleExportPDF} className="w-full bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-200 p-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+            📄 Exportar PDF
+          </button>
         </div>
 
-        {/* LIENZO INTERACTIVO DEL SALÓN */}
-        <div 
-          ref={containerRef}
-          onPointerDown={handleCanvasPointerDown}
-          onPointerMove={handleCanvasPointerMove}
-          onPointerUp={handleCanvasPointerUp}
-          onPointerLeave={handleCanvasPointerUp}
-          className={`flex-1 w-full bg-slate-900/50 rounded-3xl shadow-inner border border-white/10 overflow-auto relative backdrop-blur-sm ${activeTab === 'canvas' ? 'block' : 'hidden lg:block'}`}
-        >
-          {/* Botón flotante para Expandir Panel (Desktop) */}
-          {isSidebarCollapsed && (
-            <button
-              onClick={() => setIsSidebarCollapsed(false)}
-              className="hidden lg:flex absolute top-4 left-4 z-50 items-center justify-center px-4 h-10 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-indigo-400 hover:text-white border border-white/10 shadow-lg backdrop-blur-md transition-all font-bold gap-2"
-              title="Mostrar Panel"
-            >
-              ▶ Mostrar Panel
-            </button>
-          )}
+        <div className="p-4 flex-1 flex flex-col min-h-0">
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar invitado..." 
+            value={guestSearch}
+            onChange={(e) => setGuestSearch(e.target.value)}
+            className="bg-black/40 border border-white/10 p-3 rounded-xl text-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 w-full mb-4 text-sm placeholder-slate-500 transition-all"
+          />
 
-          {/* Controles de Zoom y Centrado */}
-          <div className="absolute top-4 right-4 z-50 flex gap-2 bg-black/50 backdrop-blur-md p-1.5 rounded-xl shadow-lg border border-white/10">
-            <button onClick={handleFullscreenAndCenter} className="px-3 h-8 flex items-center justify-center bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded-lg font-bold text-xs border border-indigo-500/20 transition-all" title="Pantalla Completa">
-              ⛶ Centrar
-            </button>
-            <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg font-bold text-white transition-colors" title="Alejar">-</button>
-            <span className="px-2 flex items-center justify-center text-xs font-semibold text-white">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-lg font-bold text-white transition-colors" title="Acercar">+</button>
+          <p className="text-xs text-slate-400 mb-3 font-medium uppercase tracking-wider">Sin Asignar ({unassignedGuests.length})</p>
+
+          <div className="flex flex-col gap-2 overflow-y-auto pr-2 pb-20 custom-scrollbar flex-1">
+            {unassignedGuests.map(guest => (
+              <div 
+                key={guest.id} 
+                draggable 
+                onDragStart={(e) => onDragStartGuest(e, guest.id)}
+                className={`p-3 rounded-xl cursor-grab flex items-center gap-3 font-medium shadow-lg transition-all text-sm hover:scale-[1.02] active:scale-[0.98] border border-white/5 backdrop-blur-md
+                  ${guest.gender === 'M' ? 'bg-blue-900/30 text-blue-200' : 'bg-pink-900/30 text-pink-200'}`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-lg shadow-inner ${guest.gender === 'M' ? 'bg-blue-800/50' : 'bg-pink-800/50'}`}>
+                  {guest.gender === 'M' ? '👨' : '👩'}
+                </div>
+                {guest.name}
+              </div>
+            ))}
+            {unassignedGuests.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-32 text-slate-500 gap-2 opacity-50">
+                <span className="text-3xl">✨</span>
+                <p className="text-sm font-medium">Todos asignados</p>
+              </div>
+            )}
           </div>
-          
-          {/* Superficie de diseño */}
-          <div 
-            className="relative min-w-[2500px] min-h-[1800px]"
-            onDragOver={onDragOverCanvas}
-            onDrop={async (e) => {
-              e.preventDefault()
-              const type = e.dataTransfer.getData('type')
-              const id = parseInt(e.dataTransfer.getData('id'))
-              if (type === 'GUEST') return // Dropping guest on canvas does nothing
-            }}
-            style={{ 
-              transform: `scale(${zoom})`, 
-              transformOrigin: 'top left',
-              backgroundImage: 'radial-gradient(#e5e7eb 1px, transparent 1px)', 
-              backgroundSize: '20px 20px',
-              margin: '25vh 25vw'
-            }}
-          >
+        </div>
+      </div>
 
-            {/* RENDERIZADO DE MESAS */}
-            {initialTables.map(table => {
-              const isRect = table.shape === 'RECTANGULAR'
-              const tableW = isRect ? 130 : 90
-              const tableH = isRect ? 70 : 90
-              
-              const override = positionOverrides[`TABLE_${table.id}`]
-              const xPos = override ? override.x : table.x_position
-              const yPos = override ? override.y : table.y_position
-              const rot  = override && override.r !== undefined ? override.r : (table.rotation || 0)
-              const isSelected = selectedItem?.type === 'TABLE' && selectedItem.id === table.id
-              
-              return (
-                <div 
-                  key={`table-${table.id}`}
-                  onPointerDown={(e) => handleItemPointerDown(e, 'TABLE', table.id, xPos, yPos)}
-                  onPointerMove={handleItemPointerMove}
-                  onPointerUp={handleItemPointerUp}
-                  onDragOver={onDragOverCanvas}
-                  onDrop={async (e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    const type = e.dataTransfer.getData('type')
-                    const id = parseInt(e.dataTransfer.getData('id'))
-                    if (type === 'GUEST') {
-                      await onDropGuestOnTable(id, table.id)
-                    }
-                  }}
-                  style={{ 
-                    position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
-                    width: `${tableW}px`, height: `${tableH}px`, zIndex: 20,
-                    transform: `rotate(${rot}deg)`,
-                    touchAction: 'none' // Desactiva gestos por defecto en móviles para evitar conflicto con arrastre
-                  }}
-                  className="select-none"
+      {/* FULLSCREEN CANVAS */}
+      <div 
+        ref={containerRef}
+        onPointerDown={handleCanvasPointerDown}
+        onPointerMove={handleCanvasPointerMove}
+        onPointerUp={handleCanvasPointerUp}
+        onPointerLeave={handleCanvasPointerUp}
+        className="absolute inset-0 w-full h-full overflow-auto bg-slate-950"
+      >
+        <div 
+          className="relative min-w-[2500px] min-h-[1800px]"
+          onDragOver={onDragOverCanvas}
+          onDrop={async (e) => {
+            e.preventDefault()
+            const type = e.dataTransfer.getData('type')
+            if (type === 'GUEST') return 
+          }}
+          style={{ 
+            transform: `scale(${zoom})`, 
+            transformOrigin: 'top left',
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+            margin: '25vh 25vw'
+          }}
+        >
+          {/* RENDER ELEMENTS */}
+          {initialTables.map(table => {
+            const isRect = table.shape === 'RECTANGULAR'
+            const tableW = isRect ? 140 : 100
+            const tableH = isRect ? 80 : 100
+            
+            const override = positionOverrides[`TABLE_${table.id}`]
+            const xPos = override ? override.x : table.x_position
+            const yPos = override ? override.y : table.y_position
+            const rot  = override && override.r !== undefined ? override.r : (table.rotation || 0)
+            const isSelected = selectedItem?.type === 'TABLE' && selectedItem.id === table.id
+            
+            return (
+              <div 
+                key={`table-${table.id}`}
+                onPointerDown={(e) => handleItemPointerDown(e, 'TABLE', table.id, xPos, yPos)}
+                onPointerMove={handleItemPointerMove}
+                onPointerUp={handleItemPointerUp}
+                onDragOver={onDragOverCanvas}
+                onDrop={async (e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  const type = e.dataTransfer.getData('type')
+                  const id = parseInt(e.dataTransfer.getData('id'))
+                  if (type === 'GUEST') {
+                    await onDropGuestOnTable(id, table.id)
+                  }
+                }}
+                style={{ 
+                  position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
+                  width: `${tableW}px`, height: `${tableH}px`, zIndex: isSelected ? 30 : 20,
+                  transform: `rotate(${rot}deg)`,
+                  touchAction: 'none'
+                }}
+                className="select-none"
+              >
+                {/* Table Surface */}
+                <div
+                  onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'TABLE', id: table.id}) }}
+                  className={`bg-slate-800 border-2 flex flex-col items-center justify-center p-2 cursor-grab shadow-[0_10px_30px_rgba(0,0,0,0.5)] absolute inset-0 group transition-all duration-200
+                    ${table.shape === 'ROUND' ? 'rounded-full' : 'rounded-2xl'}
+                    ${isSelected ? 'border-indigo-500 shadow-[0_0_0_4px_rgba(99,102,241,0.3)]' : 'border-slate-600 hover:border-slate-400'}
+                  `}
                 >
-                  <div
-                    onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'TABLE', id: table.id}) }}
-                    className={`bg-white border-2 border-amber-600 flex flex-col items-center justify-center p-2 cursor-grab shadow-lg absolute inset-0 group transition-shadow
-                      ${table.shape === 'ROUND' ? 'rounded-full' : 'rounded-lg'}
-                      ${isSelected ? 'shadow-[0_0_0_3px_#3b82f6]' : ''}
-                    `}
+                  <div className="text-center w-full pointer-events-none flex flex-col items-center">
+                    {table.number && <span className="bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style={{ transform: `rotate(${-rot}deg)`}}>#{table.number}</span>}
+                    <h3 className="font-bold text-slate-200 text-xs truncate max-w-[80%]" style={{ transform: `rotate(${-rot}deg)`}}>
+                      {table.name}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium mt-0.5" style={{ transform: `rotate(${-rot}deg)`}}>{table.guests.length}/{table.capacity}</p>
+                  </div>
+                </div>
+                
+                {/* Seats */}
+                {renderSeats(table)}
+
+                {/* Modern Popover Menu */}
+                {isSelected && (
+                  <div 
+                    className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-2xl border border-white/10 p-2 flex items-center gap-2 z-50 context-menu animate-in zoom-in-95 duration-100"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ transform: `translate(-50%, 0) rotate(${-rot}deg)` }}
                   >
-                    <div className="text-center w-full pointer-events-none">
-                      <h3 className="font-bold text-gray-800 text-xs truncate" style={{ transform: `rotate(${-rot}deg)`, transition: 'transform 0.2s' }}>
-                        {table.number ? <span className="text-amber-600 mr-0.5">#{table.number}</span> : ''}
-                        {table.name}
-                      </h3>
-                      <p className="text-[9px] text-amber-700 font-medium" style={{ transform: `rotate(${-rot}deg)`, transition: 'transform 0.2s' }}>{table.guests.length}/{table.capacity}</p>
-                    </div>
-
-                    {/* Eliminar Mesa */}
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); if(confirm('¿Seguro que quieres borrar esta mesa?')) deleteTable(table.id) }}
-                      className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-md cursor-pointer"
-                      title="Borrar Mesa"
+                    <select
+                      onChange={async (e) => {
+                        const val = e.target.value
+                        if (val) await onDropGuestOnTable(parseInt(val), table.id)
+                        e.target.value = ""
+                      }}
+                      className="text-xs border border-white/10 rounded-xl px-2 py-1.5 text-slate-200 bg-black/50 focus:outline-none focus:ring-1 focus:ring-indigo-500 max-w-[120px] cursor-pointer"
+                      defaultValue=""
                     >
-                      ×
-                    </button>
+                      <option value="" disabled>+ Sentar...</option>
+                      {unassignedGuests.map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
 
-                    {/* Rotar Mesa Rectangular */}
-                    {isRect && isSelected && (
+                    {table.guests.length > 0 && (
+                      <select
+                        onChange={async (e) => {
+                          const val = e.target.value
+                          if (val) await assignGuestToTable(parseInt(val), null)
+                          e.target.value = ""
+                        }}
+                        className="text-xs border border-white/10 rounded-xl px-2 py-1.5 text-slate-200 bg-black/50 focus:outline-none focus:ring-1 focus:ring-rose-500 max-w-[120px] cursor-pointer"
+                        defaultValue=""
+                      >
+                        <option value="" disabled>- Quitar...</option>
+                        {table.guests.map(g => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {isRect && (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation()
@@ -646,155 +653,124 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
                           setPositionOverrides(prev => ({...prev, [`TABLE_${table.id}`]: { ...prev[`TABLE_${table.id}`], x: xPos, y: yPos, r: newRot}}))
                           updateTableRotation(table.id, newRot)
                         }}
-                        className="absolute -bottom-4 right-1/2 translate-x-1/2 bg-blue-500 hover:bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md cursor-pointer z-50"
+                        className="w-8 h-8 bg-white/5 hover:bg-white/10 text-white rounded-xl flex items-center justify-center text-sm transition-colors"
                         title="Rotar 90°"
                       >
                         ↻
                       </button>
                     )}
-                  </div>
-                  
-                  {/* Sillas */}
-                  {renderSeats(table)}
 
-                  {/* MENÚ DE ASIGNACIÓN RÁPIDA DE INVITADOS (Ideal para iPad y Móviles) */}
-                  {isSelected && (
-                    <div 
-                      className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 bg-white shadow-2xl rounded-xl border border-gray-200 p-1.5 flex items-center gap-1.5 z-50 whitespace-nowrap context-menu"
-                      onClick={(e) => e.stopPropagation()}
+                    <div className="w-px h-6 bg-white/10 mx-1"></div>
+
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); if(confirm('¿Seguro que quieres borrar esta mesa?')) deleteTable(table.id) }}
+                      className="w-8 h-8 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-xl flex items-center justify-center text-lg transition-colors"
+                      title="Borrar Mesa"
                     >
-                      <span className="text-[9px] font-bold text-gray-400 uppercase px-1">Mesa</span>
-                      
-                      {/* Sentar Invitado */}
-                      <select
-                        onChange={async (e) => {
-                          const val = e.target.value
-                          if (val) {
-                            await onDropGuestOnTable(parseInt(val), table.id)
-                          }
-                          e.target.value = ""
-                        }}
-                        className="text-[11px] border border-gray-200 rounded px-1.5 py-1 text-gray-700 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[100px]"
-                        defaultValue=""
-                      >
-                        <option value="" disabled>+ Sentar</option>
-                        {unassignedGuests.map(g => (
-                          <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                      </select>
-
-                      {/* Quitar Invitado */}
-                      {table.guests.length > 0 && (
-                        <select
-                          onChange={async (e) => {
-                            const val = e.target.value
-                            if (val) {
-                              await assignGuestToTable(parseInt(val), null)
-                            }
-                            e.target.value = ""
-                          }}
-                          className="text-[11px] border border-gray-200 rounded px-1.5 py-1 text-gray-700 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 max-w-[100px]"
-                          defaultValue=""
-                        >
-                          <option value="" disabled>- Quitar</option>
-                          {table.guests.map(g => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                          ))}
-                        </select>
-                      )}
-
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); setSelectedItem(null) }} 
-                        className="px-2 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-bold"
-                      >
-                        ✓
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-
-            {/* RENDERIZADO DE PISTA DE BAILE, ESCENARIO, Y PAREDES */}
-            {initialLayout.map(layout => {
-              const isSelected = selectedItem?.type === 'LAYOUT' && selectedItem.id === layout.id
-              const override = positionOverrides[`LAYOUT_${layout.id}`]
-              const xPos = override ? override.x : layout.x_position
-              const yPos = override ? override.y : layout.y_position
-              const rot  = override && override.r !== undefined ? override.r : (layout.rotation || 0)
-              
-              return (
-                <div
-                  key={`layout-${layout.id}`}
-                  onPointerDown={(e) => handleItemPointerDown(e, 'LAYOUT', layout.id, xPos, yPos)}
-                  onPointerMove={handleItemPointerMove}
-                  onPointerUp={handleItemPointerUp}
-                  style={{ 
-                    position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
-                    width: `${layout.width}px`, height: `${layout.height}px`,
-                    zIndex: layout.type === 'ROOM_AREA' ? 5 : 10,
-                    transform: `rotate(${rot}deg)`,
-                    touchAction: 'none'
-                  }}
-                  onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'LAYOUT', id: layout.id}) }}
-                  className={`rounded-xl flex flex-col items-center justify-center cursor-move transition-shadow group select-none
-                    ${layout.type === 'DANCE_FLOOR' ? 'border-4 border-dashed border-indigo-300 bg-indigo-50/50' : ''}
-                    ${layout.type === 'STAGE' ? 'border-4 border-dashed border-purple-300 bg-purple-50/50' : ''}
-                    ${layout.type === 'ROOM_AREA' ? 'border-[6px] border-emerald-200 bg-emerald-50/10' : ''}
-                    ${isSelected ? 'shadow-[0_0_0_3px_#3b82f6]' : 'hover:shadow-md'}
-                  `}
-                >
-                  <div className="text-center pointer-events-none">
-                    <span className={`font-bold text-lg uppercase tracking-widest opacity-40 
-                      ${layout.type === 'DANCE_FLOOR' ? 'text-indigo-800' : ''}
-                      ${layout.type === 'STAGE' ? 'text-purple-800' : ''}
-                      ${layout.type === 'ROOM_AREA' ? 'text-emerald-800 opacity-60 text-2xl' : ''}
-                    `}>
-                      {layout.name}
-                    </span>
+                      ×
+                    </button>
                   </div>
-                  
-                  {/* Borrar Elemento de Layout */}
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); if(confirm('¿Seguro que quieres borrar este elemento?')) deleteLayoutElement(layout.id) }}
-                    className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity z-30 shadow-md"
+                )}
+              </div>
+            )
+          })}
+
+          {initialLayout.map(layout => {
+            const isSelected = selectedItem?.type === 'LAYOUT' && selectedItem.id === layout.id
+            const override = positionOverrides[`LAYOUT_${layout.id}`]
+            const xPos = override ? override.x : layout.x_position
+            const yPos = override ? override.y : layout.y_position
+            const rot  = override && override.r !== undefined ? override.r : (layout.rotation || 0)
+            
+            return (
+              <div
+                key={`layout-${layout.id}`}
+                onPointerDown={(e) => handleItemPointerDown(e, 'LAYOUT', layout.id, xPos, yPos)}
+                onPointerMove={handleItemPointerMove}
+                onPointerUp={handleItemPointerUp}
+                style={{ 
+                  position: 'absolute', left: `${xPos}px`, top: `${yPos}px`, 
+                  width: `${layout.width}px`, height: `${layout.height}px`,
+                  zIndex: layout.type === 'ROOM_AREA' ? 5 : 10,
+                  transform: `rotate(${rot}deg)`,
+                  touchAction: 'none'
+                }}
+                onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'LAYOUT', id: layout.id}) }}
+                className={`rounded-3xl flex flex-col items-center justify-center cursor-move transition-all group select-none backdrop-blur-sm
+                  ${layout.type === 'DANCE_FLOOR' ? 'border-2 border-indigo-500/50 bg-indigo-500/10' : ''}
+                  ${layout.type === 'STAGE' ? 'border-2 border-purple-500/50 bg-purple-500/10' : ''}
+                  ${layout.type === 'ROOM_AREA' ? 'border-4 border-dashed border-emerald-500/30 bg-emerald-500/5' : ''}
+                  ${isSelected ? 'shadow-[0_0_0_4px_rgba(255,255,255,0.1)] border-white' : 'hover:bg-white/5'}
+                `}
+              >
+                <div className="text-center pointer-events-none">
+                  <span className={`font-bold uppercase tracking-[0.2em] 
+                    ${layout.type === 'DANCE_FLOOR' ? 'text-indigo-400 text-lg' : ''}
+                    ${layout.type === 'STAGE' ? 'text-purple-400 text-lg' : ''}
+                    ${layout.type === 'ROOM_AREA' ? 'text-emerald-500/30 text-3xl' : ''}
+                  `}>
+                    {layout.name}
+                  </span>
+                </div>
+                
+                {isSelected && (
+                  <div 
+                    className="absolute -bottom-14 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-xl shadow-2xl rounded-2xl border border-white/10 p-2 flex items-center gap-1 z-40 context-menu animate-in zoom-in-95 duration-100"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{ transform: `translate(-50%, 0) rotate(${-rot}deg)` }}
                   >
-                    ×
-                  </button>
-
-                  {/* Controles de Resize y Rotar para Elemento del Salón */}
-                  {isSelected && (
-                    <div 
-                      className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white shadow-lg rounded-lg border border-gray-200 p-1 flex items-center gap-1 z-40 context-menu"
-                      onClick={(e) => e.stopPropagation()}
+                    <span className="text-[10px] font-bold text-slate-400 uppercase mr-2 ml-1">Escalar</span>
+                    <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 50, 0) }} className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-slate-300">↔+</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, -50, 0) }} className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-slate-300">↔-</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 0, 50) }} className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-slate-300">↕+</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 0, -50) }} className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-slate-300">↕-</button>
+                    
+                    <div className="w-px h-6 bg-white/10 mx-1"></div>
+                    
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        const newRot = (rot + 90) % 360
+                        setPositionOverrides(prev => ({...prev, [`LAYOUT_${layout.id}`]: { ...prev[`LAYOUT_${layout.id}`], x: xPos, y: yPos, r: newRot}}))
+                        updateLayoutElementRotation(layout.id, newRot)
+                      }}
+                      className="w-8 h-8 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-slate-300 flex items-center justify-center"
+                      title="Rotar 90°"
                     >
-                      <span className="text-[9px] font-bold text-gray-400 uppercase mr-1.5 ml-1">Tamaño</span>
-                      <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 50, 0) }} className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs">↔+</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, -50, 0) }} className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs">↔-</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 0, 50) }} className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs">↕+</button>
-                      <button onClick={(e) => { e.stopPropagation(); handleResize(layout.id, layout.width, layout.height, 0, -50) }} className="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-xs">↕-</button>
-                      <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          const newRot = (rot + 90) % 360
-                          setPositionOverrides(prev => ({...prev, [`LAYOUT_${layout.id}`]: { ...prev[`LAYOUT_${layout.id}`], x: xPos, y: yPos, r: newRot}}))
-                          updateLayoutElementRotation(layout.id, newRot)
-                        }}
-                        className="px-2 py-0.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded text-xs font-bold"
-                        title="Rotar 90°"
-                      >
-                        ↻ Girar
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); setSelectedItem(null) }} className="ml-1 px-2 py-0.5 bg-blue-500 text-white hover:bg-blue-600 rounded text-xs">✓</button>
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
+                      ↻
+                    </button>
+
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); if(confirm('¿Seguro que quieres borrar este elemento?')) deleteLayoutElement(layout.id) }}
+                      className="ml-1 w-8 h-8 bg-rose-500/20 hover:bg-rose-500/40 text-rose-400 rounded-lg flex items-center justify-center text-lg transition-colors"
+                      title="Borrar Elemento"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
+      
+      {/* Global styles for custom scrollbar within this module */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}} />
     </div>
   )
 }
