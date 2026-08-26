@@ -31,6 +31,9 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   // Estado para la navegación móvil (Pestañas)
   const [activeTab, setActiveTab] = useState<'menu' | 'canvas'>('canvas')
 
+  // Estado para colapsar panel en Desktop
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
   // Estado para arrastrar con touch en móviles/iPad
   const [touchDragItem, setTouchDragItem] = useState<{
     type: 'TABLE' | 'LAYOUT'
@@ -530,8 +533,20 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
 
       <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-hidden min-h-0">
         {/* Panel Izquierdo */}
-        <div className={`w-full lg:w-[400px] flex-shrink-0 flex-col gap-4 overflow-y-auto pb-4 pr-1 ${activeTab === 'menu' ? 'flex h-full' : 'hidden lg:flex'}`}>
-        <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
+        <div className={`w-full lg:w-[400px] flex-shrink-0 flex-col gap-4 overflow-y-auto pb-4 pr-1 ${isSidebarCollapsed ? 'hidden' : (activeTab === 'menu' ? 'flex h-full' : 'hidden lg:flex')}`}>
+          {/* Header del Panel (Botón para colapsar en Desktop) */}
+          <div className="hidden lg:flex items-center justify-between bg-white/5 px-5 py-3 rounded-2xl border border-white/10 shrink-0 backdrop-blur-xl">
+            <span className="text-xs font-semibold text-slate-400 tracking-wider uppercase">Herramientas</span>
+            <button 
+              onClick={() => setIsSidebarCollapsed(true)} 
+              className="text-slate-400 hover:text-white text-xs bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all flex items-center gap-1 font-medium animate-pulse"
+              title="Ocultar Panel"
+            >
+              ◀ Ocultar Panel
+            </button>
+          </div>
+
+          <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
           <h2 className="font-semibold mb-4 text-white flex items-center gap-2">
             Añadir Mesa
           </h2>
@@ -620,6 +635,15 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         ref={containerRef}
         className={`flex-1 w-full bg-slate-900/50 rounded-3xl shadow-inner border border-white/10 overflow-auto relative backdrop-blur-sm cursor-grab active:cursor-grabbing ${activeTab === 'canvas' ? 'block' : 'hidden lg:block'}`}
       >
+        {isSidebarCollapsed && (
+          <button
+            onClick={() => setIsSidebarCollapsed(false)}
+            className="hidden lg:flex absolute top-4 left-4 z-50 items-center justify-center px-4 h-10 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-indigo-400 hover:text-white border border-white/10 shadow-lg backdrop-blur-md transition-all font-bold gap-2 animate-bounce"
+            title="Mostrar Panel"
+          >
+            ▶ Mostrar Panel
+          </button>
+        )}
         <div className="absolute top-4 right-4 z-50 flex gap-2 bg-black/50 backdrop-blur-md p-2 rounded-xl shadow-lg border border-white/10">
           <button onClick={handleFullscreenAndCenter} className="px-4 h-10 flex items-center justify-center bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded-lg font-bold text-sm border border-indigo-500/30 transition-all mr-2" title="Pantalla Completa y Centrar">
             ⛶ Centrar
