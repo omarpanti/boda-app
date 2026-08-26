@@ -19,28 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <head>
-        <link rel="stylesheet" href="https://unpkg.com/mobile-drag-drop/release/default.min.css" />
-      </head>
       <body className={inter.className}>
         {children}
-        
-        {/* Polyfills táctiles para HTML5 Drag and Drop en iOS / Safari */}
-        <Script src="https://unpkg.com/mobile-drag-drop/release/index.min.js" strategy="beforeInteractive" />
-        <Script src="https://unpkg.com/mobile-drag-drop/release/scroll-behaviour.min.js" strategy="beforeInteractive" />
-        <Script id="drag-drop-polyfill" strategy="lazyOnload">
-          {`
-            setTimeout(() => {
-              if (window.MobileDragDrop) {
-                window.MobileDragDrop.polyfill({
-                  dragImageTranslateOverride: window.MobileDragDrop.scrollBehaviourDragImageTranslateOverride
-                });
-                // Fix para Safari iOS
-                window.addEventListener('touchmove', function() {}, {passive: false});
-              }
-            }, 1000);
-          `}
-        </Script>
       </body>
     </html>
   );
