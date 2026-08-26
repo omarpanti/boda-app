@@ -531,7 +531,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-hidden min-h-0">
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
         {/* Panel Izquierdo */}
         <div className={`w-full lg:w-[400px] flex-shrink-0 flex-col gap-4 overflow-y-auto pb-4 pr-1 ${isSidebarCollapsed ? 'hidden' : (activeTab === 'menu' ? 'flex h-full' : 'hidden lg:flex')}`}>
           {/* Header del Panel (Botón para colapsar en Desktop) */}
@@ -539,7 +539,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
             <span className="text-xs font-semibold text-slate-400 tracking-wider uppercase">Herramientas</span>
             <button 
               onClick={() => setIsSidebarCollapsed(true)} 
-              className="text-slate-400 hover:text-white text-xs bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all flex items-center gap-1 font-medium animate-pulse"
+              className="text-slate-400 hover:text-white text-xs bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg border border-white/10 transition-all flex items-center gap-1 font-medium"
               title="Ocultar Panel"
             >
               ◀ Ocultar Panel
@@ -638,7 +638,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         {isSidebarCollapsed && (
           <button
             onClick={() => setIsSidebarCollapsed(false)}
-            className="hidden lg:flex absolute top-4 left-4 z-50 items-center justify-center px-4 h-10 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-indigo-400 hover:text-white border border-white/10 shadow-lg backdrop-blur-md transition-all font-bold gap-2 animate-bounce"
+            className="hidden lg:flex absolute top-4 left-4 z-50 items-center justify-center px-4 h-10 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-indigo-400 hover:text-white border border-white/10 shadow-lg backdrop-blur-md transition-all font-bold gap-2"
             title="Mostrar Panel"
           >
             ▶ Mostrar Panel
