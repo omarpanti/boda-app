@@ -28,6 +28,9 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [isSpaceDown, setIsSpaceDown] = useState(false)
 
+  // Estado para la navegación móvil (Pestañas)
+  const [activeTab, setActiveTab] = useState<'menu' | 'canvas'>('canvas')
+
   const handleExportPDF = async () => {
     const { jsPDF } = await import('jspdf')
     const autoTable = (await import('jspdf-autotable')).default
@@ -490,10 +493,34 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-200px)] min-h-[500px]">
-      
-      {/* Panel Izquierdo */}
-      <div className="w-full lg:w-[400px] flex-shrink-0 flex flex-col gap-4 overflow-y-auto pb-4 pr-1">
+    <div className="flex flex-col gap-4 h-[calc(100vh-200px)] min-h-[500px]">
+      {/* Pestañas para Móviles / iPad */}
+      <div className="flex lg:hidden bg-slate-900/60 p-1.5 rounded-2xl border border-white/10 shrink-0 backdrop-blur-md">
+        <button
+          onClick={() => setActiveTab('canvas')}
+          className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            activeTab === 'canvas'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          🗺️ Plano del Salón
+        </button>
+        <button
+          onClick={() => setActiveTab('menu')}
+          className={`flex-1 py-3 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+            activeTab === 'menu'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/20'
+              : 'text-slate-400 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          📋 Panel e Invitados
+        </button>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 overflow-hidden min-h-0">
+        {/* Panel Izquierdo */}
+        <div className={`w-full lg:w-[400px] flex-shrink-0 flex-col gap-4 overflow-y-auto pb-4 pr-1 ${activeTab === 'menu' ? 'flex h-full' : 'hidden lg:flex'}`}>
         <div className="bg-white/5 p-5 rounded-3xl shadow-xl border border-white/10 shrink-0 backdrop-blur-xl">
           <h2 className="font-semibold mb-4 text-white flex items-center gap-2">
             Añadir Mesa
@@ -581,7 +608,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
 
       <div 
         ref={containerRef}
-        className="flex-1 w-full bg-slate-900/50 rounded-3xl shadow-inner border border-white/10 overflow-auto relative backdrop-blur-sm cursor-grab active:cursor-grabbing"
+        className={`flex-1 w-full bg-slate-900/50 rounded-3xl shadow-inner border border-white/10 overflow-auto relative backdrop-blur-sm cursor-grab active:cursor-grabbing ${activeTab === 'canvas' ? 'block' : 'hidden lg:block'}`}
       >
         <div className="absolute top-4 right-4 z-50 flex gap-2 bg-black/50 backdrop-blur-md p-2 rounded-xl shadow-lg border border-white/10">
           <button onClick={handleFullscreenAndCenter} className="px-4 h-10 flex items-center justify-center bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 rounded-lg font-bold text-sm border border-indigo-500/30 transition-all mr-2" title="Pantalla Completa y Centrar">
@@ -756,6 +783,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           )
         })}
         </div>
+      </div>
       </div>
     </div>
   )
