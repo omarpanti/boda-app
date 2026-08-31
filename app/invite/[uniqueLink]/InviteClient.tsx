@@ -357,19 +357,19 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 1. PORTADA */}
             <div className="w-full relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/1.png?v=4" alt="Portada" className="w-full h-auto block" />
+              <img src="/fotos/1.png?v=5" alt="Portada" className="w-full h-auto block" />
             </div>
 
             {/* 2. PADRES Y PADRINOS */}
             <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/2.png?v=4" alt="Padres y Padrinos" className="w-full h-auto block" />
+              <img src="/fotos/2.png?v=5" alt="Padres y Padrinos" className="w-full h-auto block" />
             </div>
 
             {/* 3. CEREMONIA */}
             <div className="w-full relative flex flex-col items-center -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/3.png?v=4" alt="Ceremonia" className="w-full h-auto block" />
+              <img src="/fotos/3.png?v=5" alt="Ceremonia" className="w-full h-auto block" />
               
               <a 
                 href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
@@ -385,7 +385,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 4. RECEPCIÓN */}
             <div className="w-full relative flex flex-col items-center -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/4.png?v=4" alt="Recepción" className="w-full h-auto block" />
+              <img src="/fotos/4.png?v=5" alt="Recepción" className="w-full h-auto block" />
               
               <a 
                 href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
@@ -401,13 +401,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             {/* 5. CÓDIGO DE VESTIMENTA */}
             <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/5.png?v=4" alt="Código de Vestimenta" className="w-full h-auto block" />
+              <img src="/fotos/5.png?v=5" alt="Código de Vestimenta" className="w-full h-auto block" />
             </div>
 
             {/* 6. MESA DE REGALOS */}
             <div className="w-full relative -mt-[1px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/fotos/6.png?v=4" alt="Mesa de Regalos" className="w-full h-auto block" />
+              <img src="/fotos/6.png?v=5" alt="Mesa de Regalos" className="w-full h-auto block" />
             </div>
 
 
