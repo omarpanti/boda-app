@@ -375,7 +375,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 href="https://maps.app.goo.gl/i6cS46tYWTkaP5q98" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="absolute top-[41%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
+                className="absolute top-[20%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
               >
                 <svg className="w-3.5 h-3.5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
@@ -391,7 +391,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 href="https://www.google.com/maps/search/Hacienda+Chaká,+Conkal" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="absolute top-[41%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
+                className="absolute top-[25%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
               >
                 <svg className="w-3.5 h-3.5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
