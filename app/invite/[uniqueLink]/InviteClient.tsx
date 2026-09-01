@@ -281,8 +281,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
               style={{ perspective: '1200px' }}
             >
-              {/* Filtro luminoso y cálido para el fondo en lugar del gris triste */}
-              <div className="absolute inset-0 bg-[#fdfbf7]/85 backdrop-blur-xl"></div>
+              {/* Filtro luminoso y cálido para el fondo, con menos opacidad para que deje ver la imagen de las flores */}
+              <div className="absolute inset-0 bg-[#fdfbf7]/50 backdrop-blur-md"></div>
               
               {/* Agregamos los pétalos cayendo para darle vida y magia desde el inicio */}
               <FloatingPetals />
