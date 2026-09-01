@@ -121,6 +121,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false)
   const [showInvitation, setShowInvitation] = useState(false)
+  const [showRSVPModal, setShowRSVPModal] = useState(false)
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   
@@ -412,78 +413,110 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
             </div>
 
 
-            {/* 6. PASE VIRTUAL Y RSVP */}
-            <section className="py-24 px-6 text-center fade-in-section bg-white/50 backdrop-blur-md border-t border-black/5">
-              <div className="max-w-2xl mx-auto">
-                {/* Se ha removido el bloque del QR y la Mesa por petición del usuario */}
+            {/* 7. PASES Y CONFIRMACIÓN */}
+            <div className="w-full relative -mt-[1px]">
+              {/* Calculamos el total de personas (titular + acompañantes), máximo 5 para las imágenes */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={`/fotos/pase-${Math.min(5, 1 + (guest.companions?.length || 0))}.png?v=1`} 
+                alt="Pases y Confirmación" 
+                className="w-full h-auto block" 
+              />
+              
+              {/* Botón flotante para abrir el formulario */}
+              <button 
+                onClick={() => setShowRSVPModal(true)}
+                className="absolute bottom-[10%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-6 py-2.5 rounded-full transition-all duration-300 shadow-sm z-10"
+              >
+                <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-medium text-[#2C2C2C]">
+                  {isResponded ? 'Ver mi confirmación' : 'Hacer clic aquí'}
+                </span>
+              </button>
+            </div>
 
-                {!isResponded ? (
-                  <div className="bg-white/80 p-6 md:p-12 rounded-[2rem] shadow-lg border border-black/5">
-                    <h3 className="font-cursive text-5xl mb-4">¿Nos acompañan?</h3>
-                    <p className="text-sm md:text-base text-gray-500 mb-8">
-                      {(!guest.companions || guest.companions.length === 0) 
-                        ? 'Por favor confirma tu asistencia:' 
-                        : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
-                    </p>
-                    
-                    <div className="flex flex-col gap-3 mb-10 text-left">
-                      {(!guest.companions || guest.companions.length === 0) ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div 
-                            onClick={() => setSelections([{ id: guest.id, status: 'CONFIRMED' }])}
-                            className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'CONFIRMED' ? 'border-[#A5A05A] bg-[#A5A05A]/10 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
-                          >
-                            <span className="text-2xl block mb-2">🎉</span>
-                            <span className="font-inter font-medium text-[#4A4A4A]">Sí, asistiré</span>
-                          </div>
-                          <div 
-                            onClick={() => setSelections([{ id: guest.id, status: 'DECLINED' }])}
-                            className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'DECLINED' ? 'border-red-400 bg-red-50 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
-                          >
-                            <span className="text-2xl block mb-2">😔</span>
-                            <span className="font-inter font-medium text-[#4A4A4A]">No asistiré</span>
-                          </div>
-                        </div>
-                      ) : (
-                        [guest, ...(guest.companions || [])].map((person) => {
-                          const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
-                          return (
-                            <div 
-                              key={person.id} 
-                              onClick={() => toggleSelection(person.id)}
-                              className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer border transition-all duration-300 ${isAttending ? 'border-[#A5A05A] bg-[#A5A05A]/5 shadow-sm' : 'border-gray-200 bg-white/50 opacity-60'}`}
-                            >
-                              <span className="font-inter font-medium text-lg text-[#4A4A4A]">{person.name}</span>
-                              <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-colors ${isAttending ? 'bg-[#A5A05A] border-[#A5A05A]' : 'bg-white border-gray-300'}`}>
-                                {isAttending && <span className="text-white text-sm">✓</span>}
+            {/* MODAL DE CONFIRMACIÓN (RSVP) */}
+            {showRSVPModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                <div className="bg-[#fcf9f2] w-full max-w-md rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+                  
+                  {/* Botón de cerrar */}
+                  <button 
+                    onClick={() => setShowRSVPModal(false)}
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/50 text-[#2c2c2c] hover:bg-white transition-colors z-10"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                  </button>
+
+                  <div className="p-6 md:p-8 overflow-y-auto">
+                    {!isResponded ? (
+                      <div className="text-center">
+                        <h3 className="font-cursive text-5xl mb-4 mt-2">¿Nos acompañan?</h3>
+                        <p className="text-sm md:text-base text-gray-500 mb-8">
+                          {(!guest.companions || guest.companions.length === 0) 
+                            ? 'Por favor confirma tu asistencia:' 
+                            : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
+                        </p>
+                        
+                        <div className="flex flex-col gap-3 mb-10 text-left">
+                          {(!guest.companions || guest.companions.length === 0) ? (
+                            <div className="grid grid-cols-2 gap-4">
+                              <div 
+                                onClick={() => setSelections([{ id: guest.id, status: 'CONFIRMED' }])}
+                                className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'CONFIRMED' ? 'border-[#A5A05A] bg-[#A5A05A]/10 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
+                              >
+                                <span className="text-2xl block mb-2">🎉</span>
+                                <span className="font-inter font-medium text-[#4A4A4A]">Sí, asistiré</span>
+                              </div>
+                              <div 
+                                onClick={() => setSelections([{ id: guest.id, status: 'DECLINED' }])}
+                                className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'DECLINED' ? 'border-red-400 bg-red-50 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
+                              >
+                                <span className="text-2xl block mb-2">😔</span>
+                                <span className="font-inter font-medium text-[#4A4A4A]">No asistiré</span>
                               </div>
                             </div>
-                          )
-                        })
-                      )}
-                    </div>
-                    
-                    <button 
-                      disabled={loading}
-                      onClick={handleRSVP}
-                      className="w-full bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
-                    >
-                      {loading ? 'Enviando...' : 'Enviar Confirmación'}
-                    </button>
+                          ) : (
+                            [guest, ...(guest.companions || [])].map((person) => {
+                              const isAttending = selections.find(s => s.id === person.id)?.status === 'CONFIRMED'
+                              return (
+                                <div 
+                                  key={person.id} 
+                                  onClick={() => toggleSelection(person.id)}
+                                  className={`flex items-center justify-between p-4 rounded-2xl cursor-pointer border transition-all duration-300 ${isAttending ? 'border-[#A5A05A] bg-[#A5A05A]/5 shadow-sm' : 'border-gray-200 bg-white/50 opacity-60'}`}
+                                >
+                                  <span className="font-inter font-medium text-lg text-[#4A4A4A]">{person.name}</span>
+                                  <div className={`w-6 h-6 rounded-md flex items-center justify-center border transition-colors ${isAttending ? 'bg-[#A5A05A] border-[#A5A05A]' : 'bg-white border-gray-300'}`}>
+                                    {isAttending && <span className="text-white text-sm">✓</span>}
+                                  </div>
+                                </div>
+                              )
+                            })
+                          )}
+                        </div>
+                        
+                        <button 
+                          disabled={loading}
+                          onClick={handleRSVP}
+                          className="w-full bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
+                        >
+                          {loading ? 'Enviando...' : 'Enviar Confirmación'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="py-8 px-2 text-center mt-4">
+                        <div className="text-6xl mb-6">✨</div>
+                        <h3 className="font-cursive text-5xl md:text-6xl text-[#A5A05A] mb-4">
+                          ¡Gracias por confirmar!
+                        </h3>
+                        <p className="text-gray-500 font-inter text-lg">
+                          Hemos registrado las respuestas de tu grupo.
+                        </p>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="py-12 px-6">
-                    <div className="text-6xl mb-6">✨</div>
-                    <h3 className="font-cursive text-6xl md:text-7xl text-[#A5A05A] mb-4">
-                      ¡Gracias por confirmar!
-                    </h3>
-                    <p className="text-gray-500 font-inter text-xl">
-                      Hemos registrado las respuestas de tu grupo.
-                    </p>
-                  </div>
-                )}
+                </div>
               </div>
-            </section>
+            )}
 
             <footer className="py-10 text-center text-gray-400 text-xs font-inter tracking-[0.3em] uppercase bg-white/50">
               Maritere & Omar • 2026
