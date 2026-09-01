@@ -372,13 +372,18 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     </div>
 
     {/* Modal para añadir acompañante (Movido fuera del contenedor con backdrop-blur) */}
-    {addingCompanionTo !== null && (
+    {addingCompanionTo !== null && (() => {
+      const currentGuest = guests.find(g => g.id === addingCompanionTo);
+      const currentCompanionsCount = currentGuest?.companions?.length || 0;
+      const maxAdditionalCompanions = Math.max(0, 4 - currentCompanionsCount);
+      
+      return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
         <div className="bg-slate-900 border border-white/10 p-6 rounded-2xl shadow-2xl max-w-lg w-full relative">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xl font-bold text-white">Vincular Acompañantes</h3>
-            <span className={`text-sm px-2 py-1 rounded-md ${companionIds.length >= 15 ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'}`}>
-              {companionIds.length} / 15
+            <span className={`text-sm px-2 py-1 rounded-md ${companionIds.length >= maxAdditionalCompanions ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'}`}>
+              {companionIds.length} / {maxAdditionalCompanions}
             </span>
           </div>
           
@@ -404,10 +409,10 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                       if (isSelected) {
                         setCompanionIds(prev => prev.filter(id => id !== g.id))
                       } else {
-                        if (companionIds.length < 15) {
+                        if (companionIds.length < maxAdditionalCompanions) {
                           setCompanionIds(prev => [...prev, g.id])
                         } else {
-                          alert('Has alcanzado el límite máximo de 15 acompañantes por titular.')
+                          alert(`Has alcanzado el límite máximo. Un grupo puede tener máximo 5 personas (titular + 4 acompañantes).`)
                         }
                       }
                     }}
@@ -445,7 +450,8 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           </div>
         </div>
       </div>
-    )}
+      );
+    })()}
 
     {/* Modal para Editar Invitado Titular */}
     {editingGuest !== null && (
