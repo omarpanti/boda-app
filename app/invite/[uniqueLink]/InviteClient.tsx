@@ -278,71 +278,78 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
             <div 
-              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/Iglesia.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
-              style={{ perspective: '1000px' }}
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              style={{ perspective: '1200px' }}
             >
-              {/* Filtro oscuro y desenfoque para el fondo */}
-              <div className="absolute inset-0 bg-[#2c2c2c]/60 backdrop-blur-sm"></div>
+              {/* Filtro luminoso y cálido para el fondo en lugar del gris triste */}
+              <div className="absolute inset-0 bg-[#fdfbf7]/85 backdrop-blur-xl"></div>
+              
+              {/* Agregamos los pétalos cayendo para darle vida y magia desde el inicio */}
+              <FloatingPetals />
               
               <div 
-                className="relative w-[320px] h-[200px] bg-[#d5d1c8] rounded-sm cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
+                className="relative w-[340px] h-[210px] bg-[#e6d8c4] rounded-lg cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
                 style={{
                   transform: isEnvelopeOpen 
-                    ? 'translateY(150px) scale(0.8) rotateX(15deg) rotateY(0deg)' 
+                    ? 'translateY(150px) scale(0.85) rotateX(20deg)' 
                     : `translateY(0) scale(1) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
                   transformStyle: 'preserve-3d',
                   boxShadow: isEnvelopeOpen 
-                    ? '0 10px 30px rgba(0,0,0,0.5)' 
-                    : `${-tilt.y * 2}px ${20 + tilt.x * 2}px 40px rgba(0,0,0,0.7)`, // Sombra dinámica profunda
-                  transition: tilt.x === 0 && tilt.y === 0 ? 'all 0.5s ease-out' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out' // Suave al entrar/salir, rápido al mover
+                    ? '0 15px 35px rgba(0,0,0,0.2)' 
+                    : `${-tilt.y * 2}px ${25 + tilt.x * 2}px 50px rgba(138,99,18,0.25)`, // Sombra cálida
+                  transition: tilt.x === 0 && tilt.y === 0 ? 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.1s ease-out, box-shadow 0.1s ease-out'
                 }}
               >
                 
                 {/* Carta dentro del sobre (Se extrae hacia arriba) */}
                 <div 
-                  className={`absolute inset-x-2 bottom-2 bg-white rounded-sm shadow-sm flex flex-col items-center justify-center text-center p-4 z-10 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]`}
+                  className={`absolute inset-x-2 bottom-2 bg-paper rounded-md shadow-lg flex flex-col items-center justify-center text-center p-4 z-10 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]`}
                   style={{
-                    transform: isEnvelopeOpen ? 'translateY(-200px) scale(1.3)' : 'translateY(0) scale(1)',
-                    height: '180px',
+                    transform: isEnvelopeOpen ? 'translateY(-220px) scale(1.2)' : 'translateY(0) scale(1)',
+                    height: '190px',
                     opacity: isEnvelopeOpen ? '0' : '1',
                     transitionDelay: isEnvelopeOpen ? '200ms' : '0ms'
                   }}
                 >
-                  <p className="font-playfair italic text-[#A5A05A] text-xs mb-2">Entregado a:</p>
-                  <h1 className="font-cursive text-3xl text-[#2c2c2c]">{guest.name}</h1>
+                  {/* Marco interno dorado sutil para la carta */}
+                  <div className="absolute inset-2 border-[1.5px] border-[#d4af37]/40 rounded-sm pointer-events-none"></div>
+                  
+                  <p className="font-playfair italic text-[#aa8222] text-[13px] mb-2">Con mucho cariño para:</p>
+                  <h1 className="font-cursive text-4xl text-[#4a3505] leading-tight px-4">{guest.name}</h1>
                 </div>
 
-                {/* Solapas laterales e inferior (encima de la carta) con bordes gold foil (drop-shadow dorado) */}
-                <div className="absolute top-0 left-0 w-0 h-0 border-t-[100px] border-b-[100px] border-l-[160px] border-transparent border-l-[#e8e5dc] z-30 pointer-events-none drop-shadow-[1px_0_1px_rgba(212,175,55,0.6)]"></div>
-                <div className="absolute top-0 right-0 w-0 h-0 border-t-[100px] border-b-[100px] border-r-[160px] border-transparent border-r-[#e8e5dc] z-30 pointer-events-none drop-shadow-[-1px_0_1px_rgba(212,175,55,0.6)]"></div>
-                <div className="absolute bottom-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-b-[120px] border-transparent border-b-[#f4f2ed] z-30 pointer-events-none drop-shadow-[0_-1px_1px_rgba(212,175,55,0.6)]"></div>
+                {/* Solapas laterales e inferior con colores hueso cálidos y sombras suaves */}
+                <div className="absolute top-0 left-0 w-0 h-0 border-t-[105px] border-b-[105px] border-l-[170px] border-transparent border-l-[#f6efe4] z-30 pointer-events-none drop-shadow-[2px_0_3px_rgba(0,0,0,0.06)] rounded-l-lg"></div>
+                <div className="absolute top-0 right-0 w-0 h-0 border-t-[105px] border-b-[105px] border-r-[170px] border-transparent border-r-[#f6efe4] z-30 pointer-events-none drop-shadow-[-2px_0_3px_rgba(0,0,0,0.06)] rounded-r-lg"></div>
+                <div className="absolute bottom-0 left-0 w-0 h-0 border-l-[170px] border-r-[170px] border-b-[125px] border-transparent border-b-[#fcf9f2] z-30 pointer-events-none drop-shadow-[0_-2px_4px_rgba(0,0,0,0.08)] rounded-b-lg"></div>
 
-                {/* Solapa superior (abre) con borde gold foil */}
+                {/* Solapa superior (abre) */}
                 <div 
-                  className="absolute top-0 left-0 w-0 h-0 border-l-[160px] border-r-[160px] border-t-[110px] border-transparent border-t-[#f0eee9] z-40 origin-top transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none drop-shadow-[0_2px_2px_rgba(212,175,55,0.8)]"
+                  className="absolute top-0 left-0 w-0 h-0 border-l-[170px] border-r-[170px] border-t-[115px] border-transparent border-t-[#fffdfa] z-40 origin-top transition-transform duration-[800ms] ease-[cubic-bezier(0.4,0,0.2,1)] pointer-events-none drop-shadow-[0_4px_6px_rgba(0,0,0,0.12)] rounded-t-lg"
                   style={{ transform: isEnvelopeOpen ? 'rotateX(180deg)' : 'rotateX(0deg)' }}
                 ></div>
                 
                 {/* Sello de cera realista / Botón */}
                 <div 
-                  className="absolute top-[110px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-all duration-300 pointer-events-none"
+                  className="absolute top-[115px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 transition-all duration-300 pointer-events-none"
                   style={{ 
                     opacity: isEnvelopeOpen ? 0 : 1,
-                    transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
+                    transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.6)' : 'translate(-50%, -50%) scale(1)'
                   }}
                 >
-                  <div className="w-20 h-20 bg-gradient-to-br from-[#d4af37] via-[#aa8222] to-[#8a6312] rounded-full shadow-lg flex items-center justify-center border-[3px] border-[#d4af37]/50 animate-pulse relative">
+                  <div className="w-[85px] h-[85px] bg-gradient-to-br from-[#d4af37] via-[#b88c24] to-[#8a6312] rounded-full shadow-[0_4px_10px_rgba(138,99,18,0.4)] flex items-center justify-center border-[2px] border-[#fce49c]/40 animate-[pulse_3s_ease-in-out_infinite] relative backdrop-blur-sm">
                     {/* Brillo realista del lacre */}
-                    <div className="absolute inset-0 bg-white/20 blur-[2px] rounded-full mix-blend-overlay pointer-events-none"></div>
-                    {/* Texto sin recortes y centrado */}
-                    <span className="text-[#4a3505] font-cursive text-[1.7rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.5)] z-10 leading-none mt-2 pr-1">M&O</span>
+                    <div className="absolute inset-0 bg-white/20 blur-[1px] rounded-full mix-blend-overlay pointer-events-none"></div>
+                    <div className="absolute inset-[4px] border border-[#7a540b]/30 rounded-full pointer-events-none"></div>
+                    {/* Texto del sello */}
+                    <span className="text-[#3d2c04] font-cursive text-[2rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] z-10 leading-none mt-2 pr-1">M&O</span>
                   </div>
                 </div>
                 
                 {/* Indicador de tap */}
                 <div 
-                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-white/90 font-inter text-xs tracking-widest uppercase whitespace-nowrap transition-opacity duration-300 drop-shadow-md"
+                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-[#8a6312] font-inter text-[11px] tracking-[0.25em] uppercase whitespace-nowrap transition-opacity duration-300 font-medium bg-white/50 px-4 py-1.5 rounded-full backdrop-blur-sm border border-[#d4af37]/20 shadow-sm"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
                   Toca el sobre para abrir
