@@ -342,8 +342,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     {/* Brillo realista del lacre */}
                     <div className="absolute inset-0 bg-white/20 blur-[1px] rounded-full mix-blend-overlay pointer-events-none"></div>
                     <div className="absolute inset-[4px] border border-[#7a540b]/30 rounded-full pointer-events-none"></div>
-                    {/* Texto del sello */}
-                    <span className="text-[#3d2c04] font-cursive text-[2rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] z-10 leading-none mt-2 pr-1">M&O</span>
+                    {/* Texto del sello con corazón SVG integrado */}
+                    <span className="text-[#3d2c04] font-cursive text-[1.5rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] z-10 flex items-center justify-center gap-1 mt-2">
+                      <span>M</span>
+                      <svg className="w-3.5 h-3.5 fill-current mt-0.5" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      </svg>
+                      <span>O</span>
+                    </span>
                   </div>
                 </div>
                 
