@@ -137,7 +137,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [displayedName, setDisplayedName] = useState('')
 
   useEffect(() => {
-    if (!isEnvelopeOpen) return;
     let i = 0;
     const interval = setInterval(() => {
       setDisplayedName(cardName.substring(0, i + 1))
@@ -145,9 +144,9 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       if (i >= cardName.length) {
         clearInterval(interval)
       }
-    }, 40) // Velocidad de escritura más rápida para que se vea antes de que el sobre desaparezca
+    }, 60) // Velocidad de escritura
     return () => clearInterval(interval)
-  }, [isEnvelopeOpen, cardName])
+  }, [cardName])
 
   useEffect(() => {
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -337,10 +336,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   
                   <p className="font-playfair italic text-[#aa8222] text-[13px] mb-2">Con mucho cariño para:</p>
                   <h1 className="font-cursive text-4xl text-[#4a3505] leading-tight px-4">
-                    {displayedName}
-                    {isEnvelopeOpen && displayedName.length < cardName.length && (
-                      <span className="inline-block animate-pulse border-r-2 border-[#4a3505] ml-1 w-1 h-6 translate-y-1"></span>
-                    )}
+                    {cardName}
                   </h1>
                 </div>
 
@@ -376,6 +372,20 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                       <span className="transform scale-[1.15] translate-y-[1px]">O</span>
                     </span>
                   </div>
+                </div>
+                
+                {/* Nombre del invitado en el frente del sobre (Efecto de Escritura) */}
+                <div 
+                  className="absolute bottom-4 left-0 w-full text-center z-50 pointer-events-none transition-opacity duration-300"
+                  style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
+                >
+                  <p className="font-playfair italic text-[#8a6312] text-[11px] mb-1">Entregar a:</p>
+                  <h2 className="font-cursive text-2xl text-[#4a3505] px-4">
+                    {displayedName}
+                    {displayedName.length < cardName.length && (
+                      <span className="inline-block animate-pulse border-r-[1.5px] border-[#4a3505] ml-[2px] w-[1px] h-[18px] translate-y-[2px]"></span>
+                    )}
+                  </h2>
                 </div>
                 
                 {/* Indicador de tap */}
