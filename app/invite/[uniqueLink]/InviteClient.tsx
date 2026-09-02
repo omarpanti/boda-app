@@ -134,19 +134,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const cardName = (!guest.companions || guest.companions.length === 0) 
     ? guest.name 
     : `${guest.name} y Familia`;
-  const [displayedName, setDisplayedName] = useState('')
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayedName(cardName.substring(0, i + 1))
-      i++
-      if (i >= cardName.length) {
-        clearInterval(interval)
-      }
-    }, 60) // Velocidad de escritura
-    return () => clearInterval(interval)
-  }, [cardName])
+  // El efecto de escritura ahora es puramente CSS para un acabado más elegante y fluido
 
   useEffect(() => {
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -374,19 +362,32 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </div>
                 </div>
                 
-                {/* Nombre del invitado en el frente del sobre (Efecto de Escritura) */}
+                {/* Nombre del invitado en el frente del sobre (Efecto de Escritura con Pincel) */}
                 <div 
-                  className="absolute bottom-4 left-0 w-full text-center z-50 pointer-events-none transition-opacity duration-300"
+                  className="absolute bottom-2 left-0 w-full text-center z-50 pointer-events-none transition-opacity duration-300"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
-                  <p className="font-playfair italic text-[#8a6312] text-[11px] mb-1">Entregar a:</p>
-                  <h2 className="font-cursive text-2xl text-[#4a3505] px-4">
-                    {displayedName}
-                    {displayedName.length < cardName.length && (
-                      <span className="inline-block animate-pulse border-r-[1.5px] border-[#4a3505] ml-[2px] w-[1px] h-[18px] translate-y-[2px]"></span>
-                    )}
+                  <p className="font-playfair italic text-[#8a6312] text-[10px] mb-0 opacity-80">Entregar a:</p>
+                  <h2 className="font-cursive text-xl text-[#4a3505] px-4 flex justify-center flex-wrap">
+                    {cardName.split('').map((char, index) => (
+                      <span 
+                        key={index}
+                        className="animate-[brushWrite_0.6s_ease-out_forwards] opacity-0 inline-block"
+                        style={{ animationDelay: `${index * 120}ms` }}
+                      >
+                        {char === ' ' ? '\u00A0' : char}
+                      </span>
+                    ))}
                   </h2>
                 </div>
+                
+                {/* Estilos para el efecto pincel (aparece y se asienta suavemente) */}
+                <style dangerouslySetInnerHTML={{__html: `
+                  @keyframes brushWrite {
+                    0% { opacity: 0; transform: translateY(4px) scale(0.95); filter: blur(2px); }
+                    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+                  }
+                `}} />
                 
                 {/* Indicador de tap */}
                 <div 
