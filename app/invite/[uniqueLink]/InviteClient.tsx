@@ -115,6 +115,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     { id: guest.id, status: 'CONFIRMED' },
     ...(guest.companions?.map(c => ({ id: c.id, status: 'CONFIRMED' as const })) || [])
   ])
+  const [guestMessage, setGuestMessage] = useState(guest.message || '')
 
   const toggleSelection = (id: number) => {
     setSelections(prev => prev.map(sel => sel.id === id ? { ...sel, status: sel.status === 'CONFIRMED' ? 'DECLINED' : 'CONFIRMED' } : sel))
@@ -217,7 +218,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const handleRSVP = async () => {
     setLoading(true)
     try {
-      await submitGroupRsvp(guest.uniqueLink, selections)
+      await submitGroupRsvp(guest.uniqueLink, selections, guestMessage)
       setIsResponded(true)
       
       // Si el titular confirmó, disparamos confeti
@@ -506,6 +507,16 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                             })
                           )}
                         </div>
+
+                        <div className="mb-6 text-left">
+                          <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
+                          <textarea 
+                            value={guestMessage}
+                            onChange={(e) => setGuestMessage(e.target.value)}
+                            placeholder="Déjales un bonito mensaje..."
+                            className="w-full bg-white/50 border border-gray-200 rounded-xl p-3 text-sm font-inter text-[#2c2c2c] focus:outline-none focus:ring-2 focus:ring-[#A5A05A]/30 transition-all resize-none h-20"
+                          />
+                        </div>
                         
                         <button 
                           disabled={loading}
@@ -517,13 +528,33 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                       </div>
                     ) : (
                       <div className="py-8 px-2 text-center mt-4">
-                        <div className="text-6xl mb-6">✨</div>
-                        <h3 className="font-cursive text-5xl md:text-6xl text-[#A5A05A] mb-4">
-                          ¡Gracias por confirmar!
-                        </h3>
-                        <p className="text-gray-500 font-inter text-lg">
-                          Hemos registrado las respuestas de tu grupo.
-                        </p>
+                        {(() => {
+                           const allDeclined = selections.every(s => s.status === 'DECLINED')
+                           if (allDeclined) {
+                             return (
+                               <>
+                                <div className="text-6xl mb-6">🕊️</div>
+                                <h3 className="font-cursive text-4xl md:text-5xl text-[#A5A05A] mb-4">
+                                  Lamentamos que no nos acompañes
+                                </h3>
+                                <p className="text-gray-500 font-inter text-base">
+                                  Agradecemos mucho tu sinceridad al hacérnoslo saber.
+                                </p>
+                               </>
+                             )
+                           }
+                           return (
+                               <>
+                                <div className="text-6xl mb-6">✨</div>
+                                <h3 className="font-cursive text-5xl md:text-6xl text-[#A5A05A] mb-4">
+                                  ¡Gracias por confirmar!
+                                </h3>
+                                <p className="text-gray-500 font-inter text-lg">
+                                  Hemos registrado las respuestas de tu grupo.
+                                </p>
+                               </>
+                           )
+                        })()}
                       </div>
                     )}
                   </div>

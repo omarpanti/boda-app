@@ -14,6 +14,7 @@ model Guest {
   gender       String   @default("M") // M = Hombre, F = Mujer
   uniqueLink   String   @unique // Link único generado para la invitación digital
   rsvpStatus   String   @default("PENDING") // PENDING, CONFIRMED, DECLINED
+  message      String?  @db.Text // Mensaje para los novios
   tableId      Int?     
   table        Table?   @relation(fields: [tableId], references: [id])
   

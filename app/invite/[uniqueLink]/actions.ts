@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
-export async function submitGroupRsvp(uniqueLink: string, selections: { id: number, status: 'CONFIRMED' | 'DECLINED' }[]) {
+export async function submitGroupRsvp(uniqueLink: string, selections: { id: number, status: 'CONFIRMED' | 'DECLINED' }[], message: string = '') {
   // Procesar cada selección individualmente
   for (const sel of selections) {
     await prisma.guest.update({
@@ -13,6 +13,14 @@ export async function submitGroupRsvp(uniqueLink: string, selections: { id: numb
         // Si rechaza, le quitamos la asignación de la mesa automáticamente
         ...(sel.status === 'DECLINED' ? { tableId: null } : {})
       }
+    })
+  }
+
+  // Guardar el mensaje del invitado principal si escribió algo
+  if (message.trim()) {
+    await prisma.guest.update({
+      where: { uniqueLink },
+      data: { message: message.trim() }
     })
   }
   
