@@ -509,15 +509,17 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           )}
                         </div>
 
-                        <div className="mb-6 text-left">
-                          <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
-                          <textarea 
-                            value={guestMessage}
-                            onChange={(e) => setGuestMessage(e.target.value)}
-                            placeholder="Déjales un bonito mensaje..."
-                            className="w-full bg-white/50 border border-gray-200 rounded-xl p-3 text-sm font-inter text-[#2c2c2c] focus:outline-none focus:ring-2 focus:ring-[#A5A05A]/30 transition-all resize-none h-20"
-                          />
-                        </div>
+                        {(!guest.companions || guest.companions.length === 0) && selections[0]?.status === 'DECLINED' && (
+                          <div className="mb-6 text-left animate-in fade-in slide-in-from-top-4 duration-300">
+                            <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
+                            <textarea 
+                              value={guestMessage}
+                              onChange={(e) => setGuestMessage(e.target.value)}
+                              placeholder="Déjanos un pequeño mensaje..."
+                              className="w-full bg-white/50 border border-gray-200 rounded-xl p-3 text-sm font-inter text-[#2c2c2c] focus:outline-none focus:ring-2 focus:ring-[#A5A05A]/30 transition-all resize-none h-20"
+                            />
+                          </div>
+                        )}
                         
                         <button 
                           disabled={loading}
