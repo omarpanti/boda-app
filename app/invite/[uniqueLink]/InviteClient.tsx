@@ -368,7 +368,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
                   <p className="font-playfair italic text-[#8a6312] text-[10px] mb-0 opacity-80">Entregar a:</p>
-                  <h2 className="font-cursive text-xl text-[#4a3505] px-4 flex justify-center flex-wrap">
+                  <h2 className="font-cursive text-lg text-[#4a3505] px-4 flex justify-center flex-wrap">
                     {cardName.split('').map((char, index) => (
                       <span 
                         key={index}
