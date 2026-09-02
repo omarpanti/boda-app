@@ -130,6 +130,25 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   // Estado para el efecto 3D dinámico
   const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
   
+  // Efecto de máquina de escribir para el nombre en la carta
+  const cardName = (!guest.companions || guest.companions.length === 0) 
+    ? guest.name 
+    : `${guest.name} y Familia`;
+  const [displayedName, setDisplayedName] = useState('')
+
+  useEffect(() => {
+    if (!isEnvelopeOpen) return;
+    let i = 0;
+    const interval = setInterval(() => {
+      setDisplayedName(cardName.substring(0, i + 1))
+      i++
+      if (i >= cardName.length) {
+        clearInterval(interval)
+      }
+    }, 70) // Velocidad de escritura
+    return () => clearInterval(interval)
+  }, [isEnvelopeOpen, cardName])
+
   useEffect(() => {
     const handleOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma !== null && e.beta !== null) {
@@ -318,7 +337,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="absolute inset-2 border-[1.5px] border-[#d4af37]/40 rounded-sm pointer-events-none"></div>
                   
                   <p className="font-playfair italic text-[#aa8222] text-[13px] mb-2">Con mucho cariño para:</p>
-                  <h1 className="font-cursive text-4xl text-[#4a3505] leading-tight px-4">{guest.name}</h1>
+                  <h1 className="font-cursive text-4xl text-[#4a3505] leading-tight px-4">
+                    {displayedName}
+                    {isEnvelopeOpen && displayedName.length < cardName.length && (
+                      <span className="inline-block animate-pulse border-r-2 border-[#4a3505] ml-1 w-1 h-6 translate-y-1"></span>
+                    )}
+                  </h1>
                 </div>
 
                 {/* Solapas laterales e inferior con colores hueso cálidos y sombras suaves */}
