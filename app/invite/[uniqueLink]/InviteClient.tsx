@@ -138,7 +138,21 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const cardName = (!guest.companions || guest.companions.length === 0) 
     ? formatName(guest.name) 
     : `${formatName(guest.name)} y Familia`;
-  // El efecto de escritura ahora es puramente CSS para un acabado más elegante y fluido
+
+  const [brushPos, setBrushPos] = useState(0)
+
+  useEffect(() => {
+    setBrushPos(0)
+  }, [cardName])
+
+  useEffect(() => {
+    if (brushPos < cardName.length + 1) { // +1 to let the brush finish and disappear
+      const timer = setTimeout(() => {
+        setBrushPos(p => p + 1)
+      }, 350) // Súper lento (350ms por letra)
+      return () => clearTimeout(timer)
+    }
+  }, [brushPos, cardName])
 
   useEffect(() => {
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -366,32 +380,40 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </div>
                 </div>
                 
-                {/* Nombre del invitado en el frente del sobre (Efecto de Escritura con Pincel) */}
+                {/* Nombre del invitado en el frente del sobre (Efecto de Pluma Real) */}
                 <div 
                   className="absolute bottom-2 left-0 w-full text-center z-50 pointer-events-none transition-opacity duration-300"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
                   <p className="font-playfair italic text-[#8a6312] text-[10px] mb-0 opacity-80">Entregar a:</p>
-                  <h2 className="font-cursive text-base tracking-wide text-[#4a3505] px-4 flex justify-center flex-wrap">
+                  <h2 className="font-cursive text-base tracking-wide text-[#4a3505] px-4 flex justify-center flex-wrap mt-0.5">
                     {cardName.split('').map((char, index) => (
-                      <span 
-                        key={index}
-                        className="animate-[brushWrite_0.6s_ease-out_forwards] opacity-0 inline-block"
-                        style={{ animationDelay: `${index * 250}ms` }}
-                      >
-                        {char === ' ' ? '\u00A0' : char}
+                      <span key={index} className="relative inline-block">
+                        <span 
+                          className={`inline-block transition-all duration-[800ms] ease-out ${
+                            index < brushPos 
+                              ? 'opacity-100 blur-0 translate-y-0 scale-100' 
+                              : 'opacity-0 blur-[2px] translate-y-1 scale-95'
+                          }`}
+                        >
+                          {char === ' ' ? '\u00A0' : char}
+                        </span>
+                        
+                        {/* La pluma estilográfica que sigue a la letra actual */}
+                        {index === brushPos && (
+                          <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 text-[#8a6312] z-50 animate-[pulse_0.4s_ease-in-out_infinite]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="transform -rotate-12 -translate-y-2 translate-x-2 drop-shadow-md">
+                              <path d="m12 19 7-7 3 3-7 7-3-3z"/>
+                              <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                              <path d="m2 2 7.586 7.586"/>
+                              <circle cx="11" cy="11" r="2"/>
+                            </svg>
+                          </span>
+                        )}
                       </span>
                     ))}
                   </h2>
                 </div>
-                
-                {/* Estilos para el efecto pincel (aparece y se asienta suavemente) */}
-                <style dangerouslySetInnerHTML={{__html: `
-                  @keyframes brushWrite {
-                    0% { opacity: 0; transform: translateY(4px) scale(0.95); filter: blur(2px); }
-                    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-                  }
-                `}} />
                 
                 {/* Indicador de tap */}
                 <div 
