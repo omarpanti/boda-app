@@ -57,6 +57,7 @@ type GuestWithTable = {
   name: string
   rsvpStatus: string
   uniqueLink: string
+  message?: string | null
   table?: { name: string, number: number | null } | null
   companions?: Companion[]
 }
