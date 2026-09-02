@@ -145,7 +145,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       if (i >= cardName.length) {
         clearInterval(interval)
       }
-    }, 70) // Velocidad de escritura
+    }, 40) // Velocidad de escritura más rápida para que se vea antes de que el sobre desaparezca
     return () => clearInterval(interval)
   }, [isEnvelopeOpen, cardName])
 
@@ -329,8 +329,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   style={{
                     transform: isEnvelopeOpen ? 'translateY(-220px) scale(1.2)' : 'translateY(0) scale(1)',
                     height: '190px',
-                    opacity: isEnvelopeOpen ? '0' : '1',
-                    transitionDelay: isEnvelopeOpen ? '200ms' : '0ms'
+                    opacity: 1, // Siempre visible hasta que se desmonta
                   }}
                 >
                   {/* Marco interno dorado sutil para la carta */}
