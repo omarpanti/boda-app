@@ -131,9 +131,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
   
   // Efecto de máquina de escribir para el nombre en la carta
+  const formatName = (name: string) => {
+    return name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+  
   const cardName = (!guest.companions || guest.companions.length === 0) 
-    ? guest.name 
-    : `${guest.name} y Familia`;
+    ? formatName(guest.name) 
+    : `${formatName(guest.name)} y Familia`;
   // El efecto de escritura ahora es puramente CSS para un acabado más elegante y fluido
 
   useEffect(() => {
@@ -368,12 +372,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
                   <p className="font-playfair italic text-[#8a6312] text-[10px] mb-0 opacity-80">Entregar a:</p>
-                  <h2 className="font-cursive text-lg text-[#4a3505] px-4 flex justify-center flex-wrap">
+                  <h2 className="font-cursive text-base tracking-wide text-[#4a3505] px-4 flex justify-center flex-wrap">
                     {cardName.split('').map((char, index) => (
                       <span 
                         key={index}
                         className="animate-[brushWrite_0.6s_ease-out_forwards] opacity-0 inline-block"
-                        style={{ animationDelay: `${index * 120}ms` }}
+                        style={{ animationDelay: `${index * 250}ms` }}
                       >
                         {char === ' ' ? '\u00A0' : char}
                       </span>
