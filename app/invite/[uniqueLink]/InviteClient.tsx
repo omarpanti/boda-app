@@ -551,7 +551,9 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                                   ¡Gracias por confirmar!
                                 </h3>
                                 <p className="text-gray-500 font-inter text-lg">
-                                  Hemos registrado las respuestas de tu grupo.
+                                  {(!guest.companions || guest.companions.length === 0) 
+                                    ? 'Hemos registrado tu respuesta exitosamente.' 
+                                    : 'Hemos registrado las respuestas de tu grupo.'}
                                 </p>
                                </>
                            )
