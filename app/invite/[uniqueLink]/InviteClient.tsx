@@ -398,31 +398,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                         >
                           {char === ' ' ? '\u00A0' : char}
                         </span>
-                        
-                        {/* La pluma estilográfica que sigue a la letra actual simulando el trazo */}
-                        {index === brushPos && (
-                          <span className="absolute bottom-1 left-1/2 text-[#a88232] z-50 animate-[writeLoop_0.35s_linear_infinite] drop-shadow-[0_5px_5px_rgba(0,0,0,0.3)] origin-bottom-left">
-                            {/* Punta de Pluma Estilográfica (Nib) muy detallada */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" className="transform -rotate-45">
-                              <path d="M20.7 3.3c-1.4-1.4-3.6-1.4-5 0l-3.3 3.3c-2.2 2.2-3.1 5.4-2.3 8.3L2 21.1c-1 1-.5 2.8.9 2.9H9c.8 0 1.6-.3 2.1-.9l10-10.8c2.9-.8 6.1-1.7 8.3-3.9 1.4-1.4 1.4-3.6 0-5zM13 14l-2-2 3-3 2 2-3 3z" />
-                            </svg>
-                          </span>
-                        )}
                       </span>
                     ))}
                   </h2>
                 </div>
-                
-                {/* Estilos para el efecto pincel y los trazos de escritura */}
-                <style dangerouslySetInnerHTML={{__html: `
-                  @keyframes writeLoop {
-                    0% { transform: translate(-5px, 5px) rotate(-10deg); }
-                    25% { transform: translate(2px, -8px) rotate(-5deg); }
-                    50% { transform: translate(7px, 2px) rotate(0deg); }
-                    75% { transform: translate(2px, 8px) rotate(-5deg); }
-                    100% { transform: translate(-5px, 5px) rotate(-10deg); }
-                  }
-                `}} />
                 
                 {/* Indicador de tap */}
                 <div 
