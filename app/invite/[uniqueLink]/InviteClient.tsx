@@ -139,20 +139,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     ? formatName(guest.name) 
     : `${formatName(guest.name)} y Familia`;
 
-  const [brushPos, setBrushPos] = useState(0)
-
-  useEffect(() => {
-    setBrushPos(0)
-  }, [cardName])
-
-  useEffect(() => {
-    if (brushPos < cardName.length + 1) { // +1 to let the brush finish and disappear
-      const timer = setTimeout(() => {
-        setBrushPos(p => p + 1)
-      }, 350) // Súper lento (350ms por letra)
-      return () => clearTimeout(timer)
-    }
-  }, [brushPos, cardName])
+  // Efecto de escritura en el exterior eliminado, cardName se usa en el interior
 
   useEffect(() => {
     const handleOrientation = (e: DeviceOrientationEvent) => {
@@ -380,28 +367,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   </div>
                 </div>
                 
-                {/* Nombre del invitado en el frente del sobre (Efecto de Pluma Real) */}
-                <div 
-                  className="absolute bottom-2 left-0 w-full text-center z-50 pointer-events-none transition-opacity duration-300"
-                  style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
-                >
-                  <p className="font-playfair italic text-[#8a6312] text-[10px] mb-0 opacity-80">Entregar a:</p>
-                  <h2 className="font-cursive text-base tracking-wide text-[#4a3505] px-4 flex justify-center flex-wrap mt-0.5">
-                    {cardName.split('').map((char, index) => (
-                      <span key={index} className="relative inline-block">
-                        <span 
-                          className={`inline-block transition-all duration-[800ms] ease-out ${
-                            index < brushPos 
-                              ? 'opacity-100 blur-0 translate-y-0 scale-100' 
-                              : 'opacity-0 blur-[2px] translate-y-1 scale-95'
-                          }`}
-                        >
-                          {char === ' ' ? '\u00A0' : char}
-                        </span>
-                      </span>
-                    ))}
-                  </h2>
-                </div>
+                {/* Nombre del invitado en el frente eliminado por solicitud */}
                 
                 {/* Indicador de tap */}
                 <div 
