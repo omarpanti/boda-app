@@ -567,9 +567,9 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                                   ¡Gracias por confirmar!
                                 </h3>
                                 <p className="text-gray-500 font-inter text-lg">
-                                  {(!guest.companions || guest.companions.length === 0) 
-                                    ? 'Hemos registrado tu respuesta exitosamente.' 
-                                    : 'Hemos registrado las respuestas de tu grupo.'}
+                                  {selections.filter(s => s.status === 'CONFIRMED').length === 1 
+                                    ? 'Hemos registrado tu pase exitosamente (1 lugar confirmado).' 
+                                    : `Hemos registrado las respuestas de tu grupo (${selections.filter(s => s.status === 'CONFIRMED').length} lugares confirmados).`}
                                 </p>
                                </>
                            )
