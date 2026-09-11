@@ -276,13 +276,14 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   }, []) 
 
   const handleCanvasPointerDown = (e: React.PointerEvent) => {
-    if (e.target !== e.currentTarget) return
+    if ((e.target as HTMLElement).closest('button, select, .context-menu')) return
     setSelectedItem(null)
     setShowAddMenu(false)
     setIsPanning(true)
     setPanStart({ x: e.clientX, y: e.clientY })
     if (containerRef.current) {
       containerRef.current.style.cursor = 'grabbing'
+      e.currentTarget.setPointerCapture(e.pointerId)
     }
   }
 
@@ -295,10 +296,11 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     setPanStart({ x: e.clientX, y: e.clientY })
   }
 
-  const handleCanvasPointerUp = () => {
+  const handleCanvasPointerUp = (e: React.PointerEvent) => {
     setIsPanning(false)
     if (containerRef.current) {
       containerRef.current.style.cursor = 'default'
+      e.currentTarget.releasePointerCapture(e.pointerId)
     }
   }
 
