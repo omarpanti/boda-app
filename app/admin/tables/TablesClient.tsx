@@ -24,6 +24,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   const [showAddMenu, setShowAddMenu] = useState(false)
   
   const containerRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
 
@@ -303,11 +304,12 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
 
   const handleFullscreenAndCenter = () => {
     const container = containerRef.current;
-    if (!container) return;
+    const wrapper = wrapperRef.current;
+    if (!container || !wrapper) return;
 
     const willEnterFullscreen = !document.fullscreenElement;
     if (willEnterFullscreen) {
-      container.requestFullscreen().catch(err => console.log('Error al entrar a pantalla completa:', err));
+      wrapper.requestFullscreen().catch(err => console.log('Error al entrar a pantalla completa:', err));
     } else {
       document.exitFullscreen();
     }
@@ -385,7 +387,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-950 text-slate-200 font-sans relative">
+    <div ref={wrapperRef} className="flex flex-col h-[calc(100vh-64px)] w-full overflow-hidden bg-slate-950 text-slate-200 font-sans relative">
       
       {/* HEADER / TOP CONTROLS */}
       <div className="absolute top-4 left-4 right-4 z-40 flex justify-between items-center pointer-events-none">
