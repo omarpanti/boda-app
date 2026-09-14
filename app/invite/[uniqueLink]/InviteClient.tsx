@@ -547,7 +547,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                            if (allDeclined) {
                              return (
                                <>
-                                <div className="text-6xl mb-6">🕊️</div>
+                                <div className="text-6xl mb-6 flex items-center justify-center gap-1">
+                                  <span>🥂</span>
+                                  <span className="text-4xl -translate-y-2">✨</span>
+                                </div>
                                 <h3 className="font-cursive text-4xl md:text-5xl text-[#A5A05A] mb-4">
                                   Lamentamos que no nos acompañes
                                 </h3>
