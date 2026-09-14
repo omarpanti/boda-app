@@ -7,8 +7,8 @@ import Script from "next/script";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Plataforma de Bodas Premium",
-  description: "Gestión completa de invitados, gastos e invitaciones",
+  title: "Nuestra Boda M & O",
+  description: "",
   viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
 };
 
