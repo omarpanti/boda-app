@@ -332,7 +332,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                   <td className="px-6 py-4">
                     {guest.phone && (
                       <a 
-                        href={`https://wa.me/${guest.phone}?text=${encodeURIComponent(`¡Hola ${guest.name}! Te comparto tu invitación para la boda: ${window.location.origin}/invite/${guest.uniqueLink}`)}`}
+                        href={`https://wa.me/${guest.phone}?text=${encodeURIComponent(`¡Hola ${guest.name}! Te comparto tu invitación para la boda de Maritere y Omar: ${window.location.origin}/invite/${guest.uniqueLink}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 bg-green-500/10 text-green-400 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-green-500/20 transition-colors border border-green-500/20"

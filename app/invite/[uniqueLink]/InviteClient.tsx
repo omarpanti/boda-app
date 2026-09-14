@@ -327,10 +327,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   {/* Marco interno dorado sutil para la carta */}
                   <div className="absolute inset-2 border-[1.5px] border-[#d4af37]/40 rounded-sm pointer-events-none"></div>
                   
-                  <p className="font-playfair italic text-[#aa8222] text-[13px] mb-2">Con mucho cariño para:</p>
-                  <h1 className="font-cursive text-4xl text-[#4a3505] leading-tight px-4">
-                    {cardName}
-                  </h1>
+                  {/* Se eliminó el nombre por solicitud */}
                 </div>
 
                 {/* Solapas laterales e inferior con colores hueso cálidos y sombras suaves */}
@@ -352,12 +349,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     transform: isEnvelopeOpen ? 'translate(-50%, -50%) scale(1.6)' : 'translate(-50%, -50%) scale(1)'
                   }}
                 >
-                  <div className="w-[85px] h-[85px] bg-gradient-to-br from-[#d4af37] via-[#b88c24] to-[#8a6312] rounded-full shadow-[0_4px_10px_rgba(138,99,18,0.4)] flex items-center justify-center border-[2px] border-[#fce49c]/40 animate-[pulse_3s_ease-in-out_infinite] relative backdrop-blur-sm">
+                  <div className="w-[85px] h-[85px] bg-gradient-to-br from-[#744570] via-[#4d2649] to-[#361533] rounded-full shadow-[0_4px_10px_rgba(77,38,73,0.6)] flex items-center justify-center border-[2px] border-[#946190]/40 animate-[pulse_3s_ease-in-out_infinite] relative backdrop-blur-sm">
                     {/* Brillo realista del lacre */}
-                    <div className="absolute inset-0 bg-white/20 blur-[1px] rounded-full mix-blend-overlay pointer-events-none"></div>
-                    <div className="absolute inset-[4px] border border-[#7a540b]/30 rounded-full pointer-events-none"></div>
+                    <div className="absolute inset-0 bg-white/10 blur-[1px] rounded-full mix-blend-overlay pointer-events-none"></div>
+                    <div className="absolute inset-[4px] border border-[#a16799]/20 rounded-full pointer-events-none"></div>
                     {/* Texto del sello con corazón SVG integrado */}
-                    <span className="text-[#3d2c04] font-cursive text-[1.6rem] drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)] z-10 flex items-center justify-center gap-1 mt-1 pr-1">
+                    <span className="text-[#f3d99e] font-cursive text-[1.6rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] z-10 flex items-center justify-center gap-1 mt-1 pr-1">
                       <span className="transform scale-[0.95] translate-y-[2px]">M</span>
                       <svg className="w-[18px] h-[18px] fill-current mt-[5px]" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
