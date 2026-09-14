@@ -205,18 +205,37 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     }
   }
 
+  const totalHombres = guests.reduce((acc, g) => {
+    let count = g.gender === 'M' ? 1 : 0;
+    if (g.companions) count += g.companions.filter(c => c.gender === 'M').length;
+    return acc + count;
+  }, 0);
+  
+  const totalMujeres = guests.reduce((acc, g) => {
+    let count = g.gender === 'F' ? 1 : 0;
+    if (g.companions) count += g.companions.filter(c => c.gender === 'F').length;
+    return acc + count;
+  }, 0);
+
   return (
     <>
     <div className="bg-white/5 rounded-3xl shadow-2xl border border-white/10 overflow-hidden backdrop-blur-xl">
       {/* Buscador y Barra de acciones masivas */}
       <div className="p-4 sm:p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 bg-transparent">
-        <input 
-          type="text" 
-          placeholder="🔍 Buscar invitado por nombre..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full sm:w-80 outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500 transition-all"
-        />
+        <div className="flex flex-col gap-3 w-full md:w-auto">
+          <input 
+            type="text" 
+            placeholder="🔍 Buscar invitado por nombre..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-black/30 border border-white/10 text-white p-3 rounded-xl w-full sm:w-80 outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500 transition-all"
+          />
+          <div className="flex gap-4 text-xs font-medium text-slate-400 px-2">
+            <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md border border-white/10">👨 {totalHombres} Hombres</span>
+            <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md border border-white/10">👩 {totalMujeres} Mujeres</span>
+            <span className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-md border border-white/10">👥 {totalHombres + totalMujeres} Total</span>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-3 w-full md:w-auto">
           <button onClick={handleExportPDF} className="bg-gradient-to-r from-red-600/80 to-rose-600/80 text-white border border-red-500/30 px-5 py-2.5 rounded-xl text-sm font-medium hover:from-red-500 hover:to-rose-500 transition-all flex-1 sm:flex-none text-center shadow-lg hover:shadow-red-500/25">
             📄 Reporte PDF
