@@ -354,9 +354,9 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     <div className="absolute inset-0 bg-white/10 blur-[1px] rounded-full mix-blend-overlay pointer-events-none"></div>
                     <div className="absolute inset-[4px] border border-[#a16799]/20 rounded-full pointer-events-none"></div>
                     {/* Texto del sello con corazón SVG integrado */}
-                    <span className="text-[#f3d99e] font-cursive text-[1.75rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] z-10 flex items-center justify-center gap-1.5 mt-0.5">
+                    <span className="text-[#f3d99e] font-cursive text-[1.45rem] drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] z-10 flex items-center justify-center gap-1.5 mt-0.5">
                       <span className="leading-none">M</span>
-                      <svg className="w-[15px] h-[15px] fill-current translate-y-[3px]" viewBox="0 0 24 24">
+                      <svg className="w-[12px] h-[12px] fill-current translate-y-[2px]" viewBox="0 0 24 24">
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                       </svg>
                       <span className="leading-none">O</span>
