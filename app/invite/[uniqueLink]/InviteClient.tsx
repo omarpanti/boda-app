@@ -535,7 +535,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                         <button 
                           disabled={loading}
                           onClick={handleRSVP}
-                          className="w-full bg-[#A5A05A] hover:bg-[#8f8a48] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-md text-sm"
+                          className="w-full bg-gradient-to-br from-[#744570] via-[#4d2649] to-[#361533] hover:from-[#633a5f] hover:via-[#3d1d3a] hover:to-[#260e24] text-white font-inter font-medium tracking-widest uppercase py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-[#4d2649]/30 text-sm"
                         >
                           {loading ? 'Enviando...' : 'Enviar Respuesta'}
                         </button>
