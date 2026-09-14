@@ -111,10 +111,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [isResponded, setIsResponded] = useState(guest.rsvpStatus !== 'PENDING')
   const [loading, setLoading] = useState(false)
   
-  // Estado para las selecciones del grupo (por defecto todos confirmados)
+  // Estado para las selecciones del grupo basado en la BD, por defecto CONFIRMED si están pendientes
   const [selections, setSelections] = useState<{id: number, status: 'CONFIRMED' | 'DECLINED'}[]>([
-    { id: guest.id, status: 'CONFIRMED' },
-    ...(guest.companions?.map(c => ({ id: c.id, status: 'CONFIRMED' as const })) || [])
+    { id: guest.id, status: (guest.rsvpStatus === 'PENDING' ? 'CONFIRMED' : guest.rsvpStatus) as 'CONFIRMED' | 'DECLINED' },
+    ...(guest.companions?.map(c => ({ id: c.id, status: (c.rsvpStatus === 'PENDING' ? 'CONFIRMED' : c.rsvpStatus) as 'CONFIRMED' | 'DECLINED' })) || [])
   ])
   const [guestMessage, setGuestMessage] = useState(guest.message || '')
 
@@ -405,7 +405,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 className="absolute top-[39%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
               >
                 <svg className="w-3.5 h-3.5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Cómo Llegar a la Parroquia</span>
+                <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Ubicación</span>
               </a>
             </div>
 
@@ -421,7 +421,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 className="absolute top-[33%] group flex items-center justify-center gap-1.5 bg-white/40 hover:bg-white/60 backdrop-blur-sm border border-[#2c2c2c]/10 px-4 py-1.5 rounded-full transition-all duration-300 shadow-sm mx-4 z-10"
               >
                 <svg className="w-3.5 h-3.5 text-[#2c2c2c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Cómo Llegar a la Recepción</span>
+                <span className="font-inter tracking-widest uppercase text-[9px] font-medium text-[#2C2C2C]">Ubicación</span>
               </a>
             </div>
 
@@ -455,7 +455,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 className="absolute bottom-[14%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-[#d9a1d4]/20 hover:bg-[#d9a1d4]/40 backdrop-blur-md border border-[#a16799]/30 px-6 py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] z-10"
               >
                 <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-semibold text-[#4d2649]">
-                  {isResponded ? 'Ver mi confirmación' : 'Confirmar asistencia'}
+                  {isResponded ? 'Ver mi respuesta' : 'Confirmar asistencia'}
                 </span>
               </button>
             </div>
