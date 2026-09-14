@@ -7,7 +7,7 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 type Companion = { id: number, name: string, gender: string, rsvpStatus: string }
-type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, companions?: Companion[] }
+type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, message?: string | null, companions?: Companion[] }
 
 export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
   const [selectedIds, setSelectedIds] = useState<number[]>([])
@@ -69,7 +69,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       ["Reporte Oficial de Invitados"],
       [`Fecha de generación: ${new Date().toLocaleDateString()}`],
       [], // Fila en blanco
-      ["Nombre", "Tipo", "Teléfono", "Estatus", "Género"]
+      ["Nombre", "Tipo", "Teléfono", "Estatus", "Género", "Mensaje"]
     ]
 
     const dataRows: any[][] = []
@@ -81,7 +81,8 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         'Titular',
         g.phone || 'N/A',
         g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
-        g.gender === 'M' ? 'Hombre' : 'Mujer'
+        g.gender === 'M' ? 'Hombre' : 'Mujer',
+        g.message || ''
       ])
       g.companions?.forEach(c => {
         dataRows.push([
@@ -89,7 +90,8 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `Acompañante de ${g.name}`,
           'N/A',
           c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
-          c.gender === 'M' ? 'Hombre' : 'Mujer'
+          c.gender === 'M' ? 'Hombre' : 'Mujer',
+          ''
         ])
       })
     })
@@ -138,18 +140,20 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     doc.setTextColor(100, 100, 100)
     doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, 36, { align: "center" })
     
-    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Género"]
+    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Mensaje"]
     const tableRows: any[][] = []
     
     const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
 
     sortedGuests.forEach(g => {
+      // Truncar el mensaje si es muy largo para el PDF
+      const msg = g.message ? (g.message.length > 30 ? g.message.substring(0, 30) + '...' : g.message) : 'N/A'
       tableRows.push([
         g.name,
         'Titular',
         g.phone || 'N/A',
         g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
-        g.gender === 'M' ? 'Hombre' : 'Mujer'
+        msg
       ])
       g.companions?.forEach(c => {
         tableRows.push([
@@ -157,7 +161,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `Acompañante de ${g.name}`,
           'N/A',
           c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
-          c.gender === 'M' ? 'Hombre' : 'Mujer'
+          'N/A'
         ])
       })
     })
@@ -297,6 +301,11 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                             </span>
                           )}
                         </div>
+                        {guest.message && (
+                          <div className="mt-2 text-xs italic text-slate-300 bg-black/30 p-2 rounded-lg border border-white/5 max-w-[250px]">
+                            💬 "{guest.message}"
+                          </div>
+                        )}
                       </div>
                     </div>
                   </td>
