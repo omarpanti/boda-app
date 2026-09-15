@@ -126,7 +126,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     // Título Principal
     doc.setFont("helvetica", "bold")
     doc.setFontSize(22)
-    doc.setTextColor(165, 160, 90) // Dorado (#A5A05A)
+    doc.setTextColor(116, 69, 112) // Morado elegante (#744570)
     doc.text("M & O", 105, 20, { align: "center" })
     
     // Subtítulo
@@ -171,16 +171,31 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       body: tableRows,
       startY: 45,
       headStyles: {
-        fillColor: [165, 160, 90], // Dorado
+        fillColor: [116, 69, 112], // Morado
         textColor: [255, 255, 255],
         fontStyle: 'bold'
       },
       alternateRowStyles: {
-        fillColor: [250, 249, 242] // Fondo súper tenue dorado
+        fillColor: [252, 245, 252] // Fondo súper tenue morado
       },
       styles: {
         fontSize: 9,
         cellPadding: 4
+      },
+      didParseCell: (data) => {
+        // La columna Estatus es el índice 3
+        if (data.section === 'body' && data.column.index === 3) {
+          if (data.cell.raw === 'Confirmado') {
+            data.cell.styles.textColor = [16, 185, 129] // Esmeralda (Verde)
+            data.cell.styles.fontStyle = 'bold'
+          } else if (data.cell.raw === 'No Asistirá') {
+            data.cell.styles.textColor = [244, 63, 94] // Rosa/Rojo
+            data.cell.styles.fontStyle = 'bold'
+          } else if (data.cell.raw === 'Pendiente') {
+            data.cell.styles.textColor = [234, 179, 8] // Amarillo brillante
+            data.cell.styles.fontStyle = 'bold'
+          }
+        }
       }
     })
 

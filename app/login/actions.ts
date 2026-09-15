@@ -6,8 +6,8 @@ import { redirect } from 'next/navigation'
 export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string
   
-  // Por defecto "Boda2026" si no hay variable de entorno
-  const correctPassword = process.env.ADMIN_PASSWORD || 'Boda2026'
+  // Por defecto la nueva contraseña solicitada
+  const correctPassword = process.env.ADMIN_PASSWORD || '10800319$27'
 
   if (password === correctPassword) {
     // Establecemos la cookie que el middleware leerá (válida por 30 días)
