@@ -12,6 +12,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   const [newTableName, setNewTableName] = useState('')
   const [newTableCapacity, setNewTableCapacity] = useState(8)
   const [newTableShape, setNewTableShape] = useState('ROUND')
+  const [isLightMode, setIsLightMode] = useState(false)
   
   const [zoom, setZoom] = useState(1)
   const [guestSearch, setGuestSearch] = useState('')
@@ -377,8 +378,8 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           key={`seat-${table.id}-${i}`}
           style={{ position: 'absolute', left: `${x}px`, top: `${y}px`, transform: 'translate(-50%, -50%)' }}
           className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shadow-[0_0_10px_rgba(0,0,0,0.5)] border-2 transition-colors
-            ${guest ? (guest.gender === 'M' ? 'bg-indigo-900 border-indigo-400 text-indigo-100' : 'bg-pink-900 border-pink-400 text-pink-100') 
-                    : 'bg-slate-800 border-dashed border-slate-600 text-transparent'}`}
+            ${guest ? (guest.gender === 'M' ? (isLightMode ? 'bg-indigo-100 border-indigo-400 text-indigo-900' : 'bg-indigo-900 border-indigo-400 text-indigo-100') : (isLightMode ? 'bg-pink-100 border-pink-400 text-pink-900' : 'bg-pink-900 border-pink-400 text-pink-100')) 
+                    : (isLightMode ? 'bg-slate-100 border-dashed border-slate-300 text-transparent' : 'bg-slate-800 border-dashed border-slate-600 text-transparent')}`}
           title={guest ? guest.name : 'Silla vacía'}
         >
           {guest ? (guest.gender === 'M' ? '👨' : '👩') : ''}
@@ -402,6 +403,14 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl font-bold text-xl transition-colors">-</button>
           <span className="px-3 flex items-center justify-center text-sm font-semibold">{Math.round(zoom * 100)}%</span>
           <button onClick={() => setZoom(z => Math.min(2, z + 0.1))} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl font-bold text-xl transition-colors">+</button>
+          <div className="w-px h-10 bg-white/10 mx-1"></div>
+          <button 
+            onClick={() => setIsLightMode(!isLightMode)} 
+            className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl text-lg transition-colors"
+            title="Alternar Modo Claro/Oscuro"
+          >
+            {isLightMode ? '🌙' : '☀️'}
+          </button>
         </div>
 
         {/* Guest Drawer Toggle */}
@@ -533,7 +542,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
         onPointerMove={handleCanvasPointerMove}
         onPointerUp={handleCanvasPointerUp}
         onPointerLeave={handleCanvasPointerUp}
-        className="absolute inset-0 w-full h-full overflow-auto bg-slate-950"
+        className={`absolute inset-0 w-full h-full overflow-auto transition-colors duration-500 ${isLightMode ? 'bg-[#f8f9fa]' : 'bg-slate-950'}`}
       >
         <div 
           className="relative min-w-[2500px] min-h-[1800px]"
@@ -546,10 +555,9 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
           style={{ 
             transform: `scale(${zoom})`, 
             transformOrigin: 'top left',
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
-            `,
+            backgroundImage: isLightMode 
+              ? `linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)`
+              : `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
             backgroundSize: '40px 40px',
             margin: '25vh 25vw'
           }}
@@ -593,17 +601,18 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
                 {/* Table Surface */}
                 <div
                   onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'TABLE', id: table.id}) }}
-                  className={`bg-slate-800 border-2 flex flex-col items-center justify-center p-2 cursor-grab shadow-[0_10px_30px_rgba(0,0,0,0.5)] absolute inset-0 group transition-all duration-200
+                  className={`border-2 flex flex-col items-center justify-center p-2 cursor-grab shadow-[0_10px_30px_rgba(0,0,0,0.5)] absolute inset-0 group transition-all duration-200
                     ${table.shape === 'ROUND' ? 'rounded-full' : 'rounded-2xl'}
-                    ${isSelected ? 'border-indigo-500 shadow-[0_0_0_4px_rgba(99,102,241,0.3)]' : 'border-slate-600 hover:border-slate-400'}
+                    ${isLightMode ? 'bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)]' : 'bg-slate-800'}
+                    ${isSelected ? 'border-indigo-500 shadow-[0_0_0_4px_rgba(99,102,241,0.3)]' : (isLightMode ? 'border-slate-300 hover:border-slate-400' : 'border-slate-600 hover:border-slate-400')}
                   `}
                 >
                   <div className="text-center w-full pointer-events-none flex flex-col items-center">
-                    {table.number && <span className="bg-slate-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1" style={{ transform: `rotate(${-rot}deg)`}}>#{table.number}</span>}
-                    <h3 className="font-bold text-slate-200 text-xs truncate max-w-[80%]" style={{ transform: `rotate(${-rot}deg)`}}>
+                    {table.number && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 ${isLightMode ? 'bg-slate-200 text-slate-700' : 'bg-slate-700 text-white'}`} style={{ transform: `rotate(${-rot}deg)`}}>#{table.number}</span>}
+                    <h3 className={`font-bold text-xs truncate max-w-[80%] ${isLightMode ? 'text-slate-800' : 'text-slate-200'}`} style={{ transform: `rotate(${-rot}deg)`}}>
                       {table.name}
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5" style={{ transform: `rotate(${-rot}deg)`}}>{table.guests.length}/{table.capacity}</p>
+                    <p className={`text-[10px] font-medium mt-0.5 ${isLightMode ? 'text-slate-500' : 'text-slate-400'}`} style={{ transform: `rotate(${-rot}deg)`}}>{table.guests.length}/{table.capacity}</p>
                   </div>
                 </div>
                 
@@ -701,17 +710,17 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
                 }}
                 onClick={(e) => { e.stopPropagation(); setSelectedItem({type: 'LAYOUT', id: layout.id}) }}
                 className={`rounded-3xl flex flex-col items-center justify-center cursor-move transition-all group select-none backdrop-blur-sm
-                  ${layout.type === 'DANCE_FLOOR' ? 'border-2 border-indigo-500/50 bg-indigo-500/10' : ''}
-                  ${layout.type === 'STAGE' ? 'border-2 border-purple-500/50 bg-purple-500/10' : ''}
-                  ${layout.type === 'ROOM_AREA' ? 'border-4 border-dashed border-emerald-500/30 bg-emerald-500/5' : ''}
-                  ${isSelected ? 'shadow-[0_0_0_4px_rgba(255,255,255,0.1)] border-white' : 'hover:bg-white/5'}
+                  ${layout.type === 'DANCE_FLOOR' ? (isLightMode ? 'border-2 border-indigo-400 bg-indigo-100/50' : 'border-2 border-indigo-500/50 bg-indigo-500/10') : ''}
+                  ${layout.type === 'STAGE' ? (isLightMode ? 'border-2 border-purple-400 bg-purple-100/50' : 'border-2 border-purple-500/50 bg-purple-500/10') : ''}
+                  ${layout.type === 'ROOM_AREA' ? (isLightMode ? 'border-4 border-dashed border-emerald-400 bg-emerald-100/30' : 'border-4 border-dashed border-emerald-500/30 bg-emerald-500/5') : ''}
+                  ${isSelected ? (isLightMode ? 'shadow-[0_0_0_4px_rgba(0,0,0,0.1)] border-slate-800' : 'shadow-[0_0_0_4px_rgba(255,255,255,0.1)] border-white') : (isLightMode ? 'hover:bg-black/5' : 'hover:bg-white/5')}
                 `}
               >
                 <div className="text-center pointer-events-none">
                   <span className={`font-bold uppercase tracking-[0.2em] 
-                    ${layout.type === 'DANCE_FLOOR' ? 'text-indigo-400 text-lg' : ''}
-                    ${layout.type === 'STAGE' ? 'text-purple-400 text-lg' : ''}
-                    ${layout.type === 'ROOM_AREA' ? 'text-emerald-500/30 text-3xl' : ''}
+                    ${layout.type === 'DANCE_FLOOR' ? (isLightMode ? 'text-indigo-600 text-lg' : 'text-indigo-400 text-lg') : ''}
+                    ${layout.type === 'STAGE' ? (isLightMode ? 'text-purple-600 text-lg' : 'text-purple-400 text-lg') : ''}
+                    ${layout.type === 'ROOM_AREA' ? (isLightMode ? 'text-emerald-500/50 text-3xl' : 'text-emerald-500/30 text-3xl') : ''}
                   `}>
                     {layout.name}
                   </span>
