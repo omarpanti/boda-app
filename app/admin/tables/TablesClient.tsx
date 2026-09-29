@@ -39,6 +39,143 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
     pointerId: number
   } | null>(null)
 
+  const handleExportMapPDF = async () => {
+    const { jsPDF } = await import('jspdf')
+    
+    // Buscar los límites del mapa
+    let minX = 99999, minY = 99999, maxX = -99999, maxY = -99999
+    
+    const getPos = (type: 'TABLE' | 'LAYOUT', id: number, origX: number, origY: number, origW: number, origH: number, origR: number) => {
+      const override = positionOverrides[`${type}_${id}`]
+      const x = override ? override.x : origX
+      const y = override ? override.y : origY
+      const r = override && override.r !== undefined ? override.r : origR
+      return { x, y, w: origW, h: origH, r }
+    }
+
+    const elementsToDraw: any[] = []
+
+    initialLayout.forEach(l => {
+      const p = getPos('LAYOUT', l.id, l.x_position, l.y_position, l.width, l.height, l.rotation || 0)
+      minX = Math.min(minX, p.x)
+      minY = Math.min(minY, p.y)
+      maxX = Math.max(maxX, p.x + p.w)
+      maxY = Math.max(maxY, p.y + p.h)
+      elementsToDraw.push({ ...p, type: 'LAYOUT', data: l })
+    })
+
+    initialTables.forEach(t => {
+      const isRect = t.shape === 'RECTANGULAR'
+      const w = isRect ? 140 : 100
+      const h = isRect ? 80 : 100
+      const p = getPos('TABLE', t.id, t.x_position, t.y_position, w, h, t.rotation || 0)
+      minX = Math.min(minX, p.x)
+      minY = Math.min(minY, p.y)
+      maxX = Math.max(maxX, p.x + p.w)
+      maxY = Math.max(maxY, p.y + p.h)
+      elementsToDraw.push({ ...p, type: 'TABLE', data: t })
+    })
+
+    if (elementsToDraw.length === 0) {
+      alert("No hay elementos para imprimir en el croquis.")
+      return
+    }
+
+    const padding = 150
+    minX -= padding
+    minY -= padding
+    maxX += padding
+    maxY += padding
+
+    const mapWidth = maxX - minX
+    const mapHeight = maxY - minY
+
+    // A4 landscape: 297 x 210 mm
+    const doc = new jsPDF('landscape', 'mm', 'a4')
+    const pdfW = 297
+    const pdfH = 210
+
+    // Espacio para titulo y margenes
+    const usableW = pdfW - 20
+    const usableH = pdfH - 30
+    
+    const scale = Math.min(usableW / mapWidth, usableH / mapHeight)
+    const offsetX = 10 + (usableW - (mapWidth * scale)) / 2
+    const offsetY = 20 + (usableH - (mapHeight * scale)) / 2
+
+    doc.setFont("helvetica", "bold")
+    doc.setFontSize(18)
+    doc.setTextColor(116, 69, 112)
+    doc.text('M & O - Croquis de Mesas', pdfW/2, 14, { align: 'center' })
+    
+    doc.setFont("helvetica", "normal")
+    doc.setTextColor(100, 100, 100)
+
+    elementsToDraw.forEach(el => {
+      const px = offsetX + ((el.x - minX) * scale)
+      const py = offsetY + ((el.y - minY) * scale)
+      const pw = el.w * scale
+      const ph = el.h * scale
+
+      const isRotated90 = (el.r % 180 !== 0)
+      const drawW = isRotated90 ? ph : pw
+      const drawH = isRotated90 ? pw : ph
+      
+      const cx = px + pw/2
+      const cy = py + ph/2
+
+      if (el.type === 'LAYOUT') {
+        const l = el.data
+        if (l.type === 'DANCE_FLOOR') {
+          doc.setDrawColor(99, 102, 241) 
+          doc.setFillColor(238, 242, 255)
+        } else if (l.type === 'STAGE') {
+          doc.setDrawColor(168, 85, 247)
+          doc.setFillColor(250, 245, 255)
+        } else {
+          doc.setDrawColor(16, 185, 129)
+          doc.setFillColor(236, 253, 245)
+        }
+        doc.setLineWidth(0.5)
+        doc.roundedRect(cx - drawW/2, cy - drawH/2, drawW, drawH, 2, 2, 'FD')
+        
+        doc.setTextColor(100, 100, 100)
+        doc.setFontSize(8)
+        doc.text(l.name.substring(0, 30), cx, cy, { align: 'center', baseline: 'middle' })
+      } else {
+        const t = el.data
+        doc.setDrawColor(150, 150, 150)
+        doc.setFillColor(250, 250, 250)
+        doc.setLineWidth(0.5)
+        
+        if (t.shape === 'ROUND') {
+          doc.ellipse(cx, cy, pw/2, ph/2, 'FD')
+        } else {
+          doc.roundedRect(cx - drawW/2, cy - drawH/2, drawW, drawH, 3, 3, 'FD')
+        }
+        
+        doc.setTextColor(0, 0, 0)
+        doc.setFontSize(8)
+        const title = t.number ? `#${t.number}` : ''
+        if (title) {
+          doc.text(title, cx, cy - 2, { align: 'center', baseline: 'middle' })
+          doc.setFontSize(6)
+          doc.text(t.name.substring(0, 20), cx, cy + 2, { align: 'center', baseline: 'middle' })
+        } else {
+          doc.text(t.name.substring(0, 20), cx, cy, { align: 'center', baseline: 'middle' })
+        }
+        
+        doc.setTextColor(100, 100, 100)
+        doc.setFontSize(5)
+        doc.text(`${t.guests.length}/${t.capacity} sillas`, cx, cy + 6, { align: 'center', baseline: 'middle' })
+      }
+    })
+
+    const pdfBlob = doc.output('blob')
+    const pdfUrl = URL.createObjectURL(pdfBlob)
+    window.open(pdfUrl, '_blank')
+  }
+
   const handleExportPDF = async () => {
     const { jsPDF } = await import('jspdf')
     const autoTable = (await import('jspdf-autotable')).default
@@ -410,6 +547,14 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
             title="Alternar Modo Claro/Oscuro"
           >
             {isLightMode ? '🌙' : '☀️'}
+          </button>
+          <div className="w-px h-10 bg-white/10 mx-1"></div>
+          <button 
+            onClick={handleExportMapPDF} 
+            className="px-4 h-10 flex items-center justify-center hover:bg-white/10 rounded-xl font-bold text-sm transition-colors text-slate-300"
+            title="Generar PDF del Croquis"
+          >
+            🖨️ PDF
           </button>
         </div>
 
