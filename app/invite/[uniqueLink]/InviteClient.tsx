@@ -453,7 +453,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               {/* Botón flotante para abrir el formulario */}
               <button 
                 onClick={() => setShowRSVPModal(true)}
-                className="absolute bottom-[14%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-[#d9a1d4]/20 hover:bg-[#d9a1d4]/40 backdrop-blur-md border border-[#a16799]/30 px-6 py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] z-10"
+                className="absolute bottom-[7.5%] sm:bottom-[8.5%] md:bottom-[12%] lg:bottom-[13%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-[#d9a1d4]/20 hover:bg-[#d9a1d4]/40 backdrop-blur-md border border-[#a16799]/30 px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] z-10 whitespace-nowrap"
               >
                 <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-semibold text-[#4d2649]">
                   {isResponded ? 'Ver mi respuesta' : 'Confirmar asistencia'}
