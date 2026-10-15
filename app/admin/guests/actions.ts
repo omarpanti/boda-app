@@ -3,6 +3,15 @@
 import { prisma } from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 
+function normalizePhone(phone: string | null | undefined): string | null {
+  if (!phone) return null
+  const clean = phone.replace(/\D/g, '')
+  if (!clean) return null
+  if (clean.length === 10) return `52${clean}`
+  if (clean.length === 11 && clean.startsWith('1')) return `52${clean.substring(1)}`
+  return clean
+}
+
 export async function addGuest(formData: FormData) {
   const name = formData.get('name') as string
   const phone = formData.get('phone') as string
@@ -16,7 +25,7 @@ export async function addGuest(formData: FormData) {
   await prisma.guest.create({
     data: {
       name,
-      phone,
+      phone: normalizePhone(phone),
       gender,
       uniqueLink,
       rsvpStatus: 'PENDING'
@@ -32,13 +41,14 @@ export async function deleteGuest(id: number) {
   revalidatePath('/admin/guests')
 }
 
-export async function updateGuest(id: number, data: { name: string, phone: string, gender: string }) {
+export async function updateGuest(id: number, data: { name: string, phone: string, gender: string, rsvpStatus?: string }) {
   await prisma.guest.update({
     where: { id },
     data: {
       name: data.name,
-      phone: data.phone || null,
-      gender: data.gender
+      phone: normalizePhone(data.phone),
+      gender: data.gender,
+      ...(data.rsvpStatus ? { rsvpStatus: data.rsvpStatus } : {})
     }
   })
   revalidatePath('/admin/guests')
@@ -58,7 +68,7 @@ export async function bulkAddGuests(guests: {name: string, gender: string, phone
   const data = guests.map(g => ({
     name: g.name,
     gender: g.gender,
-    phone: g.phone || null,
+    phone: normalizePhone(g.phone),
     uniqueLink: Math.random().toString(36).substring(2, 10) + Date.now().toString(36) + Math.random().toString(36).substring(2, 5),
     rsvpStatus: 'PENDING'
   }))
@@ -90,3 +100,43 @@ export async function removeCompanion(id: number) {
   revalidatePath('/admin/guests')
 }
 
+export async function normalizeAllExistingPhones() {
+  const allGuests = await prisma.guest.findMany({
+    where: {
+      phone: { not: null }
+    }
+  })
+
+  let updatedCount = 0
+  for (const g of allGuests) {
+    if (g.phone) {
+      const normalized = normalizePhone(g.phone)
+      if (normalized && normalized !== g.phone) {
+        await prisma.guest.update({
+          where: { id: g.id },
+          data: { phone: normalized }
+        })
+        updatedCount++
+      }
+    }
+  }
+
+  revalidatePath('/admin/guests')
+  return { updatedCount }
+}
+
+export async function markInvitationSent(guestId: number) {
+  const guest = await prisma.guest.findUnique({
+    where: { id: guestId },
+    select: { rsvpStatus: true }
+  })
+
+  // Solo actualizar si estaba en PENDING
+  if (guest && guest.rsvpStatus === 'PENDING') {
+    await prisma.guest.update({
+      where: { id: guestId },
+      data: { rsvpStatus: 'SENT' }
+    })
+    revalidatePath('/admin/guests')
+  }
+}

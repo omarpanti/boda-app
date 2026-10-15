@@ -44,7 +44,7 @@ export default async function GuestsPage() {
             <input 
               type="text" 
               name="phone" 
-              placeholder="Teléfono (ej. 555-1234)" 
+              placeholder="Teléfono (10 dígitos ej. 9991234567)" 
               className="bg-black/20 border border-white/10 text-white p-3 rounded-xl flex-1 outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-500 transition-all" 
             />
             <select name="gender" className="bg-black/20 border border-white/10 text-white p-3 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all md:w-32 [&>option]:bg-slate-900">
