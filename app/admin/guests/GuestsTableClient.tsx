@@ -209,6 +209,61 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     window.open(pdfUrl, '_blank')
   }
 
+  const handleExportInvitationPDF = async () => {
+    // Generar un PDF conmemorativo de la invitación completa
+    const imageFiles = [
+      '/fotos/1.png?v=5',
+      '/fotos/2.png?v=5',
+      '/fotos/3.png?v=5',
+      '/fotos/4.png?v=5',
+      '/fotos/5.png?v=5',
+      '/fotos/6.png?v=5',
+      '/fotos/pase-1.png?v=1'
+    ]
+
+    const loadImage = (src: string): Promise<HTMLImageElement> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = () => resolve(img)
+        img.onerror = reject
+        img.src = src
+      })
+    }
+
+    try {
+      const firstImg = await loadImage(imageFiles[0])
+      const imgWidth = firstImg.naturalWidth || 1080
+      const imgHeight = firstImg.naturalHeight || 1920
+
+      // Ancho estándar vertical en mm (ej. 120mm x altura proporcional)
+      const pdfWidth = 120
+      const pdfHeight = (imgHeight / imgWidth) * pdfWidth
+
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
+      })
+
+      for (let i = 0; i < imageFiles.length; i++) {
+        if (i > 0) doc.addPage([pdfWidth, pdfHeight], 'portrait')
+        const img = i === 0 ? firstImg : await loadImage(imageFiles[i])
+        doc.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
+      }
+
+      const pdfBlob = doc.output('blob')
+      const pdfUrl = URL.createObjectURL(pdfBlob)
+      const a = document.createElement('a')
+      a.href = pdfUrl
+      a.download = 'Invitacion_Boda_Maritere_y_Omar.pdf'
+      a.click()
+    } catch (err) {
+      console.error(err)
+      alert('Hubo un detalle al generar el PDF de la invitación. Por favor intenta de nuevo.')
+    }
+  }
+
   const handleAddCompanion = async () => {
     if (!addingCompanionTo || companionIds.length === 0) return
     const { addCompanions } = await import('./actions')
@@ -267,6 +322,13 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
             title="Agrega automáticamente el código 52 a todos los números de 10 dígitos guardados"
           >
             🇲🇽 Corregir Teléfonos (+52)
+          </button>
+          <button 
+            onClick={handleExportInvitationPDF} 
+            className="bg-gradient-to-r from-purple-700/80 to-indigo-700/80 text-white border border-purple-500/30 px-5 py-2.5 rounded-xl text-sm font-medium hover:from-purple-600 hover:to-indigo-600 transition-all flex-1 sm:flex-none text-center shadow-lg hover:shadow-purple-500/25"
+            title="Descarga la invitación completa en PDF de recuerdo"
+          >
+            💌 Guardar Invitación PDF
           </button>
           <button onClick={handleExportPDF} className="bg-gradient-to-r from-red-600/80 to-rose-600/80 text-white border border-red-500/30 px-5 py-2.5 rounded-xl text-sm font-medium hover:from-red-500 hover:to-rose-500 transition-all flex-1 sm:flex-none text-center shadow-lg hover:shadow-red-500/25">
             📄 Reporte PDF
