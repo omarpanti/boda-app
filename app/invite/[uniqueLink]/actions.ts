@@ -17,11 +17,49 @@ export async function submitGroupRsvp(uniqueLink: string, selections: { id: numb
   }
 
   // Guardar el mensaje del invitado principal si escribió algo
-  if (message.trim()) {
+  const trimmedMessage = message.trim()
+  if (trimmedMessage) {
     await prisma.guest.update({
       where: { uniqueLink },
-      data: { message: message.trim() }
+      data: { message: trimmedMessage }
     })
+  }
+
+  // Enviar notificación a Telegram (sin bloquear si falla)
+  try {
+    const primaryGuest = await prisma.guest.findUnique({
+      where: { uniqueLink },
+      select: { id: true, name: true, phone: true }
+    })
+
+    const allGuests = await prisma.guest.findMany({
+      where: { id: { in: selections.map(s => s.id) } },
+      select: { id: true, name: true }
+    })
+
+    const confirmedCount = selections.filter(s => s.status === 'CONFIRMED').length
+    const declinedCount = selections.filter(s => s.status === 'DECLINED').length
+
+    let text = `💌 <b>¡Nueva respuesta de confirmación!</b>\n\n`
+    text += `👤 <b>Titular:</b> ${primaryGuest?.name || 'Invitado'}\n`
+    if (primaryGuest?.phone) text += `📱 <b>Tel:</b> ${primaryGuest.phone}\n`
+    text += `\n📊 <b>Resumen:</b> ${confirmedCount} Confirmados | ${declinedCount} No asistirán\n\n`
+    text += `📋 <b>Detalle del pase:</b>\n`
+
+    for (const sel of selections) {
+      const g = allGuests.find(guest => guest.id === sel.id)
+      const icon = sel.status === 'CONFIRMED' ? '✅ Asistirá' : '❌ No asistirá'
+      text += `• ${g?.name || 'Acompañante'}: <b>${icon}</b>\n`
+    }
+
+    if (trimmedMessage) {
+      text += `\n💬 <b>Mensaje para los novios:</b>\n<i>"${trimmedMessage}"</i>\n`
+    }
+
+    const { sendTelegramNotification } = await import('@/lib/telegram')
+    await sendTelegramNotification(text)
+  } catch (error) {
+    console.error('Error al procesar notificación de Telegram:', error)
   }
   
   // Revalidar tanto la página pública como el panel de admin
