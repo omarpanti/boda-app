@@ -7,9 +7,30 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 type Companion = { id: number, name: string, gender: string, rsvpStatus: string }
-type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, message?: string | null, companions?: Companion[] }
+type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, message?: string | null, sentAt?: Date | string | null, updatedAt?: Date | string, companions?: Companion[] }
 
 export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
+  const getSentDaysInfo = (g: Guest) => {
+    if (g.rsvpStatus !== 'SENT') return null
+    const refDateStr = g.sentAt || g.updatedAt
+    if (!refDateStr) return { daysElapsed: 0, phase: 'INITIAL' as const, daysLeft: 15 }
+    const refDate = new Date(refDateStr)
+    const daysElapsed = Math.max(0, Math.floor((Date.now() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
+    if (daysElapsed < 15) {
+      return {
+        daysElapsed,
+        phase: 'INITIAL' as const,
+        daysLeft: 15 - daysElapsed
+      }
+    } else {
+      return {
+        daysElapsed,
+        phase: 'GRACE' as const,
+        daysLeft: Math.max(1, 20 - daysElapsed)
+      }
+    }
+  }
+
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [addingCompanionTo, setAddingCompanionTo] = useState<number | null>(null)
@@ -395,17 +416,35 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                       <div>
                         <div className="font-semibold text-white text-base">{guest.name}</div>
                         <div className="text-slate-400 text-xs mt-0.5">{guest.phone || 'Sin teléfono'}</div>
-                        <div className="mt-1">
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
                           {guest.rsvpStatus === 'PENDING' ? (
                             <span className="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/20">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
                               Pendiente
                             </span>
                           ) : guest.rsvpStatus === 'SENT' ? (
-                            <span className="inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-full border border-blue-500/20">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                              Enviado
-                            </span>
+                            (() => {
+                              const sentInfo = getSentDaysInfo(guest)
+                              if (sentInfo?.phase === 'GRACE') {
+                                return (
+                                  <span className="inline-flex items-center gap-1.5 bg-orange-500/15 text-orange-400 text-xs px-2.5 py-0.5 rounded-full border border-orange-500/30 font-medium">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping"></span>
+                                    ⚠️ Prórroga ({sentInfo.daysLeft}d extra)
+                                  </span>
+                                )
+                              }
+                              return (
+                                <>
+                                  <span className="inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-full border border-blue-500/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                                    Enviado
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 bg-white/5 text-slate-300 text-[11px] px-2 py-0.5 rounded-full border border-white/10" title="Días naturales restantes de los 15 días iniciales">
+                                    ⏳ {sentInfo?.daysLeft ?? 15}d restantes
+                                  </span>
+                                </>
+                              )
+                            })()
                           ) : guest.rsvpStatus === 'CONFIRMED' ? (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -459,9 +498,15 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                     {guest.phone && (() => {
                       const cleanPhone = guest.phone.replace(/\D/g, '')
                       const waPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : (cleanPhone.length === 11 && cleanPhone.startsWith('1') ? `52${cleanPhone.substring(1)}` : cleanPhone)
+                      const sentInfo = getSentDaysInfo(guest)
+                      const isGracePeriod = guest.rsvpStatus === 'SENT' && sentInfo?.phase === 'GRACE'
+                      const waMessage = isGracePeriod
+                        ? `¡Hola ${guest.name}! Te recordamos con mucho cariño confirmar tu asistencia a la boda de Maritere y Omar. Cuentas con ${sentInfo.daysLeft} ${sentInfo.daysLeft === 1 ? 'día adicional' : 'días adicionales'} para registrar tu respuesta en el siguiente enlace; de no recibir confirmación en este plazo, daremos por hecho que no podrás acompañarnos: ${window.location.origin}/invite/${guest.uniqueLink}`
+                        : `¡Hola ${guest.name}! Te comparto tu invitación para la boda de Maritere y Omar: ${window.location.origin}/invite/${guest.uniqueLink}`
+
                       return (
                         <a 
-                          href={`https://wa.me/${waPhone}?text=${encodeURIComponent(`¡Hola ${guest.name}! Te comparto tu invitación para la boda de Maritere y Omar: ${window.location.origin}/invite/${guest.uniqueLink}`)}`}
+                          href={`https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={async () => {
@@ -471,12 +516,14 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                             }
                           }}
                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
-                            guest.rsvpStatus === 'SENT'
-                              ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20'
-                              : 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20'
+                            isGracePeriod
+                              ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border-orange-500/30 animate-pulse'
+                              : guest.rsvpStatus === 'SENT'
+                                ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20'
+                                : 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20'
                           }`}
                         >
-                          📱 {guest.rsvpStatus === 'SENT' ? 'Reenviar WP' : 'Enviar WP'}
+                          {isGracePeriod ? '🔔 Recordatorio WP' : `📱 ${guest.rsvpStatus === 'SENT' ? 'Reenviar WP' : 'Enviar WP'}`}
                         </a>
                       )
                     })()}

@@ -1,10 +1,13 @@
 import { prisma } from '@/lib/prisma'
-import { addGuest } from './actions'
+import { addGuest, checkAndExpireInvitations } from './actions'
 import ImportExcelButton from './ImportExcelButton'
 import GuestsTableClient from './GuestsTableClient'
 export const dynamic = 'force-dynamic'
 
 export default async function GuestsPage() {
+  // Verificamos y procesamos invitaciones que hayan superado los 15 + 5 días naturales
+  await checkAndExpireInvitations()
+
   // Obtenemos solo los invitados titulares (que no tienen primaryGuestId) y sus acompañantes
   const guests = await prisma.guest.findMany({
     where: { primaryGuestId: null },

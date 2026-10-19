@@ -42,13 +42,24 @@ export async function deleteGuest(id: number) {
 }
 
 export async function updateGuest(id: number, data: { name: string, phone: string, gender: string, rsvpStatus?: string }) {
+  const existing = await prisma.guest.findUnique({ where: { id } })
+  const extraData: any = {}
+  if (data.rsvpStatus) {
+    extraData.rsvpStatus = data.rsvpStatus
+    if (data.rsvpStatus === 'SENT' && existing?.rsvpStatus !== 'SENT') {
+      extraData.sentAt = new Date()
+    } else if (data.rsvpStatus === 'PENDING') {
+      extraData.sentAt = null
+    }
+  }
+
   await prisma.guest.update({
     where: { id },
     data: {
       name: data.name,
       phone: normalizePhone(data.phone),
       gender: data.gender,
-      ...(data.rsvpStatus ? { rsvpStatus: data.rsvpStatus } : {})
+      ...extraData
     }
   })
   revalidatePath('/admin/guests')
@@ -133,10 +144,72 @@ export async function markInvitationSent(guestId: number) {
 
   // Solo actualizar si estaba en PENDING
   if (guest && guest.rsvpStatus === 'PENDING') {
+    const now = new Date()
     await prisma.guest.update({
       where: { id: guestId },
-      data: { rsvpStatus: 'SENT' }
+      data: { rsvpStatus: 'SENT', sentAt: now } as any
+    })
+    await prisma.guest.updateMany({
+      where: { primaryGuestId: guestId, rsvpStatus: 'PENDING' },
+      data: { rsvpStatus: 'SENT', sentAt: now } as any
     })
     revalidatePath('/admin/guests')
   }
 }
+
+export async function checkAndExpireInvitations() {
+  try {
+    const sentGuests = await prisma.guest.findMany({
+      where: {
+        primaryGuestId: null,
+        rsvpStatus: 'SENT'
+      },
+      include: { companions: true }
+    })
+
+    const now = Date.now()
+    for (const g of sentGuests) {
+      const refDate = (g as any).sentAt ? new Date((g as any).sentAt) : new Date(g.updatedAt)
+      const daysElapsed = Math.floor((now - refDate.getTime()) / (1000 * 60 * 60 * 24))
+
+      // 15 días naturales + 5 días naturales de prórroga = 20 días naturales en total
+      if (daysElapsed >= 20) {
+        await prisma.guest.update({
+          where: { id: g.id },
+          data: {
+            rsvpStatus: 'DECLINED',
+            tableId: null,
+            message: g.message || 'Plazo de confirmación vencido (15 + 5 días)'
+          }
+        })
+
+        // También marcar acompañantes pendientes/enviados como DECLINED
+        await prisma.guest.updateMany({
+          where: {
+            primaryGuestId: g.id,
+            rsvpStatus: { in: ['PENDING', 'SENT'] }
+          },
+          data: {
+            rsvpStatus: 'DECLINED',
+            tableId: null
+          }
+        })
+
+        // Notificar por Telegram
+        try {
+          const { sendTelegramNotification } = await import('@/lib/telegram')
+          await sendTelegramNotification(
+            `⏰ <b>Plazo de confirmación vencido (20 días)</b>\n\n` +
+            `👤 <b>Invitado:</b> ${g.name}\n` +
+            `Se ha marcado automáticamente como <b>No Asistirá</b> tras cumplirse los 15 días naturales y los 5 días adicionales de prórroga sin respuesta.`
+          )
+        } catch (err) {
+          console.error('Error enviando notificación de vencimiento a Telegram:', err)
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error verificando vencimientos de invitaciones:', err)
+  }
+}
+
