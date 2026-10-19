@@ -450,15 +450,43 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 className="w-full h-auto block" 
               />
               
-              {/* Botón flotante para abrir el formulario */}
-              <button 
-                onClick={() => setShowRSVPModal(true)}
-                className="absolute bottom-[11.5%] md:bottom-[12.5%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-[#d9a1d4]/20 hover:bg-[#d9a1d4]/40 backdrop-blur-md border border-[#a16799]/30 px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] z-10 whitespace-nowrap"
-              >
-                <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-semibold text-[#4d2649]">
-                  {isResponded ? 'Ver mi respuesta' : 'Confirmar asistencia'}
-                </span>
-              </button>
+              {/* Botones flotantes para abrir el formulario */}
+              {isResponded ? (
+                <button 
+                  onClick={() => setShowRSVPModal(true)}
+                  className="absolute bottom-[11.5%] md:bottom-[12.5%] left-1/2 transform -translate-x-1/2 group flex items-center justify-center gap-2 bg-[#d9a1d4]/20 hover:bg-[#d9a1d4]/40 backdrop-blur-md border border-[#a16799]/30 px-6 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] z-10 whitespace-nowrap"
+                >
+                  <span className="font-inter tracking-widest uppercase text-[10px] md:text-xs font-semibold text-[#4d2649]">
+                    Ver mi respuesta
+                  </span>
+                </button>
+              ) : (
+                <div className="absolute bottom-[11.5%] md:bottom-[12.5%] left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-2.5 sm:gap-4 z-10 w-[86%] max-w-sm">
+                  <button 
+                    onClick={() => {
+                      setSelections(prev => prev.map(s => ({ ...s, status: 'CONFIRMED' })))
+                      setShowRSVPModal(true)
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-[#d9a1d4]/30 hover:bg-[#d9a1d4]/50 backdrop-blur-md border border-[#a16799]/40 px-3 sm:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] whitespace-nowrap"
+                  >
+                    <span className="font-inter tracking-widest uppercase text-[9.5px] sm:text-[10px] md:text-xs font-semibold text-[#4d2649]">
+                      ✨ Sí asistiré
+                    </span>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setSelections(prev => prev.map(s => ({ ...s, status: 'DECLINED' })))
+                      setShowRSVPModal(true)
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1.5 bg-white/45 hover:bg-white/65 backdrop-blur-md border border-[#2c2c2c]/20 px-3 sm:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-sm whitespace-nowrap"
+                  >
+                    <span className="font-inter tracking-widest uppercase text-[9.5px] sm:text-[10px] md:text-xs font-semibold text-[#4A4A4A]">
+                      No podré asistir
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* MODAL DE CONFIRMACIÓN (RSVP) */}
@@ -521,7 +549,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           )}
                         </div>
 
-                        {(!guest.companions || guest.companions.length === 0) && selections[0]?.status === 'DECLINED' && (
+                        {selections.every(s => s.status === 'DECLINED') && (
                           <div className="mb-6 text-left animate-in fade-in slide-in-from-top-4 duration-300">
                             <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
                             <textarea 
