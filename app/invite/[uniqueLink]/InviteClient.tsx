@@ -125,6 +125,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false)
   const [showInvitation, setShowInvitation] = useState(false)
   const [showRSVPModal, setShowRSVPModal] = useState(false)
+  const [rsvpMode, setRsvpMode] = useState<'ATTEND' | 'DECLINE'>('ATTEND')
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   
@@ -464,6 +465,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 <div className="absolute bottom-[11.5%] md:bottom-[12.5%] left-1/2 transform -translate-x-1/2 flex items-center justify-center gap-2.5 sm:gap-4 z-10 w-[86%] max-w-sm">
                   <button 
                     onClick={() => {
+                      setRsvpMode('ATTEND')
                       setSelections(prev => prev.map(s => ({ ...s, status: 'CONFIRMED' })))
                       setShowRSVPModal(true)
                     }}
@@ -476,6 +478,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
                   <button 
                     onClick={() => {
+                      setRsvpMode('DECLINE')
                       setSelections(prev => prev.map(s => ({ ...s, status: 'DECLINED' })))
                       setShowRSVPModal(true)
                     }}
@@ -505,30 +508,27 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <div className="p-6 md:p-8 overflow-y-auto">
                     {!isResponded ? (
                       <div className="text-center">
-                        <h3 className="font-cursive text-5xl mb-4 mt-2">¿Nos acompañan?</h3>
+                        <h3 className="font-cursive text-5xl mb-4 mt-2">
+                          {rsvpMode === 'ATTEND' ? '¿Nos acompañan?' : 'Te extrañaremos'}
+                        </h3>
                         <p className="text-sm md:text-base text-gray-500 mb-8">
-                          {(!guest.companions || guest.companions.length === 0) 
-                            ? 'Por favor confirma tu asistencia:' 
-                            : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
+                          {rsvpMode === 'DECLINE'
+                            ? 'Lamentamos que no puedas acompañarnos. Confirma tu respuesta a continuación:'
+                            : (!guest.companions || guest.companions.length === 0) 
+                              ? 'Por favor confirma tu asistencia:' 
+                              : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
                         </p>
                         
-                        <div className="flex flex-col gap-3 mb-10 text-left">
-                          {(!guest.companions || guest.companions.length === 0) ? (
-                            <div className="grid grid-cols-2 gap-4">
-                              <div 
-                                onClick={() => setSelections([{ id: guest.id, status: 'CONFIRMED' }])}
-                                className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'CONFIRMED' ? 'border-[#A5A05A] bg-[#A5A05A]/10 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
-                              >
-                                <span className="text-2xl block mb-2">🎉</span>
-                                <span className="font-inter font-medium text-[#4A4A4A]">Sí, asistiré</span>
-                              </div>
-                              <div 
-                                onClick={() => setSelections([{ id: guest.id, status: 'DECLINED' }])}
-                                className={`p-4 rounded-2xl cursor-pointer border text-center transition-all duration-300 ${selections[0]?.status === 'DECLINED' ? 'border-red-400 bg-red-50 shadow-sm' : 'border-gray-200 bg-white/50 opacity-70 hover:opacity-100'}`}
-                              >
-                                <span className="text-2xl block mb-2">😔</span>
-                                <span className="font-inter font-medium text-[#4A4A4A]">No asistiré</span>
-                              </div>
+                        <div className="flex flex-col gap-3 mb-8 text-left">
+                          {rsvpMode === 'DECLINE' ? (
+                            <div className="p-5 rounded-2xl border border-red-300 bg-red-50/80 shadow-sm text-center">
+                              <span className="text-3xl block mb-2">😔</span>
+                              <span className="font-inter font-medium text-[#4A4A4A]">No podré asistir</span>
+                            </div>
+                          ) : (!guest.companions || guest.companions.length === 0) ? (
+                            <div className="p-5 rounded-2xl border border-[#A5A05A] bg-[#A5A05A]/10 shadow-sm text-center">
+                              <span className="text-3xl block mb-2">🎉</span>
+                              <span className="font-inter font-medium text-[#4A4A4A]">Sí, asistiré</span>
                             </div>
                           ) : (
                             [guest, ...(guest.companions || [])].map((person) => {
@@ -549,7 +549,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           )}
                         </div>
 
-                        {selections.every(s => s.status === 'DECLINED') && (
+                        {(rsvpMode === 'DECLINE' || selections.every(s => s.status === 'DECLINED')) && (
                           <div className="mb-6 text-left animate-in fade-in slide-in-from-top-4 duration-300">
                             <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
                             <textarea 
