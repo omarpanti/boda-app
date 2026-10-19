@@ -188,10 +188,26 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     
     const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Días Restantes", "Mensaje"]
     const tableRows: any[][] = []
+    const rowMeta: {
+      groupIndex: number
+      role: 'SINGLE' | 'TITULAR_START' | 'COMPANION_MIDDLE' | 'COMPANION_END'
+      color: [number, number, number]
+    }[] = []
 
-    filteredGuests.forEach(g => {
-      // Truncar el mensaje si es muy largo para el PDF
+    const bracketColors: [number, number, number][] = [
+      [234, 179, 8],   // Amarillo / Dorado
+      [249, 115, 22],  // Naranja
+      [59, 130, 246],  // Azul
+      [116, 69, 112],  // Morado
+      [16, 185, 129],  // Verde Esmeralda
+      [236, 72, 153],  // Rosa
+    ]
+
+    filteredGuests.forEach((g, groupIdx) => {
       const msg = g.message ? (g.message.length > 30 ? g.message.substring(0, 30) + '...' : g.message) : 'N/A'
+      const hasCompanions = (g.companions?.length || 0) > 0
+      const groupColor = bracketColors[groupIdx % bracketColors.length]
+
       tableRows.push([
         g.name,
         'Titular',
@@ -200,7 +216,14 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         getRemainingDaysLabel(g),
         msg
       ])
-      g.companions?.forEach(c => {
+      rowMeta.push({
+        groupIndex: groupIdx,
+        role: hasCompanions ? 'TITULAR_START' : 'SINGLE',
+        color: groupColor
+      })
+
+      g.companions?.forEach((c, compIdx) => {
+        const isLast = compIdx === (g.companions!.length - 1)
         tableRows.push([
           `  -> ${c.name}`,
           `Acompañante de ${g.name}`,
@@ -209,6 +232,11 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           getRemainingDaysLabel(g, c.rsvpStatus),
           'N/A'
         ])
+        rowMeta.push({
+          groupIndex: groupIdx,
+          role: isLast ? 'COMPANION_END' : 'COMPANION_MIDDLE',
+          color: groupColor
+        })
       })
     })
 
@@ -221,28 +249,85 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         textColor: [255, 255, 255],
         fontStyle: 'bold'
       },
-      alternateRowStyles: {
-        fillColor: [252, 245, 252] // Fondo súper tenue morado
-      },
       styles: {
         fontSize: 9,
         cellPadding: 4
       },
+      columnStyles: {
+        0: { cellPadding: { top: 4, right: 4, bottom: 4, left: 8 } }
+      },
       didParseCell: (data) => {
-        // La columna Estatus es el índice 3
-        if (data.section === 'body' && data.column.index === 3) {
-          if (data.cell.raw === 'Confirmado') {
-            data.cell.styles.textColor = [16, 185, 129] // Esmeralda (Verde)
-            data.cell.styles.fontStyle = 'bold'
-          } else if (data.cell.raw === 'No Asistirá') {
-            data.cell.styles.textColor = [244, 63, 94] // Rosa/Rojo
-            data.cell.styles.fontStyle = 'bold'
-          } else if (data.cell.raw === 'Pendiente') {
-            data.cell.styles.textColor = [234, 179, 8] // Amarillo brillante
-            data.cell.styles.fontStyle = 'bold'
-          } else if (data.cell.raw === 'Enviado') {
-            data.cell.styles.textColor = [59, 130, 246] // Azul brillante
-            data.cell.styles.fontStyle = 'bold'
+        if (data.section === 'body') {
+          const meta = rowMeta[data.row.index]
+          if (meta) {
+            // Mismo color de fondo para todo el bloque familiar (Titular + sus acompañantes)
+            data.cell.styles.fillColor = meta.groupIndex % 2 === 0 ? [250, 243, 250] : [255, 255, 255]
+
+            // Resaltar en negrita al Titular para distinguirlo de inmediato
+            if ((meta.role === 'SINGLE' || meta.role === 'TITULAR_START') && (data.column.index === 0 || data.column.index === 1)) {
+              data.cell.styles.fontStyle = 'bold'
+              data.cell.styles.textColor = [30, 30, 30]
+            }
+          }
+
+          // La columna Estatus es el índice 3
+          if (data.column.index === 3) {
+            if (data.cell.raw === 'Confirmado') {
+              data.cell.styles.textColor = [16, 185, 129] // Esmeralda (Verde)
+              data.cell.styles.fontStyle = 'bold'
+            } else if (data.cell.raw === 'No Asistirá') {
+              data.cell.styles.textColor = [244, 63, 94] // Rosa/Rojo
+              data.cell.styles.fontStyle = 'bold'
+            } else if (data.cell.raw === 'Pendiente') {
+              data.cell.styles.textColor = [234, 179, 8] // Amarillo brillante
+              data.cell.styles.fontStyle = 'bold'
+            } else if (data.cell.raw === 'Enviado') {
+              data.cell.styles.textColor = [59, 130, 246] // Azul brillante
+              data.cell.styles.fontStyle = 'bold'
+            }
+          }
+        }
+      },
+      didDrawCell: (data) => {
+        if (data.section === 'body') {
+          const meta = rowMeta[data.row.index]
+          if (!meta) return
+
+          // Dibujar el corchete conector [ a la izquierda de la columna Nombre (igual que en la imagen)
+          if (data.column.index === 0 && meta.role !== 'SINGLE') {
+            doc.setDrawColor(meta.color[0], meta.color[1], meta.color[2])
+            doc.setLineWidth(1.1)
+
+            const xBracket = data.cell.x + 2.5
+            const yTop = data.cell.y
+            const yBottom = data.cell.y + data.cell.height
+            const yMid = data.cell.y + data.cell.height / 2
+
+            if (meta.role === 'TITULAR_START') {
+              // Línea superior del corchete apuntando al Titular y bajando hacia los acompañantes
+              doc.line(xBracket, yMid, xBracket + 3.2, yMid)
+              doc.line(xBracket, yMid, xBracket, yBottom)
+            } else if (meta.role === 'COMPANION_MIDDLE') {
+              // Línea continua vertical y pequeña marca intermedia
+              doc.line(xBracket, yTop, xBracket, yBottom)
+              doc.line(xBracket, yMid, xBracket + 2.2, yMid)
+            } else if (meta.role === 'COMPANION_END') {
+              // Cierre inferior del corchete en el último acompañante
+              doc.line(xBracket, yTop, xBracket, yMid)
+              doc.line(xBracket, yMid, xBracket + 3.2, yMid)
+            }
+          }
+
+          // Línea divisoria sutil al terminar cada grupo familiar
+          if (meta.role === 'SINGLE' || meta.role === 'COMPANION_END') {
+            doc.setDrawColor(230, 215, 230)
+            doc.setLineWidth(0.3)
+            doc.line(
+              data.cell.x,
+              data.cell.y + data.cell.height,
+              data.cell.x + data.cell.width,
+              data.cell.y + data.cell.height
+            )
           }
         }
       }
