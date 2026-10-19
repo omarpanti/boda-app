@@ -58,6 +58,8 @@ type GuestWithTable = {
   rsvpStatus: string
   uniqueLink: string
   message?: string | null
+  sentAt?: Date | string | null
+  updatedAt?: Date | string
   table?: { name: string, number: number | null } | null
   companions?: Companion[]
 }
