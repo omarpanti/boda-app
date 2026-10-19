@@ -85,6 +85,25 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     }
   }
 
+  const getRemainingDaysLabel = (g: Guest, statusOverride?: string) => {
+    const status = statusOverride || g.rsvpStatus
+    if (status === 'CONFIRMED' || status === 'DECLINED') {
+      if (g.message?.includes('Plazo de confirmación vencido')) {
+        return 'Vencido (0 días)'
+      }
+      return 'Respondido'
+    }
+    if (status === 'PENDING') {
+      return 'Sin enviar'
+    }
+    const info = getSentDaysInfo(g)
+    if (info?.phase === 'GRACE') {
+      return `Prórroga (${info.daysLeft} ${info.daysLeft === 1 ? 'día extra' : 'días extra'})`
+    }
+    const left = info?.daysLeft ?? 15
+    return `${left} ${left === 1 ? 'día restante' : 'días restantes'}`
+  }
+
   const handleExportExcel = () => {
     // Definimos el encabezado del reporte
     const headerData = [
@@ -92,27 +111,29 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       ["Reporte Oficial de Invitados"],
       [`Fecha de generación: ${new Date().toLocaleDateString()}`],
       [], // Fila en blanco
-      ["Nombre", "Tipo", "Teléfono", "Estatus", "Género", "Mensaje"]
+      ["Nombre", "Tipo", "Teléfono", "Estatus", "Días Restantes", "Género", "Mensaje"]
     ]
 
     const dataRows: any[][] = []
-    const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
 
-    sortedGuests.forEach(g => {
+    // Conservamos exactamente el mismo orden en que aparecen en el sistema: Titular seguido de sus acompañantes
+    filteredGuests.forEach(g => {
       dataRows.push([
         g.name,
         'Titular',
         g.phone || 'N/A',
         g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'SENT' ? 'Enviado' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+        getRemainingDaysLabel(g),
         g.gender === 'M' ? 'Hombre' : 'Mujer',
         g.message || ''
       ])
       g.companions?.forEach(c => {
         dataRows.push([
-          c.name,
+          `  -> ${c.name}`,
           `Acompañante de ${g.name}`,
           'N/A',
           c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'SENT' ? 'Enviado' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+          getRemainingDaysLabel(g, c.rsvpStatus),
           c.gender === 'M' ? 'Hombre' : 'Mujer',
           ''
         ])
@@ -124,9 +145,9 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
 
     // Mergear celdas para el título y subtítulo
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }, // BODA MARITERE & OMAR
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } }, // Reporte Oficial...
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 4 } }, // Fecha...
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // BODA MARITERE & OMAR
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }, // Reporte Oficial...
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }, // Fecha...
     ]
 
     // Definir anchos de columna
@@ -135,7 +156,9 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       { wch: 35 }, // Tipo
       { wch: 15 }, // Teléfono
       { wch: 15 }, // Estatus
+      { wch: 24 }, // Días Restantes
       { wch: 12 }, // Género
+      { wch: 40 }, // Mensaje
     ]
 
     const wb = XLSX.utils.book_new()
@@ -163,12 +186,10 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     doc.setTextColor(100, 100, 100)
     doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, 36, { align: "center" })
     
-    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Mensaje"]
+    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Días Restantes", "Mensaje"]
     const tableRows: any[][] = []
-    
-    const sortedGuests = [...filteredGuests].sort((a, b) => a.name.localeCompare(b.name))
 
-    sortedGuests.forEach(g => {
+    filteredGuests.forEach(g => {
       // Truncar el mensaje si es muy largo para el PDF
       const msg = g.message ? (g.message.length > 30 ? g.message.substring(0, 30) + '...' : g.message) : 'N/A'
       tableRows.push([
@@ -176,6 +197,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         'Titular',
         g.phone || 'N/A',
         g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'SENT' ? 'Enviado' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+        getRemainingDaysLabel(g),
         msg
       ])
       g.companions?.forEach(c => {
@@ -184,6 +206,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `Acompañante de ${g.name}`,
           'N/A',
           c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'SENT' ? 'Enviado' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+          getRemainingDaysLabel(g, c.rsvpStatus),
           'N/A'
         ])
       })
