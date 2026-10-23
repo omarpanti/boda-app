@@ -511,7 +511,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                     {!isResponded ? (
                       <div className="text-center">
                         <h3 className="font-cursive text-5xl mb-4 mt-2">
-                          {rsvpMode === 'ATTEND' ? '¿Nos acompañan?' : 'Te extrañaremos'}
+                          {rsvpMode === 'ATTEND' ? '¿Nos acompañas?' : 'Te extrañaremos'}
                         </h3>
                         <p className="text-sm md:text-base text-gray-500 mb-5">
                           {rsvpMode === 'DECLINE'
