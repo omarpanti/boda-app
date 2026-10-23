@@ -9,6 +9,7 @@ export default async function TablesPage() {
   })
   
   const guests = await prisma.guest.findMany({
+    where: { rsvpStatus: 'CONFIRMED' },
     orderBy: { name: 'asc' }
   })
 

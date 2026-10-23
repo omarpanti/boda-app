@@ -392,7 +392,7 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
   }
 
   const unassignedGuests = initialGuests.filter(g => 
-    g.tableId === null && g.name.toLowerCase().includes(guestSearch.toLowerCase())
+    g.tableId === null && g.rsvpStatus === 'CONFIRMED' && g.name.toLowerCase().includes(guestSearch.toLowerCase())
   )
 
   useEffect(() => {
@@ -671,9 +671,13 @@ export default function TablesClient({ initialTables, initialGuests, initialLayo
               </div>
             ))}
             {unassignedGuests.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-32 text-slate-500 gap-2 opacity-50">
+              <div className="flex flex-col items-center justify-center h-32 text-slate-500 gap-2 opacity-60 text-center px-4">
                 <span className="text-3xl">✨</span>
-                <p className="text-sm font-medium">Todos asignados</p>
+                <p className="text-sm font-medium">
+                  {initialGuests.filter(g => g.rsvpStatus === 'CONFIRMED').length === 0
+                    ? 'Aún no hay invitados confirmados'
+                    : 'Todos los confirmados han sido asignados'}
+                </p>
               </div>
             )}
           </div>
