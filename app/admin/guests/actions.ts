@@ -48,7 +48,7 @@ export async function updateGuest(id: number, data: { name: string, phone: strin
     extraData.rsvpStatus = data.rsvpStatus
     if (data.rsvpStatus === 'SENT' && existing?.rsvpStatus !== 'SENT') {
       extraData.sentAt = new Date()
-    } else if (data.rsvpStatus === 'PENDING') {
+    } else if (data.rsvpStatus === 'PENDING' || data.rsvpStatus === 'PHYSICAL') {
       extraData.sentAt = null
     }
   }
@@ -62,6 +62,15 @@ export async function updateGuest(id: number, data: { name: string, phone: strin
       ...extraData
     }
   })
+
+  // Si el titular se marca como Invitación Física, sincronizar también a sus acompañantes pendientes
+  if (data.rsvpStatus === 'PHYSICAL') {
+    await prisma.guest.updateMany({
+      where: { primaryGuestId: id, rsvpStatus: { in: ['PENDING', 'SENT'] } },
+      data: { rsvpStatus: 'PHYSICAL', sentAt: null } as any
+    })
+  }
+
   revalidatePath('/admin/guests')
 }
 

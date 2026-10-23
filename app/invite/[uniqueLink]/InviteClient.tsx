@@ -110,14 +110,14 @@ const FloatingPetals = () => {
 }
 
 export default function InviteClient({ guest }: { guest: GuestWithTable }) {
-  const isPendingOrSent = guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT'
+  const isPendingOrSent = guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT' || guest.rsvpStatus === 'PHYSICAL'
   const [isResponded, setIsResponded] = useState(!isPendingOrSent)
   const [loading, setLoading] = useState(false)
   
   // Estado para las selecciones del grupo basado en la BD, por defecto CONFIRMED si están pendientes o solo enviadas
   const [selections, setSelections] = useState<{id: number, status: 'CONFIRMED' | 'DECLINED'}[]>([
-    { id: guest.id, status: ((guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT') ? 'CONFIRMED' : guest.rsvpStatus) as 'CONFIRMED' | 'DECLINED' },
-    ...(guest.companions?.map(c => ({ id: c.id, status: ((c.rsvpStatus === 'PENDING' || c.rsvpStatus === 'SENT') ? 'CONFIRMED' : c.rsvpStatus) as 'CONFIRMED' | 'DECLINED' })) || [])
+    { id: guest.id, status: ((guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT' || guest.rsvpStatus === 'PHYSICAL') ? 'CONFIRMED' : guest.rsvpStatus) as 'CONFIRMED' | 'DECLINED' },
+    ...(guest.companions?.map(c => ({ id: c.id, status: ((c.rsvpStatus === 'PENDING' || c.rsvpStatus === 'SENT' || c.rsvpStatus === 'PHYSICAL') ? 'CONFIRMED' : c.rsvpStatus) as 'CONFIRMED' | 'DECLINED' })) || [])
   ])
   const [guestMessage, setGuestMessage] = useState(guest.message || '')
 

@@ -85,6 +85,14 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     }
   }
 
+  const getStatusLabel = (status: string) => {
+    if (status === 'PENDING') return 'Pendiente'
+    if (status === 'SENT') return 'Enviado'
+    if (status === 'PHYSICAL') return 'Invitación Física'
+    if (status === 'CONFIRMED') return 'Confirmado'
+    return 'No Asistirá'
+  }
+
   const getRemainingDaysLabel = (g: Guest, statusOverride?: string) => {
     const status = statusOverride || g.rsvpStatus
     if (status === 'CONFIRMED' || status === 'DECLINED') {
@@ -92,6 +100,9 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         return 'Vencido (0 días)'
       }
       return 'Respondido'
+    }
+    if (status === 'PHYSICAL') {
+      return 'Entrega física'
     }
     if (status === 'PENDING') {
       return 'Sin enviar'
@@ -122,7 +133,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         g.name,
         'Titular',
         g.phone || 'N/A',
-        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'SENT' ? 'Enviado' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+        getStatusLabel(g.rsvpStatus),
         getRemainingDaysLabel(g),
         g.gender === 'M' ? 'Hombre' : 'Mujer',
         g.message || ''
@@ -132,7 +143,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `  -> ${c.name}`,
           `Acompañante de ${g.name}`,
           'N/A',
-          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'SENT' ? 'Enviado' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+          getStatusLabel(c.rsvpStatus),
           getRemainingDaysLabel(g, c.rsvpStatus),
           c.gender === 'M' ? 'Hombre' : 'Mujer',
           ''
@@ -212,7 +223,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         g.name,
         'Titular',
         g.phone || 'N/A',
-        g.rsvpStatus === 'PENDING' ? 'Pendiente' : g.rsvpStatus === 'SENT' ? 'Enviado' : g.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+        getStatusLabel(g.rsvpStatus),
         getRemainingDaysLabel(g),
         msg
       ])
@@ -228,7 +239,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `  -> ${c.name}`,
           `Acompañante de ${g.name}`,
           'N/A',
-          c.rsvpStatus === 'PENDING' ? 'Pendiente' : c.rsvpStatus === 'SENT' ? 'Enviado' : c.rsvpStatus === 'CONFIRMED' ? 'Confirmado' : 'No Asistirá',
+          getStatusLabel(c.rsvpStatus),
           getRemainingDaysLabel(g, c.rsvpStatus),
           'N/A'
         ])
@@ -283,6 +294,9 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
               data.cell.styles.fontStyle = 'bold'
             } else if (data.cell.raw === 'Enviado') {
               data.cell.styles.textColor = [59, 130, 246] // Azul brillante
+              data.cell.styles.fontStyle = 'bold'
+            } else if (data.cell.raw === 'Invitación Física') {
+              data.cell.styles.textColor = [147, 51, 234] // Morado elegante
               data.cell.styles.fontStyle = 'bold'
             }
           }
@@ -553,6 +567,11 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                                 </>
                               )
                             })()
+                          ) : guest.rsvpStatus === 'PHYSICAL' ? (
+                            <span className="inline-flex items-center gap-1.5 bg-purple-500/15 text-purple-400 text-xs px-2.5 py-0.5 rounded-full border border-purple-500/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                              💌 Invitación Física
+                            </span>
                           ) : guest.rsvpStatus === 'CONFIRMED' ? (
                             <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full border border-emerald-500/20">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -587,7 +606,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                             <span className="text-slate-200">{comp.name}</span>
                           </span>
                           <div className="flex items-center gap-3">
-                            <span className={`w-2 h-2 rounded-full ${comp.rsvpStatus === 'PENDING' ? 'bg-amber-400' : comp.rsvpStatus === 'SENT' ? 'bg-blue-400' : comp.rsvpStatus === 'CONFIRMED' ? 'bg-emerald-400' : 'bg-rose-400'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ${comp.rsvpStatus === 'PENDING' ? 'bg-amber-400' : comp.rsvpStatus === 'SENT' ? 'bg-blue-400' : comp.rsvpStatus === 'PHYSICAL' ? 'bg-purple-400' : comp.rsvpStatus === 'CONFIRMED' ? 'bg-emerald-400' : 'bg-rose-400'}`}></span>
                             <button onClick={() => handleRemoveCompanion(comp.id)} className="text-slate-500 hover:text-rose-400 transition-colors" title="Quitar acompañante">
                               ✕
                             </button>
@@ -796,6 +815,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
               >
                 <option value="PENDING">Pendiente ⏳</option>
                 <option value="SENT">Enviado ✉️</option>
+                <option value="PHYSICAL">Invitación Física 💌</option>
                 <option value="CONFIRMED">Confirmado ✅</option>
                 <option value="DECLINED">No Asistirá ❌</option>
               </select>
