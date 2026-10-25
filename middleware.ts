@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Rutas que no requieren autenticación
-  const isPublicPath = path === '/login' || path.startsWith('/invite')
+  const isPublicPath = path === '/login' || path.startsWith('/invite') || path.startsWith('/musica') || path.startsWith('/fotos') || path.startsWith('/fonts')
 
   // Obtener la cookie de autenticación
   const isAuth = request.cookies.get('admin_auth')?.value === 'true'
@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-// Configurar el middleware para que no bloquee archivos estáticos ni imágenes
+// Configurar el middleware para que no bloquee archivos estáticos, imágenes ni audios
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|m4a|wav|ogg|mp4|woff|woff2|ttf)$).*)'],
 }
