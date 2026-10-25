@@ -115,13 +115,16 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [loading, setLoading] = useState(false)
   
   // Estado para las selecciones del grupo basado en la BD, por defecto CONFIRMED si están pendientes o solo enviadas
+  const hasCompanions = Boolean(guest.companions && guest.companions.length > 0)
   const [selections, setSelections] = useState<{id: number, status: 'CONFIRMED' | 'DECLINED'}[]>([
-    { id: guest.id, status: ((guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT' || guest.rsvpStatus === 'PHYSICAL') ? 'CONFIRMED' : guest.rsvpStatus) as 'CONFIRMED' | 'DECLINED' },
-    ...(guest.companions?.map(c => ({ id: c.id, status: ((c.rsvpStatus === 'PENDING' || c.rsvpStatus === 'SENT' || c.rsvpStatus === 'PHYSICAL') ? 'CONFIRMED' : c.rsvpStatus) as 'CONFIRMED' | 'DECLINED' })) || [])
+    { id: guest.id, status: ((guest.rsvpStatus === 'PENDING' || guest.rsvpStatus === 'SENT' || guest.rsvpStatus === 'PHYSICAL') ? (hasCompanions ? 'DECLINED' : 'CONFIRMED') : guest.rsvpStatus) as 'CONFIRMED' | 'DECLINED' },
+    ...(guest.companions?.map(c => ({ id: c.id, status: ((c.rsvpStatus === 'PENDING' || c.rsvpStatus === 'SENT' || c.rsvpStatus === 'PHYSICAL') ? 'DECLINED' : c.rsvpStatus) as 'CONFIRMED' | 'DECLINED' })) || [])
   ])
   const [guestMessage, setGuestMessage] = useState(guest.message || '')
+  const [selectionError, setSelectionError] = useState(false)
 
   const toggleSelection = (id: number) => {
+    setSelectionError(false)
     setSelections(prev => prev.map(sel => sel.id === id ? { ...sel, status: sel.status === 'CONFIRMED' ? 'DECLINED' : 'CONFIRMED' } : sel))
   }
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false)
@@ -232,14 +235,19 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const handleRSVP = async () => {
+    if (rsvpMode === 'ATTEND' && hasCompanions && !selections.some(s => s.status === 'CONFIRMED')) {
+      setSelectionError(true)
+      return
+    }
+    setSelectionError(false)
     setLoading(true)
     try {
       await submitGroupRsvp(guest.uniqueLink, selections, guestMessage)
       setIsResponded(true)
       
-      // Si el titular confirmó, disparamos confeti
-      const titularConfirmed = selections.find(s => s.id === guest.id)?.status === 'CONFIRMED'
-      if (titularConfirmed) {
+      // Si al menos un integrante confirmó asistencia, disparamos confeti
+      const anyConfirmed = selections.some(s => s.status === 'CONFIRMED')
+      if (anyConfirmed) {
         triggerConfetti()
       }
     } catch (error) {
@@ -468,7 +476,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <button 
                     onClick={() => {
                       setRsvpMode('ATTEND')
-                      setSelections(prev => prev.map(s => ({ ...s, status: 'CONFIRMED' })))
+                      setSelectionError(false)
+                      setSelections(prev => prev.map(s => ({ ...s, status: hasCompanions ? 'DECLINED' : 'CONFIRMED' })))
                       setShowRSVPModal(true)
                     }}
                     className="flex-1 flex items-center justify-center gap-1.5 bg-[#d9a1d4]/30 hover:bg-[#d9a1d4]/50 backdrop-blur-md border border-[#a16799]/40 px-3 sm:px-5 py-2 md:py-2.5 rounded-full transition-all duration-300 shadow-[0_4px_12px_rgba(217,161,212,0.3)] whitespace-nowrap"
@@ -481,6 +490,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                   <button 
                     onClick={() => {
                       setRsvpMode('DECLINE')
+                      setSelectionError(false)
                       setSelections(prev => prev.map(s => ({ ...s, status: 'DECLINED' })))
                       setShowRSVPModal(true)
                     }}
@@ -528,20 +538,26 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           if (daysElapsed >= 15) {
                             const graceLeft = Math.max(1, 20 - daysElapsed)
                             return (
-                              <div className="mb-6 p-3 rounded-xl bg-amber-50 border border-amber-300/70 text-amber-800 text-xs font-inter leading-relaxed">
+                              <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-300/70 text-amber-800 text-xs font-inter leading-relaxed">
                                 ⏳ Cuentas con <b>{graceLeft} {graceLeft === 1 ? 'día adicional' : 'días adicionales'}</b> para confirmar tu respuesta; de no hacerlo, daremos por hecho que no podrás acompañarnos.
                               </div>
                             )
                           }
                           const initialLeft = 15 - daysElapsed
                           return (
-                            <div className="mb-6 p-2.5 rounded-xl bg-[#A5A05A]/10 border border-[#A5A05A]/25 text-[#6e6a37] text-xs font-inter">
+                            <div className="mb-3 p-2.5 rounded-xl bg-[#A5A05A]/10 border border-[#A5A05A]/25 text-[#6e6a37] text-xs font-inter">
                               📅 Tienes <b>{initialLeft} {initialLeft === 1 ? 'día natural' : 'días naturales'}</b> para confirmar tu respuesta.
                             </div>
                           )
                         })()}
+
+                        {rsvpMode === 'ATTEND' && hasCompanions && (
+                          <div className="mb-5 p-2.5 rounded-xl bg-[#744570]/10 border border-[#744570]/25 text-[#4d2649] text-xs font-inter leading-relaxed">
+                            ☑️ Marca la casilla de <b>al menos 1 persona</b> que asistirá. Si ninguno podrá acompañarnos, por favor utiliza el botón <b>&quot;No podré asistir&quot;</b>.
+                          </div>
+                        )}
                         
-                        <div className="flex flex-col gap-3 mb-8 text-left">
+                        <div className="flex flex-col gap-3 mb-6 text-left">
                           {rsvpMode === 'DECLINE' ? (
                             <div className="p-5 rounded-2xl border border-red-300 bg-red-50/80 shadow-sm text-center">
                               <span className="text-3xl block mb-2">😔</span>
@@ -571,7 +587,13 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                           )}
                         </div>
 
-                        {(rsvpMode === 'DECLINE' || selections.every(s => s.status === 'DECLINED')) && (
+                        {selectionError && (
+                          <div className="mb-4 p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-700 text-xs font-inter font-medium animate-in fade-in duration-200">
+                            ⚠️ Por favor selecciona al menos 1 casilla para confirmar quiénes asistirán.
+                          </div>
+                        )}
+
+                        {rsvpMode === 'DECLINE' && (
                           <div className="mb-6 text-left animate-in fade-in slide-in-from-top-4 duration-300">
                             <label className="block text-[#4A4A4A] font-inter text-sm mb-2 px-1">Mensaje para los novios (opcional):</label>
                             <textarea 
