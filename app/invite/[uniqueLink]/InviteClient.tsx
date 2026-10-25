@@ -139,7 +139,16 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   // Inicializar el objeto de audio nativo de JavaScript (estándar para iOS Safari y Android)
   useEffect(() => {
-    const audio = new Audio('/musica.mp3')
+    // Detectar soporte para formato .m4a (AAC nativo de Apple) o .mp3 estándar
+    let chosenSrc = '/musica.mp3'
+    try {
+      const probe = document.createElement('audio')
+      if (probe.canPlayType('audio/mp4') === 'probably' || probe.canPlayType('audio/aac') === 'probably') {
+        chosenSrc = '/musica.m4a'
+      }
+    } catch {}
+
+    const audio = new Audio(chosenSrc)
     audio.loop = true
     audio.preload = 'auto'
     audioRef.current = audio
@@ -147,7 +156,11 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     const onPlay = () => setIsPlayingMusic(true)
     const onPause = () => setIsPlayingMusic(false)
     const onError = () => {
-      console.error('Audio load error:', audio.error)
+      // Si el formato primario fallara, cambiar al alternativo
+      if (audio.src.includes('musica.m4a')) {
+        audio.src = '/musica.mp3'
+        audio.load()
+      }
     }
 
     audio.addEventListener('play', onPlay)
@@ -196,7 +209,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         .play()
         .then(() => setIsPlayingMusic(true))
         .catch((err) => {
-          alert('Aviso de audio en Safari: ' + (err.message || err.name))
+          console.error('Audio play error:', err)
           setIsPlayingMusic(false)
         })
     } else {
