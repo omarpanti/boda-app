@@ -472,7 +472,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
             <div 
-              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              onClick={() => handleOpen(true)}
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 cursor-pointer ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
               style={{ perspective: '1200px' }}
             >
               {/* Filtro luminoso y cálido para el fondo, con menos opacidad para que deje ver la imagen de las flores */}
@@ -547,31 +548,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 
                 {/* Nombre del invitado en el frente eliminado por solicitud */}
                 
-                {/* Botones directos estilo Bodas.net (100% permisos de audio nativo en iOS Safari y Android) */}
+                {/* Indicador de tap */}
                 <div 
-                  className="absolute -bottom-24 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2.5 transition-opacity duration-300 w-full max-w-[280px] z-50 pointer-events-auto"
+                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-[#8a6312] font-inter text-[11px] tracking-[0.25em] uppercase whitespace-nowrap transition-opacity duration-300 font-medium bg-white/50 px-4 py-1.5 rounded-full backdrop-blur-sm border border-[#d4af37]/20 shadow-sm"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleOpen(true)
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-gradient-to-r from-[#744570] via-[#5a2c56] to-[#4d2649] text-white shadow-[0_8px_20px_rgba(77,38,73,0.35)] hover:scale-105 active:scale-95 transition-all text-xs font-semibold tracking-widest uppercase border border-[#d9a1d4]/30"
-                  >
-                    <span>✉️ Abrir con Música 🎵</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleOpen(false)
-                    }}
-                    className="text-[11px] text-[#4d2649]/80 hover:text-[#4d2649] font-medium tracking-wide underline underline-offset-4 transition-colors py-1"
-                  >
-                    Abrir sin música
-                  </button>
+                  Toca el sobre para abrir
                 </div>
 
               </div>
