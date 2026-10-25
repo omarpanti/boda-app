@@ -137,84 +137,64 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
 
-  // Inicializar el objeto de audio nativo de JavaScript (estándar para iOS Safari y Android)
-  useEffect(() => {
-    // Detectar soporte para formato .m4a (AAC nativo de Apple) o .mp3 estándar
-    let chosenSrc = '/musica.mp3'
-    try {
-      const probe = document.createElement('audio')
-      if (probe.canPlayType('audio/mp4') === 'probably' || probe.canPlayType('audio/aac') === 'probably') {
-        chosenSrc = '/musica.m4a'
-      }
-    } catch {}
+  const handleOpen = (withMusic: boolean) => {
+    if (envelopeOpenedRef.current) return
+    envelopeOpenedRef.current = true
 
-    const audio = new Audio(chosenSrc)
-    audio.loop = true
-    audio.preload = 'auto'
-    audioRef.current = audio
+    if (withMusic) {
+      try {
+        if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
+          ;(navigator as any).audioSession.type = 'playback'
+        }
+      } catch {}
 
-    const onPlay = () => setIsPlayingMusic(true)
-    const onPause = () => setIsPlayingMusic(false)
-    const onError = () => {
-      // Si el formato primario fallara, cambiar al alternativo
-      if (audio.src.includes('musica.m4a')) {
-        audio.src = '/musica.mp3'
-        audio.load()
+      try {
+        const audio = audioRef.current || new Audio('/musica.m4a')
+        audio.loop = true
+        audio.preload = 'auto'
+        audio.muted = false
+        audioRef.current = audio
+
+        const playPromise = audio.play()
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlayingMusic(true))
+            .catch(() => {
+              // Fallback a mp3 si el dispositivo no soporta m4a
+              audio.src = '/musica.mp3'
+              audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
+            })
+        }
+      } catch (err) {
+        console.error('Audio start error:', err)
       }
     }
 
-    audio.addEventListener('play', onPlay)
-    audio.addEventListener('pause', onPause)
-    audio.addEventListener('error', onError)
-
-    return () => {
-      audio.removeEventListener('play', onPlay)
-      audio.removeEventListener('pause', onPause)
-      audio.removeEventListener('error', onError)
-      audio.pause()
-      audioRef.current = null
-    }
-  }, [])
-
-  const startMusicPlayback = () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    try {
-      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
-        ;(navigator as any).audioSession.type = 'playback'
-      }
-    } catch {}
-
-    audio.muted = false
-    const playPromise = audio.play()
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsPlayingMusic(true)
-        })
-        .catch((err) => {
-          console.log('Audio autoplay prevented on open:', err)
-          setIsPlayingMusic(false)
-        })
-    }
+    openEnvelope()
   }
 
-  const toggleMusic = () => {
+  const toggleMusic = (e: React.MouseEvent) => {
+    e.stopPropagation()
     const audio = audioRef.current
-    if (!audio) return
-    if (audio.paused) {
-      audio.muted = false
-      audio
-        .play()
-        .then(() => setIsPlayingMusic(true))
-        .catch((err) => {
-          console.error('Audio play error:', err)
-          setIsPlayingMusic(false)
-        })
-    } else {
+    if (!audio) {
+      handleOpen(true)
+      return
+    }
+
+    if (isPlayingMusic) {
       audio.pause()
       setIsPlayingMusic(false)
+    } else {
+      audio.muted = false
+      const playPromise = audio.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlayingMusic(true))
+          .catch(() => {
+            audio.src = '/musica.mp3'
+            audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
+          })
+      }
     }
   }
   
@@ -416,8 +396,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
             <div 
-              onClick={openEnvelope}
-              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 cursor-pointer ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
               style={{ perspective: '1200px' }}
             >
               {/* Filtro luminoso y cálido para el fondo, con menos opacidad para que deje ver la imagen de las flores */}
@@ -428,7 +407,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               
               <div 
                 className="relative w-[340px] h-[210px] bg-[#e6d8c4] rounded-lg cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
-                onClick={openEnvelope}
+                onClick={() => handleOpen(true)}
                 style={{
                   transform: isEnvelopeOpen 
                     ? 'translateY(150px) scale(0.85) rotateX(20deg)' 
@@ -492,12 +471,31 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                 
                 {/* Nombre del invitado en el frente eliminado por solicitud */}
                 
-                {/* Indicador de tap */}
+                {/* Botones directos estilo Bodas.net (100% permisos de audio nativo en iOS Safari y Android) */}
                 <div 
-                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-[#8a6312] font-inter text-[11px] tracking-[0.25em] uppercase whitespace-nowrap transition-opacity duration-300 font-medium bg-white/50 px-4 py-1.5 rounded-full backdrop-blur-sm border border-[#d4af37]/20 shadow-sm"
+                  className="absolute -bottom-24 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2.5 transition-opacity duration-300 w-full max-w-[280px] z-50 pointer-events-auto"
                   style={{ opacity: isEnvelopeOpen ? 0 : 1 }}
                 >
-                  Toca el sobre para abrir
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpen(true)
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-full bg-gradient-to-r from-[#744570] via-[#5a2c56] to-[#4d2649] text-white shadow-[0_8px_20px_rgba(77,38,73,0.35)] hover:scale-105 active:scale-95 transition-all text-xs font-semibold tracking-widest uppercase border border-[#d9a1d4]/30"
+                  >
+                    <span>✉️ Abrir con Música 🎵</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleOpen(false)
+                    }}
+                    className="text-[11px] text-[#4d2649]/80 hover:text-[#4d2649] font-medium tracking-wide underline underline-offset-4 transition-colors py-1"
+                  >
+                    Abrir sin música
+                  </button>
                 </div>
 
               </div>
