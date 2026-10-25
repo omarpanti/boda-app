@@ -628,12 +628,12 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                       const sentInfo = getSentDaysInfo(guest)
                       const isGracePeriod = guest.rsvpStatus === 'SENT' && sentInfo?.phase === 'GRACE'
                       const waMessage = isGracePeriod
-                        ? `¡Hola ${guest.name}! Te recordamos con mucho cariño confirmar tu asistencia a la boda de Maritere y Omar. Cuentas con ${sentInfo.daysLeft} ${sentInfo.daysLeft === 1 ? 'día adicional' : 'días adicionales'} para registrar tu respuesta en el siguiente enlace; de no recibir confirmación en este plazo, daremos por hecho que no podrás acompañarnos: ${window.location.origin}/invite/${guest.uniqueLink}`
-                        : `¡Hola ${guest.name}! ¡El gran día esta cerca! 💍✨Maritere & Omar nos casamos 💒🤍 y queremos que estés ahí para celebrar con nosotros ese gran día🥂✨Te compartimos nuestra invitación digital con todos los detalles de la ceremonia y la fiesta a través del siguiente link: ${window.location.origin}/invite/${guest.uniqueLink}`
+                        ? `¡Hola ${guest.name}! \u{1F514}\u{2728} Te recordamos con mucho cariño confirmar tu asistencia a la boda de Maritere y Omar. Cuentas con ${sentInfo.daysLeft} ${sentInfo.daysLeft === 1 ? 'día adicional' : 'días adicionales'} para registrar tu respuesta en el siguiente enlace; de no recibir confirmación en este plazo, daremos por hecho que no podrás acompañarnos: ${window.location.origin}/invite/${guest.uniqueLink}`
+                        : `¡Hola ${guest.name}! ¡El gran día está cerca! \u{1F48D}\u{2728} Maritere & Omar nos casamos \u{1F492}\u{1F90D} y queremos que estés ahí para celebrar con nosotros ese gran día \u{1F942}\u{2728} Te compartimos nuestra invitación digital con todos los detalles de la ceremonia y la fiesta a través del siguiente link: ${window.location.origin}/invite/${guest.uniqueLink}`
 
                       return (
                         <a 
-                          href={`https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}`}
+                          href={`https://api.whatsapp.com/send?phone=${waPhone}&text=${encodeURIComponent(waMessage)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={async () => {
