@@ -134,18 +134,73 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const userPausedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
+
+  const startMusicPlayback = () => {
+    const audio = audioRef.current
+    if (!audio || userPausedRef.current) return
+    try {
+      // En iOS 17+, 'playback' permite sonar aunque el interruptor físico del iPhone esté en silencio
+      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
+        ;(navigator as any).audioSession.type = 'playback'
+      }
+      audio.muted = false
+    } catch {}
+    const playPromise = audio.play()
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlayingMusic(true)
+        })
+        .catch(() => {
+          // Si el archivo aún se está descargando en datos móviles, reproducir en cuanto esté listo
+          const onCanPlay = () => {
+            if (!userPausedRef.current) {
+              audio.play().then(() => setIsPlayingMusic(true)).catch(() => {})
+            }
+            audio.removeEventListener('canplay', onCanPlay)
+          }
+          audio.addEventListener('canplay', onCanPlay)
+        })
+    }
+  }
 
   const toggleMusic = () => {
     const audio = audioRef.current
     if (!audio) return
     if (audio.paused) {
-      audio.play().then(() => setIsPlayingMusic(true)).catch(() => {})
+      userPausedRef.current = false
+      startMusicPlayback()
     } else {
+      userPausedRef.current = true
       audio.pause()
       setIsPlayingMusic(false)
     }
   }
+
+  // Precargar audio en iOS/Android y asegurar reproducción al primer toque si la red móvil tardó en cargar
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.load()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isEnvelopeOpen || isPlayingMusic) return
+    const unlockOnTouch = () => {
+      if (!userPausedRef.current && audioRef.current && audioRef.current.paused) {
+        startMusicPlayback()
+      }
+    }
+    window.addEventListener('touchstart', unlockOnTouch, { passive: true })
+    window.addEventListener('click', unlockOnTouch, { passive: true })
+    return () => {
+      window.removeEventListener('touchstart', unlockOnTouch)
+      window.removeEventListener('click', unlockOnTouch)
+    }
+  }, [isEnvelopeOpen, isPlayingMusic])
   
   // Estado para el efecto 3D dinámico
   const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
@@ -272,14 +327,11 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const openEnvelope = () => {
+    // 1. Disparar el audio de forma síncrona ANTES de cualquier cambio de estado de React (crítico para iOS Safari)
+    startMusicPlayback()
+
     if (isEnvelopeOpen) return
     setIsEnvelopeOpen(true)
-
-    // Reproducir música automáticamente al abrir el sobre
-    if (audioRef.current) {
-      audioRef.current.volume = 0.7
-      audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {})
-    }
     
     // Polvo de hadas / Partículas doradas al abrir
     const win = window as any
@@ -312,7 +364,17 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <audio ref={audioRef} src="/musica.mp3" loop preload="auto" />
+      <audio
+        ref={audioRef}
+        src="/musica.mp3"
+        loop
+        preload="auto"
+        playsInline
+        onPlay={() => setIsPlayingMusic(true)}
+        onPause={() => setIsPlayingMusic(false)}
+      >
+        <source src="/musica.mp3" type="audio/mpeg" />
+      </audio>
 
       {/* Botón flotante de música una vez abierto el sobre */}
       {isEnvelopeOpen && (
@@ -356,6 +418,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               <div 
                 className="relative w-[340px] h-[210px] bg-[#e6d8c4] rounded-lg cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
+                onTouchEnd={openEnvelope}
                 style={{
                   transform: isEnvelopeOpen 
                     ? 'translateY(150px) scale(0.85) rotateX(20deg)' 
