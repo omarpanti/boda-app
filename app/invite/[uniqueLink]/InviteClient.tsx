@@ -134,35 +134,67 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
   const userPausedRef = useRef(false)
+  const playInFlightRef = useRef(false)
+  const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
+
+  // Desbloquea el motor de audio de iOS Safari (WebKit) dentro del gesto del usuario
+  const unlockWebKitAudio = () => {
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
+        ;(navigator as any).audioSession.type = 'playback'
+      }
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+      if (AudioCtx) {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioCtx()
+        }
+        const ctx = audioCtxRef.current
+        if (ctx.state === 'suspended') {
+          ctx.resume().catch(() => {})
+        }
+        // Buffer silencioso de 1 sample para activar el canal de hardware en iOS Safari
+        const buffer = ctx.createBuffer(1, 1, 22050)
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        source.connect(ctx.destination)
+        source.start(0)
+      }
+    } catch {}
+  }
 
   const startMusicPlayback = () => {
     const audio = audioRef.current
     if (!audio || userPausedRef.current) return
-    try {
-      // En iOS 17+, 'playback' permite sonar aunque el interruptor físico del iPhone esté en silencio
-      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
-        ;(navigator as any).audioSession.type = 'playback'
-      }
-      audio.muted = false
-    } catch {}
+    if (!audio.paused || playInFlightRef.current) return
+
+    unlockWebKitAudio()
+    audio.muted = false
+    playInFlightRef.current = true
+
     const playPromise = audio.play()
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
+          playInFlightRef.current = false
           setIsPlayingMusic(true)
         })
         .catch(() => {
-          // Si el archivo aún se está descargando en datos móviles, reproducir en cuanto esté listo
+          playInFlightRef.current = false
+          // Si el archivo aún se está descargando en Safari móvil, reproducir apenas tenga buffer suficiente
           const onCanPlay = () => {
-            if (!userPausedRef.current) {
+            audio.removeEventListener('canplaythrough', onCanPlay)
+            if (!userPausedRef.current && audio.paused) {
               audio.play().then(() => setIsPlayingMusic(true)).catch(() => {})
             }
-            audio.removeEventListener('canplay', onCanPlay)
           }
-          audio.addEventListener('canplay', onCanPlay)
+          audio.addEventListener('canplaythrough', onCanPlay, { once: true })
         })
+    } else {
+      playInFlightRef.current = false
+      setIsPlayingMusic(true)
     }
   }
 
@@ -174,29 +206,26 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       startMusicPlayback()
     } else {
       userPausedRef.current = true
+      playInFlightRef.current = false
       audio.pause()
       setIsPlayingMusic(false)
     }
   }
 
-  // Precargar audio en iOS/Android y asegurar reproducción al primer toque si la red móvil tardó en cargar
-  useEffect(() => {
-    const audio = audioRef.current
-    if (audio) {
-      audio.load()
-    }
-  }, [])
-
   useEffect(() => {
     if (!isEnvelopeOpen || isPlayingMusic) return
     const unlockOnTouch = () => {
-      if (!userPausedRef.current && audioRef.current && audioRef.current.paused) {
+      if (!userPausedRef.current && audioRef.current && audioRef.current.paused && !playInFlightRef.current) {
         startMusicPlayback()
       }
     }
-    window.addEventListener('touchstart', unlockOnTouch, { passive: true })
-    window.addEventListener('click', unlockOnTouch, { passive: true })
+    // Pequeño retraso para no interferir con el clic original que abrió el sobre
+    const timer = setTimeout(() => {
+      window.addEventListener('touchstart', unlockOnTouch, { passive: true })
+      window.addEventListener('click', unlockOnTouch, { passive: true })
+    }, 600)
     return () => {
+      clearTimeout(timer)
       window.removeEventListener('touchstart', unlockOnTouch)
       window.removeEventListener('click', unlockOnTouch)
     }
@@ -327,10 +356,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const openEnvelope = () => {
-    // 1. Disparar el audio de forma síncrona ANTES de cualquier cambio de estado de React (crítico para iOS Safari)
+    if (envelopeOpenedRef.current) return
+    envelopeOpenedRef.current = true
+
+    // 1. Disparar el audio de forma síncrona una única vez (evita AbortError en iOS Safari)
     startMusicPlayback()
 
-    if (isEnvelopeOpen) return
     setIsEnvelopeOpen(true)
     
     // Polvo de hadas / Partículas doradas al abrir
@@ -366,33 +397,34 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
       <audio
         ref={audioRef}
-        src="/musica.mp3"
+        src="/musica.mp3?v=2"
         loop
         preload="auto"
         playsInline
         onPlay={() => setIsPlayingMusic(true)}
         onPause={() => setIsPlayingMusic(false)}
-      >
-        <source src="/musica.mp3" type="audio/mpeg" />
-      </audio>
+      />
 
       {/* Botón flotante de música una vez abierto el sobre */}
       {isEnvelopeOpen && (
         <button
           onClick={toggleMusic}
           title={isPlayingMusic ? 'Pausar música' : 'Reproducir música'}
-          className="fixed top-4 right-4 z-40 w-10 h-10 rounded-full bg-[#fcf9f2]/85 backdrop-blur-md border border-[#744570]/30 shadow-[0_4px_15px_rgba(77,38,73,0.25)] flex items-center justify-center text-[#4d2649] hover:scale-105 active:scale-95 transition-all"
+          className="fixed top-4 right-4 z-40 h-10 px-3.5 rounded-full bg-[#fcf9f2]/90 backdrop-blur-md border border-[#744570]/35 shadow-[0_4px_15px_rgba(77,38,73,0.25)] flex items-center justify-center gap-2 text-[#4d2649] hover:scale-105 active:scale-95 transition-all"
         >
           {isPlayingMusic ? (
-            <span className="flex items-end gap-[2px] h-3.5">
+            <span className="flex items-end gap-[2px] h-3.5 px-0.5">
               <span className="w-[2.5px] bg-[#744570] rounded-full animate-[bounce_0.8s_infinite] h-3.5"></span>
               <span className="w-[2.5px] bg-[#A5A05A] rounded-full animate-[bounce_1.1s_infinite] h-2.5"></span>
               <span className="w-[2.5px] bg-[#744570] rounded-full animate-[bounce_0.9s_infinite] h-3"></span>
             </span>
           ) : (
-            <svg className="w-4 h-4 fill-current translate-x-[1px]" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            <>
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              <span className="text-[11px] font-inter font-medium tracking-wide">Música</span>
+            </>
           )}
         </button>
       )}
@@ -418,7 +450,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
               <div 
                 className="relative w-[340px] h-[210px] bg-[#e6d8c4] rounded-lg cursor-pointer hover:scale-105 transition-all duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)] z-10" 
                 onClick={openEnvelope}
-                onTouchEnd={openEnvelope}
                 style={{
                   transform: isEnvelopeOpen 
                     ? 'translateY(150px) scale(0.85) rotateX(20deg)' 
