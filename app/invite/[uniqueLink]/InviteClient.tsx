@@ -142,31 +142,24 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const startMusicPlayback = () => {
     const audio = audioRef.current
     if (!audio || userPausedRef.current) return
-    if (!audio.paused || playInFlightRef.current) return
-
-    try {
-      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
-        ;(navigator as any).audioSession.type = 'playback'
-      }
-    } catch {}
+    if (!audio.paused) return
 
     audio.muted = false
-    playInFlightRef.current = true
 
-    const playPromise = audio.play()
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          playInFlightRef.current = false
-          setIsPlayingMusic(true)
-        })
-        .catch(() => {
-          playInFlightRef.current = false
-          setIsPlayingMusic(false)
-        })
-    } else {
-      playInFlightRef.current = false
-      setIsPlayingMusic(true)
+    try {
+      const playPromise = audio.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlayingMusic(true)
+          })
+          .catch((err) => {
+            console.log('Audio autoplay prevented:', err)
+            setIsPlayingMusic(false)
+          })
+      }
+    } catch (e) {
+      console.log('Error triggering audio play:', e)
     }
   }
 
@@ -175,12 +168,10 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     if (!audio) return
     if (audio.paused) {
       userPausedRef.current = false
-      playInFlightRef.current = false
       audio.muted = false
       audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
     } else {
       userPausedRef.current = true
-      playInFlightRef.current = false
       audio.pause()
       setIsPlayingMusic(false)
     }
@@ -352,13 +343,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
       <audio
         ref={audioRef}
-        src="/musica.mp3?v=5"
+        src="/musica.mp3"
         loop
         preload="auto"
         playsInline
         onPlay={() => setIsPlayingMusic(true)}
         onPause={() => setIsPlayingMusic(false)}
-      />
+      >
+        <source src="/musica.mp3" type="audio/mpeg" />
+      </audio>
 
       {/* Botón flotante de música una vez abierto el sobre */}
       {isEnvelopeOpen && (
@@ -393,7 +386,8 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
           {/* ================= PANTALLA DE SOBRE (OVERLAY) ================= */}
           {mountEnvelope && (
             <div 
-              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
+              onClick={openEnvelope}
+              className={`fixed top-0 left-0 w-full h-[100dvh] z-50 flex items-center justify-center bg-[url('/fotos/1.png')] bg-cover bg-center transition-opacity duration-1000 cursor-pointer ${showInvitation ? 'opacity-0' : 'opacity-100'}`}
               style={{ perspective: '1200px' }}
             >
               {/* Filtro luminoso y cálido para el fondo, con menos opacidad para que deje ver la imagen de las flores */}
