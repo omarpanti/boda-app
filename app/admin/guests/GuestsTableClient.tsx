@@ -629,7 +629,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                       const isGracePeriod = guest.rsvpStatus === 'SENT' && sentInfo?.phase === 'GRACE'
                       const waMessage = isGracePeriod
                         ? `¡Hola ${guest.name}! Te recordamos con mucho cariño confirmar tu asistencia a la boda de Maritere y Omar. Cuentas con ${sentInfo.daysLeft} ${sentInfo.daysLeft === 1 ? 'día adicional' : 'días adicionales'} para registrar tu respuesta en el siguiente enlace; de no recibir confirmación en este plazo, daremos por hecho que no podrás acompañarnos: ${window.location.origin}/invite/${guest.uniqueLink}`
-                        : `¡Hola ${guest.name}! Te comparto tu invitación para la boda de Maritere y Omar: ${window.location.origin}/invite/${guest.uniqueLink}`
+                        : `¡Hola ${guest.name}! ¡El gran día esta cerca! 💍✨Maritere & Omar nos casamos 💒🤍 y queremos que estés ahí para celebrar con nosotros ese gran día🥂✨Te compartimos nuestra invitación digital con todos los detalles de la ceremonia y la fiesta a través del siguiente link: ${window.location.origin}/invite/${guest.uniqueLink}`
 
                       return (
                         <a 
