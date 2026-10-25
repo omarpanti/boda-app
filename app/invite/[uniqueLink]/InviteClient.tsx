@@ -133,118 +133,27 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [rsvpMode, setRsvpMode] = useState<'ATTEND' | 'DECLINE'>('ATTEND')
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
-  const audioRef = useRef<HTMLVideoElement | null>(null)
-  const audioCtxRef = useRef<AudioContext | null>(null)
-  const decodedBufferRef = useRef<AudioBuffer | null>(null)
-  const bufferSourceRef = useRef<AudioBufferSourceNode | null>(null)
-  const usingWebAudioRef = useRef(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const userPausedRef = useRef(false)
   const playInFlightRef = useRef(false)
   const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
 
-  // Precargar y decodificar la pista de audio en memoria para Web Audio API (funciona con MP3 y MP4 en iOS Safari y Android Chrome)
-  useEffect(() => {
-    let cancelled = false
-    fetch('/musica.mp3?v=4')
-      .then(res => res.arrayBuffer())
-      .then(arrayBuffer => {
-        if (cancelled) return
-        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
-        if (!AudioCtx) return
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioCtx()
-        }
-        audioCtxRef.current.decodeAudioData(
-          arrayBuffer.slice(0),
-          decoded => {
-            if (cancelled) return
-            decodedBufferRef.current = decoded
-            // Si el invitado ya abrió el sobre y el elemento media falló, arrancar con Web Audio API
-            if (envelopeOpenedRef.current && !userPausedRef.current && audioRef.current?.paused && !usingWebAudioRef.current) {
-              playWithWebAudio()
-            }
-          },
-          () => {}
-        )
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const startMusicPlayback = () => {
+    const audio = audioRef.current
+    if (!audio || userPausedRef.current) return
+    if (!audio.paused || playInFlightRef.current) return
 
-  const playWithWebAudio = () => {
-    try {
-      const ctx = audioCtxRef.current
-      const buffer = decodedBufferRef.current
-      if (!ctx || !buffer) return false
-      if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {})
-      }
-      if (bufferSourceRef.current) {
-        try { bufferSourceRef.current.stop() } catch {}
-      }
-      const source = ctx.createBufferSource()
-      source.buffer = buffer
-      source.loop = true
-      source.connect(ctx.destination)
-      source.start(0)
-      bufferSourceRef.current = source
-      usingWebAudioRef.current = true
-      setIsPlayingMusic(true)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  // Desbloquea el motor de audio de iOS Safari (WebKit) y Android Chrome dentro del gesto del usuario
-  const unlockWebKitAudio = () => {
     try {
       if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
         ;(navigator as any).audioSession.type = 'playback'
       }
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
-      if (AudioCtx) {
-        if (!audioCtxRef.current) {
-          audioCtxRef.current = new AudioCtx()
-        }
-        const ctx = audioCtxRef.current
-        if (ctx.state === 'suspended') {
-          ctx.resume().catch(() => {})
-        }
-        // Buffer silencioso de 1 sample para activar el canal de hardware en iOS Safari
-        const buffer = ctx.createBuffer(1, 1, 22050)
-        const source = ctx.createBufferSource()
-        source.buffer = buffer
-        source.connect(ctx.destination)
-        source.start(0)
-      }
     } catch {}
-  }
 
-  const startMusicPlayback = () => {
-    if (userPausedRef.current) return
-    unlockWebKitAudio()
-
-    // Si ya estamos usando WebAudio y estaba suspendido, reanudar
-    if (usingWebAudioRef.current && audioCtxRef.current) {
-      audioCtxRef.current.resume().then(() => setIsPlayingMusic(true)).catch(() => {})
-      return
-    }
-
-    const media = audioRef.current
-    if (!media) {
-      playWithWebAudio()
-      return
-    }
-    if (!media.paused || playInFlightRef.current) return
-
-    media.muted = false
+    audio.muted = false
     playInFlightRef.current = true
 
-    const playPromise = media.play()
+    const playPromise = audio.play()
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
@@ -253,18 +162,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         })
         .catch(() => {
           playInFlightRef.current = false
-          // Si falla el reproductor nativo (por códec MP4/MP3 en móvil), usar Web Audio API decodificado
-          if (!playWithWebAudio()) {
-            const onCanPlay = () => {
-              media.removeEventListener('canplaythrough', onCanPlay)
-              if (!userPausedRef.current && media.paused && !usingWebAudioRef.current) {
-                media.play().then(() => setIsPlayingMusic(true)).catch(() => {
-                  playWithWebAudio()
-                })
-              }
-            }
-            media.addEventListener('canplaythrough', onCanPlay, { once: true })
-          }
+          setIsPlayingMusic(false)
         })
     } else {
       playInFlightRef.current = false
@@ -273,48 +171,20 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const toggleMusic = () => {
-    if (usingWebAudioRef.current && audioCtxRef.current) {
-      if (audioCtxRef.current.state === 'running') {
-        userPausedRef.current = true
-        audioCtxRef.current.suspend().then(() => setIsPlayingMusic(false)).catch(() => {})
-      } else {
-        userPausedRef.current = false
-        audioCtxRef.current.resume().then(() => setIsPlayingMusic(true)).catch(() => {})
-      }
-      return
-    }
-
-    const media = audioRef.current
-    if (!media) return
-    if (media.paused) {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.paused) {
       userPausedRef.current = false
-      startMusicPlayback()
+      playInFlightRef.current = false
+      audio.muted = false
+      audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
     } else {
       userPausedRef.current = true
       playInFlightRef.current = false
-      media.pause()
+      audio.pause()
       setIsPlayingMusic(false)
     }
   }
-
-  useEffect(() => {
-    if (!isEnvelopeOpen || isPlayingMusic) return
-    const unlockOnTouch = () => {
-      if (!userPausedRef.current && audioRef.current && audioRef.current.paused && !playInFlightRef.current) {
-        startMusicPlayback()
-      }
-    }
-    // Pequeño retraso para no interferir con el clic original que abrió el sobre
-    const timer = setTimeout(() => {
-      window.addEventListener('touchstart', unlockOnTouch, { passive: true })
-      window.addEventListener('click', unlockOnTouch, { passive: true })
-    }, 600)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('touchstart', unlockOnTouch)
-      window.removeEventListener('click', unlockOnTouch)
-    }
-  }, [isEnvelopeOpen, isPlayingMusic])
   
   // Estado para el efecto 3D dinámico
   const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
@@ -480,18 +350,14 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <video
+      <audio
         ref={audioRef}
-        src="/musica.mp3?v=4"
+        src="/musica.mp3?v=5"
         loop
         preload="auto"
         playsInline
-        webkit-playsinline="true"
-        className="fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none -z-50"
         onPlay={() => setIsPlayingMusic(true)}
-        onPause={() => {
-          if (!usingWebAudioRef.current) setIsPlayingMusic(false)
-        }}
+        onPause={() => setIsPlayingMusic(false)}
       />
 
       {/* Botón flotante de música una vez abierto el sobre */}
