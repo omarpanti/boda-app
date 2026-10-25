@@ -133,14 +133,73 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [rsvpMode, setRsvpMode] = useState<'ATTEND' | 'DECLINE'>('ATTEND')
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<HTMLVideoElement | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
+  const decodedBufferRef = useRef<AudioBuffer | null>(null)
+  const bufferSourceRef = useRef<AudioBufferSourceNode | null>(null)
+  const usingWebAudioRef = useRef(false)
   const userPausedRef = useRef(false)
   const playInFlightRef = useRef(false)
   const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
 
-  // Desbloquea el motor de audio de iOS Safari (WebKit) dentro del gesto del usuario
+  // Precargar y decodificar la pista de audio en memoria para Web Audio API (funciona con MP3 y MP4 en iOS Safari y Android Chrome)
+  useEffect(() => {
+    let cancelled = false
+    fetch('/musica.mp3?v=4')
+      .then(res => res.arrayBuffer())
+      .then(arrayBuffer => {
+        if (cancelled) return
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+        if (!AudioCtx) return
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioCtx()
+        }
+        audioCtxRef.current.decodeAudioData(
+          arrayBuffer.slice(0),
+          decoded => {
+            if (cancelled) return
+            decodedBufferRef.current = decoded
+            // Si el invitado ya abrió el sobre y el elemento media falló, arrancar con Web Audio API
+            if (envelopeOpenedRef.current && !userPausedRef.current && audioRef.current?.paused && !usingWebAudioRef.current) {
+              playWithWebAudio()
+            }
+          },
+          () => {}
+        )
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const playWithWebAudio = () => {
+    try {
+      const ctx = audioCtxRef.current
+      const buffer = decodedBufferRef.current
+      if (!ctx || !buffer) return false
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {})
+      }
+      if (bufferSourceRef.current) {
+        try { bufferSourceRef.current.stop() } catch {}
+      }
+      const source = ctx.createBufferSource()
+      source.buffer = buffer
+      source.loop = true
+      source.connect(ctx.destination)
+      source.start(0)
+      bufferSourceRef.current = source
+      usingWebAudioRef.current = true
+      setIsPlayingMusic(true)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // Desbloquea el motor de audio de iOS Safari (WebKit) y Android Chrome dentro del gesto del usuario
   const unlockWebKitAudio = () => {
     try {
       if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
@@ -166,15 +225,26 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const startMusicPlayback = () => {
-    const audio = audioRef.current
-    if (!audio || userPausedRef.current) return
-    if (!audio.paused || playInFlightRef.current) return
-
+    if (userPausedRef.current) return
     unlockWebKitAudio()
-    audio.muted = false
+
+    // Si ya estamos usando WebAudio y estaba suspendido, reanudar
+    if (usingWebAudioRef.current && audioCtxRef.current) {
+      audioCtxRef.current.resume().then(() => setIsPlayingMusic(true)).catch(() => {})
+      return
+    }
+
+    const media = audioRef.current
+    if (!media) {
+      playWithWebAudio()
+      return
+    }
+    if (!media.paused || playInFlightRef.current) return
+
+    media.muted = false
     playInFlightRef.current = true
 
-    const playPromise = audio.play()
+    const playPromise = media.play()
     if (playPromise !== undefined) {
       playPromise
         .then(() => {
@@ -183,14 +253,18 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
         })
         .catch(() => {
           playInFlightRef.current = false
-          // Si el archivo aún se está descargando en Safari móvil, reproducir apenas tenga buffer suficiente
-          const onCanPlay = () => {
-            audio.removeEventListener('canplaythrough', onCanPlay)
-            if (!userPausedRef.current && audio.paused) {
-              audio.play().then(() => setIsPlayingMusic(true)).catch(() => {})
+          // Si falla el reproductor nativo (por códec MP4/MP3 en móvil), usar Web Audio API decodificado
+          if (!playWithWebAudio()) {
+            const onCanPlay = () => {
+              media.removeEventListener('canplaythrough', onCanPlay)
+              if (!userPausedRef.current && media.paused && !usingWebAudioRef.current) {
+                media.play().then(() => setIsPlayingMusic(true)).catch(() => {
+                  playWithWebAudio()
+                })
+              }
             }
+            media.addEventListener('canplaythrough', onCanPlay, { once: true })
           }
-          audio.addEventListener('canplaythrough', onCanPlay, { once: true })
         })
     } else {
       playInFlightRef.current = false
@@ -199,15 +273,26 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const toggleMusic = () => {
-    const audio = audioRef.current
-    if (!audio) return
-    if (audio.paused) {
+    if (usingWebAudioRef.current && audioCtxRef.current) {
+      if (audioCtxRef.current.state === 'running') {
+        userPausedRef.current = true
+        audioCtxRef.current.suspend().then(() => setIsPlayingMusic(false)).catch(() => {})
+      } else {
+        userPausedRef.current = false
+        audioCtxRef.current.resume().then(() => setIsPlayingMusic(true)).catch(() => {})
+      }
+      return
+    }
+
+    const media = audioRef.current
+    if (!media) return
+    if (media.paused) {
       userPausedRef.current = false
       startMusicPlayback()
     } else {
       userPausedRef.current = true
       playInFlightRef.current = false
-      audio.pause()
+      media.pause()
       setIsPlayingMusic(false)
     }
   }
@@ -395,14 +480,18 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <audio
+      <video
         ref={audioRef}
-        src="/musica.mp3?v=2"
+        src="/musica.mp3?v=4"
         loop
         preload="auto"
         playsInline
+        webkit-playsinline="true"
+        className="fixed top-0 left-0 w-px h-px opacity-0 pointer-events-none -z-50"
         onPlay={() => setIsPlayingMusic(true)}
-        onPause={() => setIsPlayingMusic(false)}
+        onPause={() => {
+          if (!usingWebAudioRef.current) setIsPlayingMusic(false)
+        }}
       />
 
       {/* Botón flotante de música una vez abierto el sobre */}
