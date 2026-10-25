@@ -134,40 +134,133 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const rawBufferRef = useRef<ArrayBuffer | null>(null)
+  const decodedBufferRef = useRef<AudioBuffer | null>(null)
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null)
+  const usingWebAudioRef = useRef(false)
   const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
+
+  // Descargar los bytes del audio en segundo plano (sin crear AudioContext aún para que iOS Safari no lo bloquee)
+  useEffect(() => {
+    fetch('/musica.m4a')
+      .then(r => (r.ok ? r.arrayBuffer() : fetch('/musica.mp3').then(r2 => r2.arrayBuffer())))
+      .then(buf => {
+        rawBufferRef.current = buf
+      })
+      .catch(() => {})
+  }, [])
+
+  const playViaWebAudio = (ctx: AudioContext) => {
+    const startSource = (buffer: AudioBuffer) => {
+      try {
+        if (sourceNodeRef.current) {
+          try { sourceNodeRef.current.stop() } catch {}
+        }
+        const source = ctx.createBufferSource()
+        source.buffer = buffer
+        source.loop = true
+        source.connect(ctx.destination)
+        source.start(0)
+        sourceNodeRef.current = source
+        usingWebAudioRef.current = true
+        setIsPlayingMusic(true)
+      } catch {
+        setIsPlayingMusic(false)
+      }
+    }
+
+    if (decodedBufferRef.current) {
+      startSource(decodedBufferRef.current)
+      return
+    }
+
+    const decodeAndPlay = (buf: ArrayBuffer) => {
+      ctx.decodeAudioData(
+        buf.slice(0),
+        decoded => {
+          decodedBufferRef.current = decoded
+          startSource(decoded)
+        },
+        () => setIsPlayingMusic(false)
+      )
+    }
+
+    if (rawBufferRef.current) {
+      decodeAndPlay(rawBufferRef.current)
+    } else {
+      fetch('/musica.m4a')
+        .then(r => (r.ok ? r.arrayBuffer() : fetch('/musica.mp3').then(r2 => r2.arrayBuffer())))
+        .then(buf => {
+          rawBufferRef.current = buf
+          decodeAndPlay(buf)
+        })
+        .catch(() => setIsPlayingMusic(false))
+    }
+  }
+
+  const triggerPlayMusic = () => {
+    try {
+      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
+        ;(navigator as any).audioSession.type = 'playback'
+      }
+    } catch {}
+
+    // Crear/desbloquear AudioContext DENTRO del clic del botón nativo (respaldo infalible para iOS Safari)
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+      if (AudioCtx && !audioCtxRef.current) {
+        audioCtxRef.current = new AudioCtx()
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+        audioCtxRef.current.resume().catch(() => {})
+      }
+    } catch {}
+
+    if (usingWebAudioRef.current && audioCtxRef.current) {
+      audioCtxRef.current.resume().then(() => setIsPlayingMusic(true)).catch(() => {})
+      return
+    }
+
+    try {
+      const audio = audioRef.current || new Audio('/musica.m4a')
+      audio.loop = true
+      audio.preload = 'auto'
+      audio.muted = false
+      audioRef.current = audio
+
+      const playPromise = audio.play()
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlayingMusic(true))
+          .catch(() => {
+            // Intento 2: probar con .mp3
+            audio.src = '/musica.mp3'
+            audio
+              .play()
+              .then(() => setIsPlayingMusic(true))
+              .catch(() => {
+                // Intento 3: si Safari arroja "The operation is not supported", reproducir con Web Audio API
+                if (audioCtxRef.current) {
+                  playViaWebAudio(audioCtxRef.current)
+                }
+              })
+          })
+      }
+    } catch {
+      if (audioCtxRef.current) {
+        playViaWebAudio(audioCtxRef.current)
+      }
+    }
+  }
 
   const handleOpen = (withMusic: boolean) => {
     if (envelopeOpenedRef.current) return
     envelopeOpenedRef.current = true
 
     if (withMusic) {
-      try {
-        if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
-          ;(navigator as any).audioSession.type = 'playback'
-        }
-      } catch {}
-
-      try {
-        const audio = audioRef.current || new Audio('/musica.m4a')
-        audio.loop = true
-        audio.preload = 'auto'
-        audio.muted = false
-        audioRef.current = audio
-
-        const playPromise = audio.play()
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => setIsPlayingMusic(true))
-            .catch(() => {
-              // Fallback a mp3 si el dispositivo no soporta m4a
-              audio.src = '/musica.mp3'
-              audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
-            })
-        }
-      } catch (err) {
-        console.error('Audio start error:', err)
-      }
+      triggerPlayMusic()
     }
 
     openEnvelope()
@@ -175,26 +268,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   const toggleMusic = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const audio = audioRef.current
-    if (!audio) {
-      handleOpen(true)
-      return
-    }
-
     if (isPlayingMusic) {
-      audio.pause()
-      setIsPlayingMusic(false)
-    } else {
-      audio.muted = false
-      const playPromise = audio.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => setIsPlayingMusic(true))
-          .catch(() => {
-            audio.src = '/musica.mp3'
-            audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
-          })
+      if (usingWebAudioRef.current && audioCtxRef.current) {
+        audioCtxRef.current.suspend().then(() => setIsPlayingMusic(false)).catch(() => {})
+      } else if (audioRef.current) {
+        audioRef.current.pause()
+        setIsPlayingMusic(false)
       }
+    } else {
+      triggerPlayMusic()
     }
   }
   
@@ -323,12 +405,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   }
 
   const openEnvelope = () => {
-    if (envelopeOpenedRef.current) return
-    envelopeOpenedRef.current = true
-
-    // 1. Disparar el audio de forma síncrona una única vez (evita AbortError en iOS Safari)
-    startMusicPlayback()
-
     setIsEnvelopeOpen(true)
     
     // Polvo de hadas / Partículas doradas al abrir
