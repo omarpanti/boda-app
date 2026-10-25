@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { submitGroupRsvp } from './actions'
 
 const FONTS = `
@@ -133,6 +133,19 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const [rsvpMode, setRsvpMode] = useState<'ATTEND' | 'DECLINE'>('ATTEND')
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false)
+
+  const toggleMusic = () => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.paused) {
+      audio.play().then(() => setIsPlayingMusic(true)).catch(() => {})
+    } else {
+      audio.pause()
+      setIsPlayingMusic(false)
+    }
+  }
   
   // Estado para el efecto 3D dinámico
   const [tilt, setTilt] = useState({ x: 0, y: 0 })  // Soporte para giroscopio (móviles) y ratón (PC) global para efectos 3D
@@ -261,6 +274,12 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   const openEnvelope = () => {
     if (isEnvelopeOpen) return
     setIsEnvelopeOpen(true)
+
+    // Reproducir música automáticamente al abrir el sobre
+    if (audioRef.current) {
+      audioRef.current.volume = 0.7
+      audioRef.current.play().then(() => setIsPlayingMusic(true)).catch(() => {})
+    }
     
     // Polvo de hadas / Partículas doradas al abrir
     const win = window as any
@@ -293,6 +312,28 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
+      <audio ref={audioRef} src="/musica.mp3" loop preload="auto" />
+
+      {/* Botón flotante de música una vez abierto el sobre */}
+      {isEnvelopeOpen && (
+        <button
+          onClick={toggleMusic}
+          title={isPlayingMusic ? 'Pausar música' : 'Reproducir música'}
+          className="fixed top-4 right-4 z-40 w-10 h-10 rounded-full bg-[#fcf9f2]/85 backdrop-blur-md border border-[#744570]/30 shadow-[0_4px_15px_rgba(77,38,73,0.25)] flex items-center justify-center text-[#4d2649] hover:scale-105 active:scale-95 transition-all"
+        >
+          {isPlayingMusic ? (
+            <span className="flex items-end gap-[2px] h-3.5">
+              <span className="w-[2.5px] bg-[#744570] rounded-full animate-[bounce_0.8s_infinite] h-3.5"></span>
+              <span className="w-[2.5px] bg-[#A5A05A] rounded-full animate-[bounce_1.1s_infinite] h-2.5"></span>
+              <span className="w-[2.5px] bg-[#744570] rounded-full animate-[bounce_0.9s_infinite] h-3"></span>
+            </span>
+          ) : (
+            <svg className="w-4 h-4 fill-current translate-x-[1px]" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </button>
+      )}
       
       {/* Contenedor responsivo ajustado para iOS (100dvh) y cualquier pantalla */}
       <div className="min-h-[100dvh] bg-[#2c2c2c] flex justify-center items-start">
