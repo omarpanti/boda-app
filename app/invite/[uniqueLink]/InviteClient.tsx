@@ -134,32 +134,56 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
 
   const [mountEnvelope, setMountEnvelope] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const userPausedRef = useRef(false)
-  const playInFlightRef = useRef(false)
   const envelopeOpenedRef = useRef(false)
   const [isPlayingMusic, setIsPlayingMusic] = useState(false)
 
+  // Inicializar el objeto de audio nativo de JavaScript (estándar para iOS Safari y Android)
+  useEffect(() => {
+    const audio = new Audio('/musica.mp3')
+    audio.loop = true
+    audio.preload = 'auto'
+    audioRef.current = audio
+
+    const onPlay = () => setIsPlayingMusic(true)
+    const onPause = () => setIsPlayingMusic(false)
+    const onError = () => {
+      console.error('Audio load error:', audio.error)
+    }
+
+    audio.addEventListener('play', onPlay)
+    audio.addEventListener('pause', onPause)
+    audio.addEventListener('error', onError)
+
+    return () => {
+      audio.removeEventListener('play', onPlay)
+      audio.removeEventListener('pause', onPause)
+      audio.removeEventListener('error', onError)
+      audio.pause()
+      audioRef.current = null
+    }
+  }, [])
+
   const startMusicPlayback = () => {
     const audio = audioRef.current
-    if (!audio || userPausedRef.current) return
-    if (!audio.paused) return
-
-    audio.muted = false
+    if (!audio) return
 
     try {
-      const playPromise = audio.play()
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlayingMusic(true)
-          })
-          .catch((err) => {
-            console.log('Audio autoplay prevented:', err)
-            setIsPlayingMusic(false)
-          })
+      if (typeof navigator !== 'undefined' && (navigator as any).audioSession) {
+        ;(navigator as any).audioSession.type = 'playback'
       }
-    } catch (e) {
-      console.log('Error triggering audio play:', e)
+    } catch {}
+
+    audio.muted = false
+    const playPromise = audio.play()
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlayingMusic(true)
+        })
+        .catch((err) => {
+          console.log('Audio autoplay prevented on open:', err)
+          setIsPlayingMusic(false)
+        })
     }
   }
 
@@ -167,11 +191,15 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
     const audio = audioRef.current
     if (!audio) return
     if (audio.paused) {
-      userPausedRef.current = false
       audio.muted = false
-      audio.play().then(() => setIsPlayingMusic(true)).catch(() => setIsPlayingMusic(false))
+      audio
+        .play()
+        .then(() => setIsPlayingMusic(true))
+        .catch((err) => {
+          alert('Aviso de audio en Safari: ' + (err.message || err.name))
+          setIsPlayingMusic(false)
+        })
     } else {
-      userPausedRef.current = true
       audio.pause()
       setIsPlayingMusic(false)
     }
@@ -341,17 +369,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: FONTS }} />
-      <audio
-        ref={audioRef}
-        src="/musica.mp3"
-        loop
-        preload="auto"
-        playsInline
-        onPlay={() => setIsPlayingMusic(true)}
-        onPause={() => setIsPlayingMusic(false)}
-      >
-        <source src="/musica.mp3" type="audio/mpeg" />
-      </audio>
 
       {/* Botón flotante de música una vez abierto el sobre */}
       {isEnvelopeOpen && (
