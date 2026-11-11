@@ -168,57 +168,36 @@ export async function markInvitationSent(guestId: number) {
 
 export async function checkAndExpireInvitations() {
   try {
-    const sentGuests = await prisma.guest.findMany({
+    // Restaurar automáticamente a estatus 'SENT' cualquier invitación que se haya vencido por el plazo anterior
+    const autoExpiredGuests = await prisma.guest.findMany({
       where: {
         primaryGuestId: null,
-        rsvpStatus: 'SENT'
-      },
-      include: { companions: true }
+        rsvpStatus: 'DECLINED',
+        message: 'Plazo de confirmación vencido (15 + 5 días)'
+      }
     })
 
-    const now = Date.now()
-    for (const g of sentGuests) {
-      const refDate = (g as any).sentAt ? new Date((g as any).sentAt) : new Date(g.updatedAt)
-      const daysElapsed = Math.floor((now - refDate.getTime()) / (1000 * 60 * 60 * 24))
-
-      // 15 días naturales + 5 días naturales de prórroga = 20 días naturales en total
-      if (daysElapsed >= 20) {
-        await prisma.guest.update({
-          where: { id: g.id },
-          data: {
-            rsvpStatus: 'DECLINED',
-            tableId: null,
-            message: g.message || 'Plazo de confirmación vencido (15 + 5 días)'
-          }
-        })
-
-        // También marcar acompañantes pendientes/enviados como DECLINED
-        await prisma.guest.updateMany({
-          where: {
-            primaryGuestId: g.id,
-            rsvpStatus: { in: ['PENDING', 'SENT'] }
-          },
-          data: {
-            rsvpStatus: 'DECLINED',
-            tableId: null
-          }
-        })
-
-        // Notificar por Telegram
-        try {
-          const { sendTelegramNotification } = await import('@/lib/telegram')
-          await sendTelegramNotification(
-            `⏰ <b>Plazo de confirmación vencido (20 días)</b>\n\n` +
-            `👤 <b>Invitado:</b> ${g.name}\n` +
-            `Se ha marcado automáticamente como <b>No Asistirá</b> tras cumplirse los 15 días naturales y los 5 días adicionales de prórroga sin respuesta.`
-          )
-        } catch (err) {
-          console.error('Error enviando notificación de vencimiento a Telegram:', err)
+    for (const g of autoExpiredGuests) {
+      await prisma.guest.update({
+        where: { id: g.id },
+        data: {
+          rsvpStatus: 'SENT',
+          message: null
         }
-      }
+      })
+
+      await prisma.guest.updateMany({
+        where: {
+          primaryGuestId: g.id,
+          rsvpStatus: 'DECLINED'
+        },
+        data: {
+          rsvpStatus: 'SENT'
+        }
+      })
     }
   } catch (err) {
-    console.error('Error verificando vencimientos de invitaciones:', err)
+    console.error('Error restaurando invitaciones:', err)
   }
 }
 

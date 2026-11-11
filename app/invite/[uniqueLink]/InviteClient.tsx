@@ -701,26 +701,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                               : `Tienes ${1 + (guest.companions?.length || 0)} pases asignados. Por favor selecciona quiénes asistirán:`}
                         </p>
 
-                        {guest.rsvpStatus === 'SENT' && (() => {
-                          const refDateStr = (guest as any).sentAt || guest.updatedAt
-                          const refDate = refDateStr ? new Date(refDateStr) : new Date()
-                          const daysElapsed = Math.max(0, Math.floor((Date.now() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
-                          if (daysElapsed >= 15) {
-                            const graceLeft = Math.max(1, 20 - daysElapsed)
-                            return (
-                              <div className="mb-3 p-3 rounded-xl bg-amber-50 border border-amber-300/70 text-amber-800 text-xs font-inter leading-relaxed">
-                                ⏳ Cuentas con <b>{graceLeft} {graceLeft === 1 ? 'día adicional' : 'días adicionales'}</b> para confirmar tu respuesta; de no hacerlo, daremos por hecho que no podrás acompañarnos.
-                              </div>
-                            )
-                          }
-                          const initialLeft = 15 - daysElapsed
-                          return (
-                            <div className="mb-3 p-2.5 rounded-xl bg-[#A5A05A]/10 border border-[#A5A05A]/25 text-[#6e6a37] text-xs font-inter">
-                              📅 Tienes <b>{initialLeft} {initialLeft === 1 ? 'día natural' : 'días naturales'}</b> para confirmar tu respuesta.
-                            </div>
-                          )
-                        })()}
-
                         {rsvpMode === 'ATTEND' && hasCompanions && (
                           <div className="mb-5 p-2.5 rounded-xl bg-[#744570]/10 border border-[#744570]/25 text-[#4d2649] text-xs font-inter leading-relaxed">
                             ☑️ Marca la casilla de <b>al menos 1 persona</b> que asistirá. Si ninguno podrá acompañarnos, por favor utiliza el botón <b>&quot;No podré asistir&quot;</b>.
@@ -787,7 +767,6 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                       <div className="py-8 px-2 text-center mt-4">
                         {(() => {
                            const allDeclined = selections.every(s => s.status === 'DECLINED')
-                           const isExpiredAuto = guest.message?.includes('Plazo de confirmación vencido')
                            if (allDeclined) {
                              return (
                                <>
@@ -799,9 +778,7 @@ export default function InviteClient({ guest }: { guest: GuestWithTable }) {
                                   Lamentamos que no nos acompañes
                                 </h3>
                                 <p className="text-gray-500 font-inter text-base">
-                                  {isExpiredAuto
-                                    ? 'El plazo para confirmar asistencia ha finalizado, por lo que dimos por hecho que no podrás acompañarnos.'
-                                    : 'Agradecemos mucho tu sinceridad al hacérnoslo saber.'}
+                                  Agradecemos mucho tu sinceridad al hacérnoslo saber.
                                 </p>
                                </>
                              )

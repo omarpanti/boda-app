@@ -10,27 +10,6 @@ type Companion = { id: number, name: string, gender: string, rsvpStatus: string 
 type Guest = { id: number, name: string, phone: string | null, gender: string, rsvpStatus: string, uniqueLink: string, message?: string | null, sentAt?: Date | string | null, updatedAt?: Date | string, companions?: Companion[] }
 
 export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
-  const getSentDaysInfo = (g: Guest) => {
-    if (g.rsvpStatus !== 'SENT') return null
-    const refDateStr = g.sentAt || g.updatedAt
-    if (!refDateStr) return { daysElapsed: 0, phase: 'INITIAL' as const, daysLeft: 15 }
-    const refDate = new Date(refDateStr)
-    const daysElapsed = Math.max(0, Math.floor((Date.now() - refDate.getTime()) / (1000 * 60 * 60 * 24)))
-    if (daysElapsed < 15) {
-      return {
-        daysElapsed,
-        phase: 'INITIAL' as const,
-        daysLeft: 15 - daysElapsed
-      }
-    } else {
-      return {
-        daysElapsed,
-        phase: 'GRACE' as const,
-        daysLeft: Math.max(1, 20 - daysElapsed)
-      }
-    }
-  }
-
   const [selectedIds, setSelectedIds] = useState<number[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [addingCompanionTo, setAddingCompanionTo] = useState<number | null>(null)
@@ -93,28 +72,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     return 'No Asistirá'
   }
 
-  const getRemainingDaysLabel = (g: Guest, statusOverride?: string) => {
-    const status = statusOverride || g.rsvpStatus
-    if (status === 'CONFIRMED' || status === 'DECLINED') {
-      if (g.message?.includes('Plazo de confirmación vencido')) {
-        return 'Vencido (0 días)'
-      }
-      return 'Respondido'
-    }
-    if (status === 'PHYSICAL') {
-      return 'Entrega física'
-    }
-    if (status === 'PENDING') {
-      return 'Sin enviar'
-    }
-    const info = getSentDaysInfo(g)
-    if (info?.phase === 'GRACE') {
-      return `Prórroga (${info.daysLeft} ${info.daysLeft === 1 ? 'día extra' : 'días extra'})`
-    }
-    const left = info?.daysLeft ?? 15
-    return `${left} ${left === 1 ? 'día restante' : 'días restantes'}`
-  }
-
   const handleExportExcel = () => {
     // Definimos el encabezado del reporte
     const headerData = [
@@ -122,7 +79,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       ["Reporte Oficial de Invitados"],
       [`Fecha de generación: ${new Date().toLocaleDateString()}`],
       [], // Fila en blanco
-      ["Nombre", "Tipo", "Teléfono", "Estatus", "Días Restantes", "Género", "Mensaje"]
+      ["Nombre", "Tipo", "Teléfono", "Estatus", "Género", "Mensaje"]
     ]
 
     const dataRows: any[][] = []
@@ -134,7 +91,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         'Titular',
         g.phone || 'N/A',
         getStatusLabel(g.rsvpStatus),
-        getRemainingDaysLabel(g),
         g.gender === 'M' ? 'Hombre' : 'Mujer',
         g.message || ''
       ])
@@ -144,7 +100,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `Acompañante de ${g.name}`,
           'N/A',
           getStatusLabel(c.rsvpStatus),
-          getRemainingDaysLabel(g, c.rsvpStatus),
           c.gender === 'M' ? 'Hombre' : 'Mujer',
           ''
         ])
@@ -156,9 +111,9 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
 
     // Mergear celdas para el título y subtítulo
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } }, // BODA MARITERE & OMAR
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } }, // Reporte Oficial...
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 6 } }, // Fecha...
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }, // BODA MARITERE & OMAR
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 5 } }, // Reporte Oficial...
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 5 } }, // Fecha...
     ]
 
     // Definir anchos de columna
@@ -167,7 +122,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
       { wch: 35 }, // Tipo
       { wch: 15 }, // Teléfono
       { wch: 15 }, // Estatus
-      { wch: 24 }, // Días Restantes
       { wch: 12 }, // Género
       { wch: 40 }, // Mensaje
     ]
@@ -197,7 +151,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
     doc.setTextColor(100, 100, 100)
     doc.text(`Generado el: ${new Date().toLocaleDateString()}`, 105, 36, { align: "center" })
     
-    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Días Restantes", "Mensaje"]
+    const tableColumn = ["Nombre", "Tipo", "Teléfono", "Estatus", "Mensaje"]
     const tableRows: any[][] = []
     const rowMeta: {
       groupIndex: number
@@ -224,7 +178,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
         'Titular',
         g.phone || 'N/A',
         getStatusLabel(g.rsvpStatus),
-        getRemainingDaysLabel(g),
         msg
       ])
       rowMeta.push({
@@ -240,7 +193,6 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
           `Acompañante de ${g.name}`,
           'N/A',
           getStatusLabel(c.rsvpStatus),
-          getRemainingDaysLabel(g, c.rsvpStatus),
           'N/A'
         ])
         rowMeta.push({
@@ -545,28 +497,10 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                               Pendiente
                             </span>
                           ) : guest.rsvpStatus === 'SENT' ? (
-                            (() => {
-                              const sentInfo = getSentDaysInfo(guest)
-                              if (sentInfo?.phase === 'GRACE') {
-                                return (
-                                  <span className="inline-flex items-center gap-1.5 bg-orange-500/15 text-orange-400 text-xs px-2.5 py-0.5 rounded-full border border-orange-500/30 font-medium">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-ping"></span>
-                                    ⚠️ Prórroga ({sentInfo.daysLeft}d extra)
-                                  </span>
-                                )
-                              }
-                              return (
-                                <>
-                                  <span className="inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-full border border-blue-500/20">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                                    Enviado
-                                  </span>
-                                  <span className="inline-flex items-center gap-1 bg-white/5 text-slate-300 text-[11px] px-2 py-0.5 rounded-full border border-white/10" title="Días naturales restantes de los 15 días iniciales">
-                                    ⏳ {sentInfo?.daysLeft ?? 15}d restantes
-                                  </span>
-                                </>
-                              )
-                            })()
+                            <span className="inline-flex items-center gap-1.5 bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-full border border-blue-500/20">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                              Enviado
+                            </span>
                           ) : guest.rsvpStatus === 'PHYSICAL' ? (
                             <span className="inline-flex items-center gap-1.5 bg-purple-500/15 text-purple-400 text-xs px-2.5 py-0.5 rounded-full border border-purple-500/30">
                               <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
@@ -625,11 +559,7 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                     {guest.phone && (() => {
                       const cleanPhone = guest.phone.replace(/\D/g, '')
                       const waPhone = cleanPhone.length === 10 ? `52${cleanPhone}` : (cleanPhone.length === 11 && cleanPhone.startsWith('1') ? `52${cleanPhone.substring(1)}` : cleanPhone)
-                      const sentInfo = getSentDaysInfo(guest)
-                      const isGracePeriod = guest.rsvpStatus === 'SENT' && sentInfo?.phase === 'GRACE'
-                      const waMessage = isGracePeriod
-                        ? `¡Hola ${guest.name}! \u{1F514}\u{2728} Te recordamos con mucho cariño confirmar tu asistencia a la boda de Maritere y Omar. Cuentas con ${sentInfo.daysLeft} ${sentInfo.daysLeft === 1 ? 'día adicional' : 'días adicionales'} para registrar tu respuesta en el siguiente enlace; de no recibir confirmación en este plazo, daremos por hecho que no podrás acompañarnos: ${window.location.origin}/invite/${guest.uniqueLink}`
-                        : `¡Hola ${guest.name}! ¡El gran día está cerca! \u{1F48D}\u{2728} Maritere & Omar nos casamos \u{1F492}\u{1F90D} y queremos que estés ahí para celebrar con nosotros ese gran día \u{1F942}\u{2728} Te compartimos nuestra invitación digital con todos los detalles de la ceremonia y la fiesta a través del siguiente link: ${window.location.origin}/invite/${guest.uniqueLink}`
+                      const waMessage = `¡Hola ${guest.name}! ¡El gran día está cerca! \u{1F48D}\u{2728} Maritere & Omar nos casamos \u{1F492}\u{1F90D} y queremos que estés ahí para celebrar con nosotros ese gran día \u{1F942}\u{2728} Te compartimos nuestra invitación digital con todos los detalles de la ceremonia y la fiesta a través del siguiente link: ${window.location.origin}/invite/${guest.uniqueLink}`
 
                       return (
                         <a 
@@ -643,14 +573,12 @@ export default function GuestsTableClient({ guests }: { guests: Guest[] }) {
                             }
                           }}
                           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border ${
-                            isGracePeriod
-                              ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/25 border-orange-500/30 animate-pulse'
-                              : guest.rsvpStatus === 'SENT'
-                                ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20'
-                                : 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20'
+                            guest.rsvpStatus === 'SENT'
+                              ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20'
+                              : 'bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20'
                           }`}
                         >
-                          {isGracePeriod ? '🔔 Recordatorio WP' : `📱 ${guest.rsvpStatus === 'SENT' ? 'Reenviar WP' : 'Enviar WP'}`}
+                          {`📱 ${guest.rsvpStatus === 'SENT' ? 'Reenviar WP' : 'Enviar WP'}`}
                         </a>
                       )
                     })()}
